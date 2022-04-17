@@ -5,7 +5,7 @@ const database = mysql.createConnection({
     host: 'localhost',
     user: 'root',           // change user according to what's in your mySQL
     password: 'CMSC128',    //change password according to what your mySQL root password is
-    database: 'users'       //change database name according to what's in your mySQL
+    database: 'project'       //change database name according to what's in your mySQL
 });
 
 //Connecting to database
