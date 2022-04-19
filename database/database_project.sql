@@ -1,13 +1,13 @@
--- MariaDB dump 10.19  Distrib 10.5.9-MariaDB, for Win64 (AMD64)
+-- MySQL dump 10.13  Distrib 5.7.37, for Win64 (x86_64)
 --
--- Host: localhost    Database: project
+-- Host: localhost    Database: database_project
 -- ------------------------------------------------------
--- Server version	10.5.9-MariaDB
+-- Server version	5.7.37-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+/*!40101 SET NAMES utf8 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -24,7 +24,7 @@ DROP TABLE IF EXISTS `curricula`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `curricula` (
   `Program` varchar(5) NOT NULL,
-  `Curriculum` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`Curriculum`)),
+  `Curriculum` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
   PRIMARY KEY (`Program`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -36,30 +36,6 @@ CREATE TABLE `curricula` (
 LOCK TABLES `curricula` WRITE;
 /*!40000 ALTER TABLE `curricula` DISABLE KEYS */;
 /*!40000 ALTER TABLE `curricula` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `electives`
---
-
-DROP TABLE IF EXISTS `electives`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `electives` (
-  `Course_Code` varchar(10) NOT NULL,
-  `Type` varchar(10) DEFAULT NULL,
-  `Units` decimal(3,2) DEFAULT NULL,
-  PRIMARY KEY (`Course_Code`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `electives`
---
-
-LOCK TABLES `electives` WRITE;
-/*!40000 ALTER TABLE `electives` DISABLE KEYS */;
-/*!40000 ALTER TABLE `electives` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -175,4 +151,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-04-18 17:51:19
+-- Dump completed on 2022-04-19 17:00:28
