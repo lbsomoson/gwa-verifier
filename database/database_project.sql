@@ -101,6 +101,7 @@ DROP TABLE IF EXISTS `taken_courses`;
 CREATE TABLE `taken_courses` (
   `ID` int(5) NOT NULL,
   `Course_Code` varchar(10) NOT NULL,
+  `Course_Type` varchar(10) DEFAULT NULL,
   `Grade` decimal(3,2) DEFAULT NULL,
   `Units` decimal(3,2) DEFAULT NULL,
   `Weight` decimal(3,2) DEFAULT NULL,
@@ -151,4 +152,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-04-19 17:00:28
+-- Dump completed on 2022-04-19 17:29:33
