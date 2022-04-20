@@ -2,13 +2,15 @@ const { database } = require('./index.js');
 
 exports.login = (req, res) => {
     //check if username is valid
-    let findUser = 'SELECT * FROM users WHERE Username = \'pbsuarez\'';
+    let findUser = 'SELECT * FROM users WHERE Username = ?';
+    const username = req.body.username;
+    const password = req.body.password;
 
-    let query = database.query(findUser, (err, result) => {
+    let query = database.query(findUser, [username, password] , (err, result) => {
         if(err) throw err;
         //check if password is valid 
         //TODO: change this later
-        if(result[0].Password === 'CMSC128') console.log("Logged In");
+        if(result[0].Password === password) console.log("Logged In");
 
         //TODO: create a token for user
         res.send("Found User!");
