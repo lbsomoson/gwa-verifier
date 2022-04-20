@@ -43,3 +43,39 @@ exports.signUp = (req, res) => {
 exports.checkIfLoggedIn = (req, res) => {
 
 }
+
+exports.findAllStudents = (req, res) => {
+    let findAllStudents = 'SELECT * FROM students';
+
+    let query = database.query(findAllStudents, (err, result) => {
+        if (err) throw err;
+
+        // returns all existing students in the database table
+        res.send(result);
+    });
+}
+
+exports.sortBy = (req, res) => {
+    // assuming req.sort is the basis, and req.order is either ASC or DESC
+    // basis could be First_Name, Last_Name, Course, GWA(?)
+    let sortStudents = 'SELECT * FROM students ORDER BY ${req.sort} ${req.order}'
+
+    let query = database.query(findStudents, (err, result) => {
+        if (err) throw err;
+
+        res.send(result);
+    });
+}
+
+exports.searchStudent = (req, res) => {
+
+    // assuming req.search is the text inside the search bar for the 
+    let findStudents = 'SELECT * FROM students WHERE First_Name LIKE ${req.search}';
+
+    let query = database.query(findStudents, (err, result) => {
+        if (err) throw err;
+
+        // returns  in the database table
+        res.send(result);
+    });
+}
