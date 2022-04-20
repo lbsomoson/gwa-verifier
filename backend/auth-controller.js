@@ -1,4 +1,5 @@
 const { database } = require('./index.js');
+const jwt = require("jsonwebtoken");
 
 exports.login = (req, res) => {
     //check if username is valid
@@ -8,12 +9,23 @@ exports.login = (req, res) => {
 
     let query = database.query(findUser, [username, password] , (err, result) => {
         if(err) throw err;
-        //check if password is valid 
-        //TODO: change this later
-        if(result[0].Password === password) console.log("Logged In");
 
-        //TODO: create a token for user
-        res.send("Found User!");
+        if(result[0].Password === password) {
+            console.log("Logged In");
+
+            const tokenPayload = {
+                username: result[0].Username,
+                type: result[0].Type
+            }
+            console.log(result[0].Username);
+    
+            const token = jwt.sign(tokenPayload, "secret_string");
+    
+            return res.send({result, token, username})
+        }else{
+            return res.send({msg: "Not found"})
+        }
+        
     })
     
 
@@ -44,4 +56,30 @@ exports.signUp = (req, res) => {
 
 exports.checkIfLoggedIn = (req, res) => {
 
+    if (!req.cookies || !req.cookies.authToken) {
+        return res.send({ isLoggedIn: false });
+    }
+    
+    return jwt.verify(
+        req.cookies.authToken,
+        "secret_string",
+        (err, tokenPayload) => {
+            if (err) {
+            return res.send({ isLoggedIn: false });
+            }
+
+            const user_name = tokenPayload.Username;
+            const type = tokenPayload.Type;
+            let findUser2 = 'SELECT * FROM users WHERE Username = ? and Type = ?';
+
+            // check if user exists
+            let query = database.query(findUser2, [user_name, type] , (err, result) => {
+                if(err) {
+                    return res.send({ isLoggedIn: false});
+                }
+            })
+
+            console.log("user is currently logged in");
+            return res.send({ isLoggedIn: true });
+            });
 }
