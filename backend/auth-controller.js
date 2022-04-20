@@ -1,5 +1,6 @@
 const { database } = require('./index.js');
 const jwt = require("jsonwebtoken");
+require('dotenv').config({path: __dirname + '/config.env'});
 
 exports.login = (req, res) => {
     //check if username is valid
@@ -8,7 +9,9 @@ exports.login = (req, res) => {
     const password = req.body.password;
 
     let query = database.query(findUser, [username, password] , (err, result) => {
-        if(err) throw err;
+        if(err){
+            console.log("login err");
+        };
 
         if(result[0].Password === password) {
             console.log("Logged In");
@@ -17,14 +20,13 @@ exports.login = (req, res) => {
                 username: result[0].Username,
                 type: result[0].Type
             }
-            console.log(result[0].Username);
     
-            const token = jwt.sign(tokenPayload, "secret_string");
+            const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {expiresIn: "300s"});
     
             return res.send({result, token, username})
-        }else{
-            return res.send({msg: "Not found"})
         }
+        
+        return res.send({msg: "Not found"})
         
     })
     
@@ -62,7 +64,7 @@ exports.checkIfLoggedIn = (req, res) => {
     
     return jwt.verify(
         req.cookies.authToken,
-        "secret_string",
+        process.env.JWT_SECRET,
         (err, tokenPayload) => {
             if (err) {
             return res.send({ isLoggedIn: false });
