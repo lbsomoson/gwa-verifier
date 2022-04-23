@@ -140,31 +140,5 @@ exports.deleteStudent = (req, res) => {
     });
 }
 
-    if (!req.cookies || !req.cookies.authToken) {
-        return res.send({ isLoggedIn: false });
-    }
-    
-    return jwt.verify(
-        req.cookies.authToken,
-        process.env.JWT_SECRET,
-        (err, tokenPayload) => {
-            if (err) {
-            return res.send({ isLoggedIn: false });
-            }
-
-            const user_name = tokenPayload.Username;
-            const type = tokenPayload.Type;
-            let findUser2 = 'SELECT * FROM users WHERE Username = ? and Type = ?';
-
-            // check if user exists
-            let query = database.query(findUser2, [user_name, type] , (err, result) => {
-                if(err) {
-                    return res.send({ isLoggedIn: false});
-                }
-            })
-
-            console.log("user is currently logged in");
-            return res.send({ isLoggedIn: true });
-            });
 }
 
