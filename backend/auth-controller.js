@@ -1,17 +1,33 @@
 const { database } = require('./index.js');
+const jwt = require("jsonwebtoken");
+require('dotenv').config({path: __dirname + '/config.env'});
 
 exports.login = (req, res) => {
     //check if username is valid
-    let findUser = 'SELECT * FROM users WHERE Username = \'pbsuarez\'';
+    let findUser = 'SELECT * FROM users WHERE Username = ?';
+    const username = req.body.username;
+    const password = req.body.password;
 
-    let query = database.query(findUser, (err, result) => {
-        if(err) throw err;
-        //check if password is valid 
-        //TODO: change this later
-        if(result[0].Password === 'CMSC128') console.log("Logged In");
+    let query = database.query(findUser, [username, password] , (err, result) => {
+        if(err){
+            console.log("login err");
+        };
 
-        //TODO: create a token for user
-        res.send("Found User!");
+        if(result[0].Password === password) {
+            console.log("Logged In");
+
+            const tokenPayload = {
+                username: result[0].Username,
+                type: result[0].Type
+            }
+    
+            const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {expiresIn: "300s"});
+    
+            return res.send({result, token, username})
+        }
+        
+        return res.send({msg: "Not found"})
+        
     })
     
 
@@ -42,7 +58,35 @@ exports.signUp = (req, res) => {
 
 exports.checkIfLoggedIn = (req, res) => {
 
+    if (!req.cookies || !req.cookies.authToken) {
+        return res.send({ isLoggedIn: false });
+    }
+    
+    return jwt.verify(
+        req.cookies.authToken,
+        process.env.JWT_SECRET,
+        (err, tokenPayload) => {
+            if (err) {
+            return res.send({ isLoggedIn: false });
+            }
+
+            const user_name = tokenPayload.Username;
+            const type = tokenPayload.Type;
+            let findUser2 = 'SELECT * FROM users WHERE Username = ? and Type = ?';
+
+            // check if user exists
+            let query = database.query(findUser2, [user_name, type] , (err, result) => {
+                if(err) {
+                    return res.send({ isLoggedIn: false});
+                }
+            })
+
+            console.log("user is currently logged in");
+            return res.send({ isLoggedIn: true });
+            });
 }
+
+
 
 exports.findAllStudents = (req, res) => {
     let findAllStudents = 'SELECT * FROM students';
@@ -95,3 +139,32 @@ exports.deleteStudent = (req, res) => {
         });
     });
 }
+
+    if (!req.cookies || !req.cookies.authToken) {
+        return res.send({ isLoggedIn: false });
+    }
+    
+    return jwt.verify(
+        req.cookies.authToken,
+        process.env.JWT_SECRET,
+        (err, tokenPayload) => {
+            if (err) {
+            return res.send({ isLoggedIn: false });
+            }
+
+            const user_name = tokenPayload.Username;
+            const type = tokenPayload.Type;
+            let findUser2 = 'SELECT * FROM users WHERE Username = ? and Type = ?';
+
+            // check if user exists
+            let query = database.query(findUser2, [user_name, type] , (err, result) => {
+                if(err) {
+                    return res.send({ isLoggedIn: false});
+                }
+            })
+
+            console.log("user is currently logged in");
+            return res.send({ isLoggedIn: true });
+            });
+}
+
