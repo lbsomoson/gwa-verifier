@@ -70,7 +70,7 @@ exports.sortBy = (req, res) => {
 exports.searchStudents = (req, res) => {
 
     // assuming req.search is the text inside the search bar for the 
-    let search = 'SELECT * FROM students WHERE First_Name LIKE \"%${req.search}%\" OR Last_Name LIKE \"%${req.search}%\"';
+    let search = 'SELECT * FROM students WHERE (SELECT CONCAT(First_Name, " ", Last_Name) AS Full_Name) LIKE \"%${req.search}%\"';
 
     let query = database.query(search, (err, result) => {
         if (err) throw err;
