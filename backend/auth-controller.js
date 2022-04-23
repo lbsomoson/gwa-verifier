@@ -67,15 +67,31 @@ exports.sortBy = (req, res) => {
     });
 }
 
-exports.searchStudent = (req, res) => {
+exports.searchStudents = (req, res) => {
 
     // assuming req.search is the text inside the search bar for the 
-    let findStudents = 'SELECT * FROM students WHERE First_Name LIKE ${req.search}';
+    let search = 'SELECT * FROM students WHERE First_Name LIKE ${req.search}';
 
-    let query = database.query(findStudents, (err, result) => {
+    let query = database.query(search, (err, result) => {
         if (err) throw err;
 
-        // returns  in the database table
+        // returns in the database table
         res.send(result);
+    });
+}
+
+exports.deleteStudent = (req, res) => {
+
+    let removeStudent = 'DELETE FROM students WHERE ID = ${req.student_id}';
+    let removeRecord = 'DELETE FROM taken_courses WHERE ID = ${req.student_id}';
+
+    let query = database.query(removeStudent, (err, result) => {
+        if (err) throw err;
+
+        let query2 = database.query(removeRecord, (err, result) => {
+            if (err) throw err;
+
+            res.send('Successfully deleted student from database!');
+        });
     });
 }
