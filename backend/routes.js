@@ -7,4 +7,12 @@ module.exports = (app) => {
 
   app.post("/loginUser", authController.login);
   //app.get("/checkifloggedin", authController.checkIfLoggedIn);
+
+  app.get("/viewstudents", authController.findAllStudents);
+
+  app.get("/searchstudents", authController.searchStudents);
+
+  app.get("/sortstudents", authController.sortBy);
+  
+  app.post("/deletestudent", authController.deleteStudent);
 }
