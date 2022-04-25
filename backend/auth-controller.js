@@ -140,5 +140,5 @@ exports.deleteStudent = (req, res) => {
     });
 }
 
-}
+
 
