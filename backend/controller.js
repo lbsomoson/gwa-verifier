@@ -45,9 +45,13 @@ exports.uploadSingle = (req, res) => {
         ws['!ref'] = XLSX.utils.encode_range(range);
 
         var data = XLSX.utils.sheet_to_json(ws);
+        var fname = ws['B1'].v;
+        var lname = ws['A1'].v;
+        var course = ws['A2'].v;
 
         console.log(data);
-        console.log("file sent:");
+        console.log(fname, lname);
+        console.log(course);
         console.log("File is xlsx");
         //res.send({uploaded: fileUpload});
 
@@ -64,8 +68,13 @@ exports.uploadSingle = (req, res) => {
         ws['!ref'] = XLSX.utils.encode_range(range);
 
         var data = XLSX.utils.sheet_to_json(ws);
+        var fname = ws['B1'].v;
+        var lname = ws['A1'].v;
+        var course = ws['A2'].v;
 
         console.log(data);
+        console.log(fname, lname);
+        console.log(course);
         console.log("File is csv");
 
 
@@ -86,8 +95,13 @@ exports.uploadSingle = (req, res) => {
             ws['!ref'] = XLSX.utils.encode_range(range);
         
             var data = XLSX.utils.sheet_to_json(ws);
-        
+            var fname = ws['B1'].v;
+            var lname = ws['A1'].v;
+            var course = ws['A2'].v;
+    
             console.log(data);
+            console.log(fname, lname);
+            console.log(course);
             //return data;
         }
         convertpdf();
