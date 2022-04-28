@@ -1,4 +1,5 @@
-const { database } = require('./index.js');
+const myModule = require('./index');
+const {database} = myModule.database;
 const jwt = require("jsonwebtoken");
 require('dotenv').config({path: __dirname + '/config.env'});
 
@@ -12,7 +13,7 @@ exports.login = (req, res) => {
         if(err){
             console.log("login err");
         };
-
+        console.log(result[0]);
         if(result[0].Password === password) {
             console.log("Logged In");
 
@@ -21,7 +22,7 @@ exports.login = (req, res) => {
                 type: result[0].Type
             }
     
-            const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {expiresIn: "300s"});
+            const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {expiresIn: "600s"});
     
             return res.send({result, token, username})
         }
@@ -67,7 +68,7 @@ exports.checkIfLoggedIn = (req, res) => {
         process.env.JWT_SECRET,
         (err, tokenPayload) => {
             if (err) {
-            return res.send({ isLoggedIn: false });
+                return res.send({ isLoggedIn: false });
             }
 
             const user_name = tokenPayload.Username;
@@ -83,7 +84,7 @@ exports.checkIfLoggedIn = (req, res) => {
 
             console.log("user is currently logged in");
             return res.send({ isLoggedIn: true });
-            });
+        });
 }
 
 
