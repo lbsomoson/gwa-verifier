@@ -47,7 +47,16 @@ var data = XLSX.utils.sheet_to_json(ws);
 
 //console.log(data);
 //convertpdf();
-
+// gets units of term to check for underloading and overloading
+//TODO use units to check underload and overload
+for(let i = 0; i<data.length;i++){
+    if(data[i]["Term"]==undefined){
+        //gay
+    }else{
+        console.log("Units" ,data[i]["Term"])
+    }
+}
+//TODO use units to check underload and overload
 // checking content errors:
 // -check if valid student no, name, and course
 // -check if overloading/underloading
