@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Hind+Madurai&family=Lato:wght@400;700&display=swap');
+
+.main{
+    display: flex;
+    background-color: #8A1538;
+}
+
+.left{
+    flex: 1;
+    margin-left: 50px;
+    /*background: lightgreen;*/
+}
+
+.right{
+    width: 40%;
+    /*background: lightblue;*/
+}
+
+.buttonGroup{
+    margin-left: 70px;
+    text-align: left;
+}
+
+.buttonGroup span{
+    display:inline-block
+}
+
+.uploadFileBtn{
+    margin-right: 10px;
+}
+.h1Style{
+    margin-bottom: 20px;
+    color: #f8c24f;
+    text-align: left;
+    margin-top: 50px;
+    margin-left: 70px;
+}
+
+.h3Style{
+    color: #f8c24f;
+    margin-top: 150px;
+    font-weight: lighter;
+    letter-spacing: 0.5px;
+}
+
+.studentDataTab{
+    margin-top: 50px;
+}
+
+.buttonGroup2 {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.button {
+    margin-bottom: 10px;
+}
+
+.addUser{
+    position: absolute;
+    left:36%;
+    top: 40%
+}
