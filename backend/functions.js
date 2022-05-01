@@ -20,7 +20,12 @@ exports.processExcel = (filename) => {
     return data;
 }
 
-function verifyname(fname,lname){
+function verifyname(filename){
+    var wb = XLSX.readFile("files/" + filename);
+    var ws = wb.Sheets["Sheet1"];
+    var fname = ws['B1'].v;
+    var lname = ws['A1'].v;
+
     if(/^([A-Z\s])+$/.test(lname) && /^([A-Z\s])+$/.test(fname)){
         console.log('Name: '+ lname+', '+fname);
     }else{
@@ -28,7 +33,11 @@ function verifyname(fname,lname){
     }
 }
 
-function verifystudno(studno){
+function verifystudno(filename){
+    var wb = XLSX.readFile("files/" + filename);
+    var ws = wb.Sheets["Sheet1"];
+    //var studno = ws['C1'].v;
+    var studno = '2019-12345'
     if(/^20[0-2][0-9]-[0-9]{5}$/.test(studno)){
         console.log('Student number: '+studno);
     }else{
@@ -36,7 +45,10 @@ function verifystudno(studno){
     }
 }
 
-function verifycourse(course){
+function verifycourse(filename){
+    var wb = XLSX.readFile("files/" + filename);
+    var ws = wb.Sheets["Sheet1"];
+    var course = String(ws['A2'].v);
     var coursecodes = ['BSCS','BACA'];
     if(coursecodes.includes(course)){
         console.log('Course: '+course);
