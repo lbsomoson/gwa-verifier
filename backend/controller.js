@@ -81,7 +81,7 @@ exports.uploadSingle = (req, res) => {
         if(/.+\.xlsx/.test(filename)){
             //transform excel to JSON
             var data = functions.processExcel(filename);
-
+            functions.verifyunits(data);
             let checkSum = 0;
             
             for(let i = 0; i<data.length-1; i++){
