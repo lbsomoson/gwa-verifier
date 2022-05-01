@@ -1,5 +1,13 @@
 const express = require("express");
+const multer = require('multer');
 const mysql = require("mysql");
+const cors = require('cors');
+
+// express will be used for API
+const app = express();
+app.use(express.urlencoded({extended: true}));
+app.use(express.json());
+app.use(cors());
 
 const database = mysql.createConnection({
     host: 'localhost',
@@ -16,14 +24,22 @@ database.connect((err) => {
         console.log("Connected!");
     }
 })
-module.exports = { database };
 
-// express will be used for API
-const app = express();
-app.use(express.urlencoded({extended: true}));
-app.use(express.json());
+const fileStorageEngine = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "./files");
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.originalname);
+    }
+});
 
-// allow CORS
+const upload = multer({storage: fileStorageEngine});
+
+exports.database = {database}
+exports.singleFile = {upload}
+
+// // allow CORS
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
     res.setHeader("Access-Control-Allow-Methods", "POST");
