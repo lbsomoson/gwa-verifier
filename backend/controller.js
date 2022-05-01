@@ -75,34 +75,48 @@ exports.deleteAllStudents = (req, res) => {
 }
 
 exports.uploadSingle = (req, res) => {
-    console.log(req.files.length);
+    console.log(req.files);
     for(let i=0; i<req.files.length; i++){
         let filename = req.files[i].originalname;
+        //console.log(filename);
         if(/.+\.xlsx/.test(filename)){
             //transform excel to JSON
             var data = functions.processExcel(filename);
+
             functions.verifyunits(data);
-            let checkSum = 0;
+            functions.verifyname(filename);
+            functions.verifystudno(filename);
+            functions.verifycourse(filename);
             
-            for(let i = 0; i<data.length-1; i++){
-                // check if grade multipled by units is equal to weight
-                // check if course is of 200 series (thesis)
-                if(/^COMA 200$/.test(data[i]["CRSE NO."])){
-                    if(!(data[i].Grade === 'S')){
-                        checkSum += data[i].Grade*6;
-                    }
-                }else{ //non thesis courses
+            //console.log(data);
+            //let checkSum = 0;
+            //let units = 0;
+            
+            // for(let i = 0; i<data.length-1; i++){
+            //     // check if grade multipled by units is equal to weight
+            //     // check if course is of 200 series (thesis)
+            //     if(/^COMA 200$/.test(data[i]["CRSE NO."])){
+            //         if(!((data[i].Grade === 'S') || (data[i].Grade === 'U'))){
+            //             checkSum += data[i].Grade*6;
+            //             units += 6;
+            //         }else{
+            //             //error
+            //         }
+            //     }else{ //non thesis courses
                     
-                    if(data[i].Grade*data[i].Units === data[i].Weight){
-                        //console.log(data[i]["CRSE NO."] + "\t"+ data[i].Weight);
-                        checkSum += data[i].Weight;
-                    }else{
-                        //console.log("Error in " + i);
-                    }
-                }
+            //         if(data[i].Grade*data[i].Units === data[i].Weight){
+            //             //console.log(data[i]["CRSE NO."] + "\t"+ data[i].Weight);
+            //             checkSum += data[i].Weight;
+            //             units += data[i].Units;
+            //         }else{
+            //             console.log("Error in " + i);
+            //         }
+            //     }
                     
-            }
-            console.log("this is xlsx");
+            // }
+            // console.log(checkSum);
+            // console.log(units);
+            console.log("File is xlsx");
 
         }else if(/.+\.csv/.test(filename)){
             //transform csv to JSON
@@ -151,5 +165,3 @@ exports.uploadSingle = (req, res) => {
     }
     
 } 
-
-
