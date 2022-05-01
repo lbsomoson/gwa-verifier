@@ -50,25 +50,27 @@ var data = XLSX.utils.sheet_to_json(ws);
 // gets units of term to check for underloading and overloading
 //TODO use units to check underload and overload
 let calced = 0;
-let recorded = 0;
 for(let i = 0; i<data.length;i++){
     if(data[i]["Term"]!=undefined){
-        if(data[i]["Term"]<15){
-            console.log(data[i]["Term"], "Underload");
-        }else if(data[i]["Term"]>=15 && data[i]["Term"]<=21){
-            console.log(data[i]["Term"], "Regular Load");
+        recorded = data[i]["Term"];
+        if(recorded<15){
+            console.log(recorded, "Underload");
+        }else if(recorded>=15 && recorded<=21){
+            console.log(recorded, "Regular Load");
         }else{
-            console.log(data[i]["Term"], "Overload");
+            console.log(recorded, "Overload");
         }
         calced += data[i]["Units"];
-        if(data[i]["Term"]==calced){
+        if(recorded==calced){
             console.log("Correct recorded units");
         }else{
             console.log("Incorrect recorded units");
         }
         calced = 0;
     }else{
-        calced += data[i]["Units"];
+        if(!isNaN(data[i]["Grade"])){
+            calced += data[i]["Units"];
+        }        
     }
 }
 
