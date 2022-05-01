@@ -2,7 +2,7 @@ var XLSX = require("xlsx");
 const pdf2excel = require('pdf-to-excel');
 var fs = require("fs");
 
-const wb = XLSX.readFile("./honors/honors-grade.csv")
+const wb = XLSX.readFile("./honors/perfect-format.xlsx")
 var ws = wb.Sheets["Sheet1"];
 
 var range = XLSX.utils.decode_range(ws['!ref']);
@@ -49,14 +49,28 @@ var data = XLSX.utils.sheet_to_json(ws);
 //convertpdf();
 // gets units of term to check for underloading and overloading
 //TODO use units to check underload and overload
+let calced = 0;
+let recorded = 0;
 for(let i = 0; i<data.length;i++){
-    if(data[i]["Term"]==undefined){
-        //ack
+    if(data[i]["Term"]!=undefined){
+        if(data[i]["Term"]<15){
+            console.log(data[i]["Term"], "Underload");
+        }else if(data[i]["Term"]>=15 && data[i]["Term"]<=21){
+            console.log(data[i]["Term"], "Regular Load");
+        }else{
+            console.log(data[i]["Term"], "Overload");
+        }
+        calced += data[i]["Units"];
+        if(data[i]["Term"]==calced){
+            console.log("Correct recorded units");
+        }else{
+            console.log("Incorrect recorded units");
+        }
+        calced = 0;
     }else{
-        console.log("Units" ,data[i]["Term"])
+        calced += data[i]["Units"];
     }
 }
-//TODO use units to check underload and overload
 
 // checking content errors:
 // -check if valid student no, name, and course
