@@ -2,12 +2,14 @@ const express = require("express");
 const multer = require('multer');
 const mysql = require("mysql");
 const cors = require('cors');
+const cookieParser = require("cookie-parser");
 
 // express will be used for API
 const app = express();
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.use(cors());
+app.use(cookieParser());
 
 const database = mysql.createConnection({
     host: 'localhost',
