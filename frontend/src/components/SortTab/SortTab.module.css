@@ -1,0 +1,30 @@
+#SortTabContainer{
+    margin-top: 10px;
+    width: 300px;
+}
+
+#SortTab{
+    color:#ffffff;
+    text-align: center;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--color-green);
+}
+.SortTabContent{
+    height: 34px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    border-radius: 10px;
+    background: #ffffff;
+}
+button.SortTabContent{
+    width: 34px;
+}
+select.SortTabContent{
+    width: 100px;
+}
+.SortTabContent:hover {
+	filter: brightness(0.8);
+}

@@ -1,0 +1,119 @@
+.baseStyles {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	background: #ddd;
+	border-radius: 10px;
+	transition: all 0.3s;
+}
+
+.baseStyles:hover {
+	filter: brightness(0.8);
+}
+
+.defaultButton {
+	padding: 15px 25px;
+}
+
+.smallButton {
+	padding: 10px 20px;
+}
+
+.filledBrandDefault {
+	background: var(--color-brand-default);
+	color: var(--color-white);
+}
+
+.filledBrandLighter {
+	background: var(--color-brand-lighter);
+	color: var(--color-white);
+}
+
+.filledBrandDarker {
+	background: var(--color-brand-darker);
+	color: var(--color-white);
+}
+
+.filledRed {
+	background: var(--color-red);
+	color: var(--color-white);
+}
+
+.filledGreen {
+	background: var(--color-green);
+	color: var(--color-white);
+}
+
+.filledBlue {
+	background: var(--color-blue);
+	color: var(--color-white);
+}
+
+.filledBlack {
+	background: var(--color-black);
+	color: var(--color-white);
+}
+
+.filledWhite {
+	background: var(--color-white);
+	color: var(--color-black);
+}
+
+.outlineBrandDefault {
+	background: none;
+	color: var(--color-brand-default);
+	border: 1px solid var(--color-brand-default);
+}
+
+.outlineBrandLighter {
+	background: none;
+	color: var(--color-brand-lighter);
+	border: 1px solid var(--color-brand-lighter);
+}
+
+.outlineBrandDarker {
+	background: none;
+	color: var(--color-brand-darker);
+	border: 1px solid var(--color-brand-darker);
+}
+
+.outlineRed {
+	background: none;
+	color: var(--color-red);
+	border: 1px solid var(--color-red);
+}
+
+.outlineGreen {
+	background: none;
+	color: var(--color-green);
+	border: 1px solid var(--color-green);
+}
+
+.outlineBlue {
+	background: none;
+	color: var(--color-blue);
+	border: 1px solid var(--color-blue);
+}
+
+.outlineBlack {
+	background: none;
+	color: var(--color-black);
+	border: 1px solid var(--color-black);
+}
+
+.outlineWhite {
+	background: none;
+	color: var(--color-white);
+	border: 1px solid var(--color-white);
+}
+
+.disabled,
+.disabled:hover {
+	cursor: no-drop;
+	filter: opacity(0.6);
+}
+
+.block {
+	width: 100%;
+}

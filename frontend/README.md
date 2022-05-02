@@ -1,70 +1,83 @@
-# Getting Started with Create React App
+# Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Core Contributors
+* Niels Arias [@neilsarias](https://github.com/neilsarias/)
+* Jean Joachim Baldopeña [@Baldopena](https://github.com/Baldopena/)
+* Myka Miranda [@mdmiranda](https://github.com/mdmiranda/)
+* Lea Marie Somoson [@xxyangxx](https://github.com/xxyangxx/)
 
-## Available Scripts
+## Guidelines
+### Running the Application
+For first time run, use the command `npm install` then `npm start`. Otherwise, just use `npm start`.
 
-In the project directory, you can run:
 
-### `npm start`
+### Importing Files
+#### Example Patterns
+* Example#1: creating basic component and importing it
+```// src/components/Component1.js
+import React from "react";
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+class Component1 extends React.Component {
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+    render() {
+        return <h1>I am a simple component</h1>
+    }
+}
 
-### `npm test`
+export default Component1;
+```
+```// src/pages/SamplePage.js
+import React from "react";
+// to use Component1, we import them
+import Component1 from "components/Component1";
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+class SamplePage extends React.Component {
+    render() {
+        return (
+            <p>Inside the sample page<p>
+            <Component1 />
+        )
+    }
+}
 
-### `npm run build`
+export default SamplePage;
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+* Example#2: creating a component with separate style using [css modules](https://create-react-app.dev/docs/adding-a-css-modules-stylesheet/)
+```
+/* We create two files, one index.js file and one css file 
+src/components/BasicButton/BasicButton.module.css */
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+.button {
+	padding: 5px 10px;
+	/* ... styles go here */
+}
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+.ghost-button {
+	border: 1px solid #f91;
+	background: none;
+	/* ... styles go here */
+}
+```
+```
+// src/components/BasicButton/index.jsx
+import React from "react";
+import styles from "./BasicButton.module.css";
 
-### `npm run eject`
+function BasicButton() {
+	return (
+		<button className={styles.button}>I am a button</button>
+		/*
+      for multiple styles, here's a reference https://stackoverflow.com/questions/33949469/using-css-modules-how-do-i-define-more-than-one-style-name
+    */
+	);
+}
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+export default BasicButton;
+// and then we import the component just like in Example#1
+```
+### Routing
+- Here are the routes to be expected
+    - /
+    - /main
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
