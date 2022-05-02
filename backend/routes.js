@@ -10,7 +10,7 @@ module.exports = (app) => {
 
   app.post("/loginUser", authController.login);
   app.post("/checkifloggedin", authController.checkIfLoggedIn);
-  app.post("/single", upload.array("files", 5), controller.uploadSingle)
+  app.post("/single", upload.array("files", 10), controller.uploadSingle)
   app.get("/viewstudents", controller.findAllStudents)
   app.get("/searchstudents", controller.searchStudents);
   app.get("/sortstudents", controller.sortBy);
