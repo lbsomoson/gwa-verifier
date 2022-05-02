@@ -14,15 +14,15 @@ class StudentDataTabs extends React.Component{
                             <div className={styles.studentDataTab}>
                                 <div className={styles.name}>
                                 <h4>NAME</h4>
-                                <p>{studentDataTab.name}</p>
+                                <p>{studentDataTab.Last_Name+", "+studentDataTab.First_Name}</p>
                                 </div>
                                 <div className={styles.course}>
                                 <h4>COURSE</h4>
-                                <p>{studentDataTab.course}</p>
+                                <p>{studentDataTab.Program}</p>
                                 </div>
                                 <div className={styles.gwa}>
                                 <h4>GWA</h4>
-                                <p>{studentDataTab.gwa}</p>
+                                <p>{studentDataTab.GWA}</p>
                                 </div>
                                 <div className={styles.view}>
                                     <BasicButton 

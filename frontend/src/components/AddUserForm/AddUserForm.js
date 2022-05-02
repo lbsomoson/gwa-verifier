@@ -91,12 +91,9 @@ class AddUserForm extends React.Component{
 
     addUserPostFunc(){
 
-        Axios.post("http://localhost:3001/addUser",
+        Axios.post("http://localhost:3001/signup",
         {username: this.state.userName, userpassword: this.state.userPassword, usertype: this.state.userType}).then((response) => {
-            if(response.data.success){
-                alert("user: "+response.data.username+" added");
-                this.props.addUserFunc();
-            }
+            console.log(response)
         })
     }
 
@@ -143,7 +140,7 @@ class AddUserForm extends React.Component{
                 <button 
                     className={`button-text ${styles.LogInButton}`} 
                     onClick={this.addUser}
-                >LOGIN</button>
+                >CREATE</button>
 
         
             </div>

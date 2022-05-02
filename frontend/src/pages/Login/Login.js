@@ -1,6 +1,7 @@
 import React from "react";
 import Axios from 'axios';
 import {Navigate} from 'react-router-dom';
+import Cookies from "universal-cookie";
 
 import styles from './Login.module.css';
 
@@ -33,15 +34,30 @@ class Login extends React.Component{
         Axios.post("http://localhost:3001/loginUser",
         {username: this.state.username1,
         password: this.state.password1}).then((response) => {
+            console.log(response)
             if(response.data.msg){  // if user with given username AND password not found
                 //console.log("not logged in")
                 alert("User not logged in")
                 window.location.reload(false)  //reload
             }else{  // if user found in database
                 console.log("logged in") 
-                window.localStorage.setItem("user",response.data[0].username) //uses local storage so that the Main page could access the username of the user 
+                console.log(response.data.username)
+                window.localStorage.setItem("user",response.data.username) //uses local storage so that the Main page could access the username of the user 
                 this.setState({loggedIn: 1})
                 window.localStorage.setItem("loggedIn","true")
+
+
+                const cookies = new Cookies();
+                cookies.set(
+                    "authToken",
+                    response.data.token,
+                    {
+                        path: "localhost:3001/",
+                        age: 60*60,
+                        sameSite: "lax"
+                });
+
+                
             }
         })
     }

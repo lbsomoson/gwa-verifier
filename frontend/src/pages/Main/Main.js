@@ -1,6 +1,8 @@
 import Axios from 'axios';
 import React from "react";
 import { Navigate } from "react-router";
+import Cookies from "universal-cookie";
+
 import { UploadFile, BasicButton, StudentDataTabs, AddUserForm, SortTab } from '../../components';
 
 import styles from './Main.module.css';
@@ -15,6 +17,7 @@ const studentDataTabs = [
     {name:"Surname, Given Name MI", course:"BS CS", gwa:"1.45"},
    
   ];
+
 class Main extends React.Component{
 
     constructor(props) {
@@ -23,86 +26,66 @@ class Main extends React.Component{
         this.state = {
             username: "",
             userType: "",
-            logOut: 0, 
             showAddUser: 0,
+            checkifLoggedin: false,
+            isLoggedin: false,
             fileContent: [],
+            students: [] //contains the rows from the students table in the database
         }
-        
-        this.addFiles = this.addFiles.bind(this);
+
+        this.showAddUserFunc = this.showAddUserFunc.bind(this);
         this.handleFileChange = this.handleFileChange.bind(this);
         this.uploadFile = this.uploadFile.bind(this);
-        this.getUser = this.getUser.bind(this);
-        this.logOutFunc = this.logOutFunc.bind(this);
-        this.showAddUserFunc = this.showAddUserFunc.bind(this);
+        this.logout = this.logout.bind(this);
+        this.getStudents = this.getStudents.bind(this);
     }
 
-    //used for the button selecting the files
+
     handleFileChange(e) {
         //try catch in the event that no file is selected
         try{
-            this.addFiles(e.target.files);
+            e.preventDefault()
             
-            //original code
-            /*const reader = new FileReader()
-            reader.onload = async (e) => { 
-                let text = (e.target.result)
-                //console.log(text);
-                this.setState({
-                    fileContent: text,
-                });
-            };
-            reader.readAsText(e.target.files[0])
-            const fileChosen = document.getElementById('fileChosen');
-            fileChosen.textContent = e.target.files[0].name*/
+            this.setState({
+                fileContent: e.target.files,
+            });
+
         } catch {
             //do nothing when no file was selected
         }
     }
 
-    //reads group of files given FileList object and saves them to a list variable
-    addFiles(files) {
-        var contents = [];
-
-        [].forEach.call(files, function(file) {
-            var reader = new FileReader();
-            reader.onloadend = function() {
-                contents.push(reader.result);
-            }
-            reader.readAsText(file);
-        });
-        console.log(contents);
-        this.setState({
-            fileContent: contents,
-        });
-    }
-
-    //sends post request when upload button is clicked
     uploadFile() {
-        console.log(this.state.username+" "+this.state.userType);
-        Axios.post("http://localhost:3001/uploadFile",
-        {uploadedFile: this.state.fileContent}).then((response) => {
-            console.log(response.data)
+
+        const data = new FormData();
+        //let newArr = [];
+        for (let i = 0; i < this.state.fileContent.length; i++) {
+          data.append('files', this.state.fileContent[i]);
+        }
+
+        //data.append('files', newArr);
+
+        console.log(data.get('files'));
+
+        fetch("http://localhost:3001/single", {
+            method: "POST",
+            body: data,
         })
+            .then((result) => {
+            console.log("File Sent Successful");
+            })
+            .catch((err) => {
+            console.log(err.message);
+        });
+
+        // Axios.post("http://localhost:3001/single",
+        // {body: data}).then((response) => {
+        //     console.log("File Sent Successful");
+        //     //console.log(response)
+        // })
+    }
+
     
-    }
-
-    componentDidMount() { 
-        this.getUser();
-    }
-
-    getUser(){
-        
-        Axios.post("http://localhost:3001/findUser",
-        {username: window.localStorage.getItem("user")}).then((response) => {
-            console.log(response.data[0]);
-            this.setState({ username: response.data[0].username, userType: response.data[0].type});
-        })
-
-    }
-    logOutFunc(){
-        this.setState({logOut : 1});
-    }
-
     showAddUserFunc(){
         if(this.state.showAddUser === 0){
             this.setState({showAddUser: 1});
@@ -111,20 +94,62 @@ class Main extends React.Component{
         }
     }
 
-    render(){
+    getStudents(){
 
-        if(window.localStorage.getItem("loggedIn") !== "true"){
-            return(
-                <Navigate to="/" />
-            )
+        Axios.get("http://localhost:3001/viewstudents").then((response) => {
+            this.setState({students: response.data})
+            console.log(this.state.students);
+        })
+    }
+    
+
+    componentDidMount() {
+
+        this.getStudents();
         
-        }else if (this.state.logOut === 1){
-            return(
-                <Navigate to="/" />
-            )
+        fetch("http://localhost:3001/checkifloggedin", {
+            method: "POST",
+            credentials: "include",
+        })
+        .then(response => response.json())
+        .then(body => {
+            console.log("response body:")
+            console.log(body)
+            if(body.isLoggedin) {
+                this.setState({
+                    checkifLoggedin:true, isLoggedin: true, username: body.username, userType: body.type
+                });
+            }else{
+                this.setState({
+                    checkifLoggedin:true, isLoggedin: false
+                });
+            }
+        });
+    }
 
+
+    logout(e) {
+        e.preventDefault();
+
+        const cookies = new Cookies();
+        cookies.remove("authToken");
+
+        localStorage.removeItem("user")
+
+        this.setState({isLoggedin: false });
+    }
+
+    render(){
+        if(!this.state.checkifLoggedin){
+            return (<div></div>)
         }else{
-            return(
+            if(this.state.isLoggedin === false){
+                return(
+                    <Navigate to="/" />
+                )
+            
+            }else{
+                return(
                 <div className={styles.main}>
                     <div className={styles.left}>
                         <h1 className={styles.h1Style}>Student Records</h1>
@@ -147,7 +172,7 @@ class Main extends React.Component{
                             <SortTab/>
                         </div>
                         <div className={styles.studentDataTab}>
-                            <StudentDataTabs data={studentDataTabs} />
+                            <StudentDataTabs data={this.state.students} />
                         </div>
                         {(() => {
                             if(this.state.showAddUser === 1){
@@ -161,7 +186,7 @@ class Main extends React.Component{
                          
                     </div>
                     <div className={styles.right}>
-                        <h3 className={styles.h3Style}>{this.state.userType}</h3>
+                        <h3 className={styles.h3Style}>{this.state.username}</h3>
                         <div className={styles.buttonGroup2}>
                             
                             {(() => {
@@ -197,7 +222,7 @@ class Main extends React.Component{
                                     color="white" 
                                     variant="outline"
                                     size="small" 
-                                    onClick ={this.logOutFunc}
+                                    onClick ={this.logout}
                                 >
                                 </BasicButton>
                             </div>
@@ -207,8 +232,13 @@ class Main extends React.Component{
                     
                     
                 </div>
-            )
+                )
+            }
+
+
         }
+
+        
     }
 }
 export default Main
