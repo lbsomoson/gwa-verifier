@@ -68,7 +68,7 @@ exports.checkIfLoggedIn = (req, res) => {
         process.env.JWT_SECRET,
         (err, tokenPayload) => {
             if (err) {
-                return res.send({ isLoggedIn: false });
+                return res.send({ isLoggedin: false });
             }
 
             const user_name = tokenPayload.Username;
@@ -78,12 +78,12 @@ exports.checkIfLoggedIn = (req, res) => {
             // check if user exists
             let query = database.query(findUser2, [user_name, type] , (err, result) => {
                 if(err) {
-                    return res.send({ isLoggedIn: false});
+                    return res.send({ isLoggedin: false});
                 }
+                console.log("Found user");
             })
 
-            console.log("user is currently logged in");
-            return res.send({ isLoggedIn: true });
+            return res.send({ isLoggedin: true });
         });
 }
 

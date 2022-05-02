@@ -1,0 +1,28 @@
+{
+    "programs": ["BSCS", "BACA"],
+    "course": {
+        "BSCS": ["CMSC 12", "CMSC 56", "MATH 27", "CMSC 21", "CMSC 57", "MATH 28", "CMSC 22", "CMSC 150", "CMSC 123", "CMSC 130", "CMSC 23", "CMSC 100", "CMSC 127", "CMSC 131", "STAT 101", "CMSC 124", "CMSC 125", "CMSC 141", "CMSC 170", "CMSC 132", "CMSC 128", "CMSC 142", "CMSC 137", "CMSC 173", "CMSC 180", "CMSC 199", "ENG 10"]
+    },
+
+    "GE": {
+        "ARTS 1": "Required",
+        "COMM 10": "Required",
+        "ETHICS 1": "Required",
+        "HIST 1": "Required",
+        "KAS 1": "Required",
+        "PI 10": "Required",
+        "STS 1": "Required",
+        "HUM 3": "Elective",
+        "KAS 4": "Elective",
+        "MATH 10": "Elective",
+        "PHILARTS 1": "Elective",
+        "PHLO 1": "Elective",
+        "PS 21": "Elective",
+        "SAS 1": "Elective",
+        "SCIENCE 10": "Elective",
+        "SCIENCE 11": "Elective",
+        "SOSC 3": "Elective",
+        "WIKA 1": "Elective"
+    }
+        
+}

@@ -81,41 +81,26 @@ exports.uploadSingle = (req, res) => {
         //console.log(filename);
         if(/.+\.xlsx/.test(filename)){
             //transform excel to JSON
-            var data = functions.processExcel(filename);
+            let fname, lname, program, studno, gwa;
+            let data = functions.readData(filename);
 
-            functions.verifyunits(data);
-            functions.verifyname(filename);
-            functions.verifystudno(filename);
-            functions.verifycourse(filename);
+            let name = functions.verifyname(filename);
+            fname = name.fname;
+            lname = name.lname;
+            studno = functions.verifystudno(filename);
+            program = functions.verifycourse(filename);
+
+            var checkFormat = functions.processExcel(filename, program);
+
+            if(checkFormat.success){
+                if(functions.weightIsValid(data)){
+                    functions.addTakenCourses(data, studno);
+                }
+            }
+
+            let checkSum = 0;
+            let units = 0;
             
-            //console.log(data);
-            //let checkSum = 0;
-            //let units = 0;
-            
-            // for(let i = 0; i<data.length-1; i++){
-            //     // check if grade multipled by units is equal to weight
-            //     // check if course is of 200 series (thesis)
-            //     if(/^COMA 200$/.test(data[i]["CRSE NO."])){
-            //         if(!((data[i].Grade === 'S') || (data[i].Grade === 'U'))){
-            //             checkSum += data[i].Grade*6;
-            //             units += 6;
-            //         }else{
-            //             //error
-            //         }
-            //     }else{ //non thesis courses
-                    
-            //         if(data[i].Grade*data[i].Units === data[i].Weight){
-            //             //console.log(data[i]["CRSE NO."] + "\t"+ data[i].Weight);
-            //             checkSum += data[i].Weight;
-            //             units += data[i].Units;
-            //         }else{
-            //             console.log("Error in " + i);
-            //         }
-            //     }
-                    
-            // }
-            // console.log(checkSum);
-            // console.log(units);
             console.log("File is xlsx");
 
         }else if(/.+\.csv/.test(filename)){
