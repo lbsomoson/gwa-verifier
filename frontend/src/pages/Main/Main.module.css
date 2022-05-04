@@ -1,9 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Hind+Madurai&family=Lato:wght@400;700&display=swap');
 
 .main{
-    display: flex;
     background-color: #8A1538;
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    overflow: auto;
 }
+
 
 .left{
     flex: 1;

@@ -7,6 +7,7 @@ import { UploadFile, BasicButton, StudentDataTabs, AddUserForm, SortTab } from '
 
 import styles from './Main.module.css';
 
+/*
 const studentDataTabs = [
     {name:"Surname, Given Name MI", course:"BS CS", gwa:"1.45"},
     {name:"Surname, Given Name MI", course:"BS CS", gwa:"1.45"},
@@ -17,6 +18,7 @@ const studentDataTabs = [
     {name:"Surname, Given Name MI", course:"BS CS", gwa:"1.45"},
    
   ];
+*/
 
 class Main extends React.Component{
 
@@ -141,14 +143,14 @@ class Main extends React.Component{
 
     render(){
         if(!this.state.checkifLoggedin){
-            return (<div></div>)
+             return (<div></div>)
         }else{
-            if(this.state.isLoggedin === false){
-                return(
-                    <Navigate to="/" />
-                )
+             if(this.state.isLoggedin === false){
+                 return(
+                     <Navigate to="/" />
+                 )
             
-            }else{
+             }else{
                 return(
                 <div className={styles.main}>
                     <div className={styles.left}>
@@ -234,11 +236,7 @@ class Main extends React.Component{
                 </div>
                 )
             }
-
-
-        }
-
-        
+         }
     }
 }
 export default Main
