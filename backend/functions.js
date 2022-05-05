@@ -5,9 +5,9 @@ var config = require('./config.json');
 const myModule = require('./index');
 const {database} = myModule.database;
 
-function readData(filename){
+function readData(filename, sheetName){
     var wb = XLSX.readFile("files/" + filename);
-    var ws = wb.Sheets["Sheet1"];
+    var ws = wb.Sheets[sheetName];
     var range = XLSX.utils.decode_range(ws['!ref']);
     range.s.r = 3;
     ws['!ref'] = XLSX.utils.encode_range(range);
@@ -17,7 +17,9 @@ function readData(filename){
 }
 
 
-function processExcel(filename, program){
+function processExcel(filename, program, data){
+
+    let notes = [];
 
     let courses_taken = [];
     let ge_taken = [];
@@ -30,10 +32,7 @@ function processExcel(filename, program){
     let elective_count = 0;
     let sp_thesis = false;
     
-    //console.log(program);
-    
-    // get course data
-    data = readData(filename);
+
     for(let i=0; i<data.length; i++){
 
         //Check validity of courses
@@ -43,11 +42,13 @@ function processExcel(filename, program){
             }
         }else if(/^[A-Z]{4} 200$/.test(data[i]["CRSE NO."])){
             if(!sp_thesis) {
-                elective_count = 6;
+                elective_count = 5;
+                sp_thesis = true
             }
         }else if(/^[A-Z]{4} 190$/.test(data[i]["CRSE NO."])){
             if(!sp_thesis) {
-                elective_count = 5;
+                elective_count = 6;
+                sp_thesis = true
             }
         }else if(data[i]["CRSE NO."] == 'HK 11'){                   //If course not in the program, check if it's a HK subject
             hk11_count--;
@@ -66,7 +67,7 @@ function processExcel(filename, program){
                 ge_taken.push(data[i]["CRSE NO."]);
             }
         }else if(data[i]["CRSE NO."] == 'LOA'){
-            //do nothing
+            notes.push("Taken LOA during " + data[i].__EMPTY)
         }
         else{
             elect_count++;
@@ -91,67 +92,99 @@ function processExcel(filename, program){
         //console.log(data[i]);
 
     }
-    // console.log("Number of courses taken is " + courses_taken.length);
-    // if(hk11_count != 0 && hk12_count != 0){
-    //     console.log("Missing HK courses");
-    // }else{
-    //     console.log("HK courses complete");
-    // }
-    // if(nstp1_count == 0 && nstp2_count == 0){
-    //     console.log("NSTP courses completed");
-    // }
-    // console.log("Number of Required GE courses taken: " + required_ge.length);
-    // console.log("Number of Elective GE courses taken: " + ge_taken.length);
+    //console.log("Number of courses taken is " + courses_taken.length);
+    if(hk11_count != 0 || hk12_count != 0){
+        // console.log("Missing HK courses");
+        notes.push("Incomplete number of HK courses")
+    }else{
+        // console.log("HK courses complete");
+    }
+    if(nstp1_count == 0 && nstp2_count == 0){
+        // console.log("NSTP courses completed");
+    }else{
+        notes.push("Incomplete number of NSTP courses")
+    }
+    //console.log("Number of Required GE courses taken: " + required_ge.length);
+    if(required_ge.length < 6){
+        // console.log("Incomplete number of required GE courses")
+        notes.push("Incomplete number of required GE courses")
+    }
+    //console.log("Number of Elective GE courses taken: " + ge_taken.length);
     
-    // if(elective_count <= elect_count){
-    //     console.log("Number of electives required reached");
-    //     console.log("Elective count is " + elect_count);
-    // }
+    if(elective_count <= elect_count){
+        // console.log("Number of electives required reached");
+        // console.log("Elective count is " + elect_count);
+    }else{
+        notes.push("Insufficient number of elective courses")
+    }
+
+    if(!sp_thesis){
+        notes.push("No SP/Thesis")
+    }
+
+    if(notes.length){   //notes is not empty
+        return {"success": false, "notes": notes}
+    }
 
     return {"success": true, "error": "None"}
 }
 
 
-function verifyname(filename){
-    var wb = XLSX.readFile("files/" + filename);
-    var ws = wb.Sheets["Sheet1"];
+function verifyname(filename, sheetName){
+    var wb = XLSX.readFile("files/" + filename, {sheetStubs: true});
+    var ws = wb.Sheets[sheetName];
     var fname = ws['B1'].v;
     var lname = ws['A1'].v;
 
     if(/^([A-Z\s])+$/.test(lname) && /^([A-Z\s])+$/.test(fname)){
-        console.log('Name: '+ lname+', '+fname);
+        //console.log('Name: '+ lname+', '+fname);
     }else{
-        console.log(lname+', '+fname+' is not a valid name');   
+        //console.log(lname+', '+fname+' is not a valid name');
+        return {"error": "Name is not valid"}   
     }
 
     return {"fname": fname, "lname": lname}
 }
 
 //TODO: Check 'A3' for degree program
-function verifystudno(filename){
-    var wb = XLSX.readFile("files/" + filename);
-    var ws = wb.Sheets["Sheet1"];
+function verifystudno(filename, sheetName){
+    var wb = XLSX.readFile("files/" + filename, {sheetStubs: true}) ;
+    var ws = wb.Sheets[sheetName];
     var studno = ws['A2'].v;
     if(/^20[0-2][0-9]-[0-9]{5}$/.test(studno)){
-        console.log('Student number: '+studno);
+        //console.log('Student number: '+studno);
     }else{
-        console.log('Invalid student number');
+        studno = ws['A3'].v;
+        if(/^20[0-2][0-9]-[0-9]{5}$/.test(studno)){
+            //console.log('Student number: '+studno);
+        }else{
+            //console.log('Invalid student number');
+            return {"error": "Invalid student number"};
+        }
+        
     }
 
     return studno
 }
 
 //TODO: Check 'A2' for degree program
-function verifycourse(filename){
-    var wb = XLSX.readFile("files/" + filename);
-    var ws = wb.Sheets["Sheet1"];
+function verifycourse(filename, sheetName){
+    var wb = XLSX.readFile("files/" + filename, {sheetStubs: true});
+    var ws = wb.Sheets[sheetName];
     var course = String(ws['A3'].v);
 
     var coursecodes = ['BSCS','BACA'];
     if(coursecodes.includes(course)){
-        console.log('Course: '+course);
+        //console.log('Course: '+course);
     }else{
-        console.log(course+ ' is not a valid course');
+        course = String(ws['A2'].v);
+        if(coursecodes.includes(course)){
+            //console.log('Course: '+course);
+        }else{
+            //console.log(course+ ' is not a valid course');
+            return {"error": "Invalid course"};
+        }
+        
     }
 
     return course;
@@ -199,7 +232,7 @@ function addStudent(studno, fname, lname, program, gwa){
         if (err) throw err;
 
         console.log("Successfully added student");
-        res.send(result);
+        //res.send(result);
     });
 }
 
@@ -244,7 +277,7 @@ function addTakenCourses(data, studno){
             }
         }
     }
-    console.log("Count is " + count);
+    //console.log("Count is " + count);
 }
 
 
@@ -252,6 +285,8 @@ function weightIsValid(data){
 
     let initSum = 0;
     let checkSum = 0;
+    let units = 0;
+    let gwa = 0;
     let count = 0;
     //console.log(data)
     for(let i = 0; i<data.length; i++){
@@ -265,6 +300,7 @@ function weightIsValid(data){
                 }
                 else if (isNaN(data[i].Grade*data[i].Units)){
                     checkSum += (data[i].Grade*6);
+                    units += 6;
                 }
                
             }
@@ -275,10 +311,12 @@ function weightIsValid(data){
                 }
                 else if (isNaN(data[i].Grade*data[i].Units)){
                     checkSum += (data[i].Grade*3);
+                    units += 3;
                 }
             }
             else if (/.+199$/.test(data[i]["CRSE NO."])){
                 if((data[i].Grade === 'S')){
+                    units += 1;
                     continue;
                 }
                 else {
@@ -298,23 +336,28 @@ function weightIsValid(data){
                 if(data[i].Grade*data[i].Units === data[i].Weight){
                     //console.log(data[i]["CRSE NO."] + "\t"+ data[i].Weight);
                     checkSum += data[i].Weight;
+                    units += data[i].Units;
                 }else{
                     //console.log("Error in " + i);
                     checkSum += (data[i].Grade*data[i].Units);
+                    units += data[i].Units;
                 }
             }
-            console.log(`checkSum: ${checkSum}`)
+            //console.log(`checkSum: ${checkSum}`)
         }
         else {
-            console.log(data[i]);
+            //console.log(data[i]);
             initSum = data[i].Cumulative;
             break;
         }
     }
     console.log(`checkSum: ${checkSum} initSum: ${initSum}`)
+    gwa = checkSum/units;
+    // console.log(units);
+    // console.log(gwa);
 
     if (checkSum == initSum) {
-        return true;
+        return {'success': true, 'gwa':gwa};
     }
     
     return false;

@@ -80,28 +80,81 @@ exports.uploadSingle = (req, res) => {
         let filename = req.files[i].originalname;
         //console.log(filename);
         if(/.+\.xlsx/.test(filename)){
-            //transform excel to JSON
-            let fname, lname, program, studno, gwa;
-            let data = functions.readData(filename);
+            let allErrors = {};
+            let workbook = XLSX.readFile("files/" + filename);
+            let sheet_names = workbook.SheetNames;
 
-            let name = functions.verifyname(filename);
-            fname = name.fname;
-            lname = name.lname;
-            studno = functions.verifystudno(filename);
-            program = functions.verifycourse(filename);
+            for(let j in sheet_names){
+                let errors = [];
+                //transform excel to JSON
+                let fname, lname, program, studno, gwa;
+                let data = functions.readData(filename, sheet_names[j]);
 
-            var checkFormat = functions.processExcel(filename, program);
-
-            if(checkFormat.success){
-                if(functions.weightIsValid(data)){
-                    functions.addTakenCourses(data, studno);
+                let name = functions.verifyname(filename, sheet_names[j]);
+                if(name.error){
+                    errors.push(name.error)
+                }else{
+                    fname = name.fname;
+                    lname = name.lname;
                 }
-            }
+                
+                studno = functions.verifystudno(filename, sheet_names[j]);
+                if(studno.error){
+                    errors.push(studno.error)
+                }
 
-            let checkSum = 0;
-            let units = 0;
+                program = functions.verifycourse(filename, sheet_names[j]);
+                if(program.error){
+                    errors.push(program.error)
+                }
+
+                //check if the three basic necessary information is found
+                //the student number is the identifier 
+                if(errors.length){
+                    allErrors[sheet_names[j]] = errors
+                    continue
+                }
+
+                var checkFormat = functions.processExcel(filename, program, data);
+                
+                // TODO: add students into database despite having "warnings"
+                if(checkFormat.success){
+                    let checkCalc = functions.weightIsValid(data)
+                    if(checkCalc.success){
+                        functions.addTakenCourses(data, studno);
+                    }
+
+                    functions.addStudent(studno, fname, lname, program, checkCalc.gwa);
+
+                }else if(!checkFormat.success){
+                    checkFormat.notes.forEach((note) => {
+                        //console.log("Note is " + note)
+                        errors.push(note)
+                    })
+                }
+
+                if(errors.length){
+                    allErrors[sheet_names[j]] = errors
+                }
+
+            }
+            if(Object.keys(allErrors).length){
+                console.log("Errors on the following files:")
+                Object.keys(allErrors).forEach((key) => {
+                    let err_msg = key + ": ";
+                    for(let count=0; count<allErrors[key].length; count++){
+                        if(count === (allErrors[key].length)-1){
+                            err_msg += allErrors[key][count]
+                        }else{
+                            err_msg += allErrors[key][count] + ", "
+                        }
+
+                    }
+                    console.log(err_msg);
+                })
+            }
             
-            console.log("File is xlsx");
+            //console.log("File is xlsx");
 
         }else if(/.+\.csv/.test(filename)){
             //transform csv to JSON

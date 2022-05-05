@@ -6,7 +6,7 @@ const {upload} = myModule.singleFile
 module.exports = (app) => {
 
    /* signUp is a limited function to admin users */
-  app.get("/signup", authController.signUp);
+  app.post("/signup", authController.signUp);
 
   app.post("/loginUser", authController.login);
   app.post("/checkifloggedin", authController.checkIfLoggedIn);
