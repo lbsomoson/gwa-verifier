@@ -13,8 +13,8 @@ app.use(cookieParser());
 
 const database = mysql.createConnection({
     host: 'localhost',
-    user: 'user',           // change user according to what's in your mySQL
-    password: 'password',    //change password according to what your mySQL root password is
+    user: 'root',           // change user according to what's in your mySQL
+    password: 'CMSC128',    //change password according to what your mySQL root password is
     database: 'project'       //change database name according to what's in your mySQL
 });
 
