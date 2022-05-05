@@ -14,7 +14,6 @@ exports.login = (req, res) => {
             console.log("login err");
         };
 
-
         if(result.length === 0){
             console.log("not logged in. user not found")
         }else{
@@ -26,19 +25,20 @@ exports.login = (req, res) => {
                     username: result[0].Username,
                     type: result[0].Type
                 }
-    
+
                 const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {expiresIn: "600s"});
+            
+
     
                 return res.send({result, token, username})
             }
 
         }//else
-        
+
         return res.send({msg: "Not found"})
-        
+
     })
     
-
 }
 
 //Sample sign up while waiting for frontend post request
@@ -49,7 +49,7 @@ exports.signUp = (req, res) => {
     const type = req.body.usertype;
     let sql = 'INSERT INTO users (Username, Password, Type) VALUES ( ?, ?, ?)';
     
-    let query = database.query(sql,[username,password,type], (err, result) => {
+    let query = database.query(sql, [username,password,type], (err, result) => {
         if(err) throw err;
         console.log("No Error");
         console.log(result);
@@ -84,6 +84,7 @@ exports.checkIfLoggedIn = (req, res) => {
 
             const user_name = tokenPayload.username;
             const type = tokenPayload.type;
+
             let findUser2 = 'SELECT * FROM users WHERE Username = ? and Type = ?';
 
             // check if user exists
@@ -94,64 +95,8 @@ exports.checkIfLoggedIn = (req, res) => {
                 }
                 console.log("Found user");
             })
+
             console.log("username: "+user_name)
             return res.send({ isLoggedin: true, username: user_name, type: type });
         });
 }
-
-
-
-// exports.findAllStudents = (req, res) => {
-//     let findAllStudents = 'SELECT * FROM students';
-
-//     let query = database.query(findAllStudents, (err, result) => {
-//         if (err) throw err;
-
-//         // returns all existing students in the database table
-//         res.send(result);
-//     });
-// }
-
-// exports.sortBy = (req, res) => {
-//     // assuming req.sort is the basis, and req.order is either ASC or DESC
-//     // basis could be First_Name, Last_Name, Course, GWA(?)
-//     let sortStudents = 'SELECT * FROM students ORDER BY ${req.sort} ${req.order}'
-
-//     let query = database.query(findStudents, (err, result) => {
-//         if (err) throw err;
-
-//         res.send(result);
-//     });
-// }
-
-// exports.searchStudents = (req, res) => {
-
-//     // assuming req.search is the text inside the search bar for the 
-//     let search = 'SELECT * FROM students WHERE (SELECT CONCAT(First_Name, " ", Last_Name) AS Full_Name) LIKE \"%${req.search}%\"';
-
-//     let query = database.query(search, (err, result) => {
-//         if (err) throw err;
-
-//         // returns in the database table
-//         res.send(result);
-//     });
-// }
-
-// exports.deleteStudent = (req, res) => {
-
-//     let removeStudent = 'DELETE FROM students WHERE ID = ${req.student_id}';
-//     let removeRecord = 'DELETE FROM taken_courses WHERE ID = ${req.student_id}';
-
-//     let query = database.query(removeStudent, (err, result) => {
-//         if (err) throw err;
-
-//         let query2 = database.query(removeRecord, (err, result) => {
-//             if (err) throw err;
-
-//             res.send('Successfully deleted student from database!');
-//         });
-//     });
-// }
-
-
-
