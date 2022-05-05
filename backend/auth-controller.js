@@ -25,9 +25,10 @@ exports.login = (req, res) => {
                     username: result[0].Username,
                     type: result[0].Type
                 }
-            
+
                 const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {expiresIn: "600s"});
             
+
     
                 return res.send({result, token, username})
             }

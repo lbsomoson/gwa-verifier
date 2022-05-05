@@ -1,25 +1,46 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route
+} from "react-router-dom";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+import "./normalize.css";
+import "./typography.css";
+
+import { Main, Login,StudentRecord } from "./pages";
+import { AddUserForm, StudentDataTabs } from './components';
+
+class App extends React.Component{
+  
+  constructor(props){
+    super(props)
+
+    this.state = {
+      username: ""
+    }
+
+    this.setUsername = this.setUsername.bind(this)
+
+  }
+
+  setUsername(user){
+    this.setState({username:user})
+  }
+
+  render(){
+    console.log(this.state.username)
+    return (
+      <Router>
+        <Routes>
+          <Route exact path="/" element={<Login />} />
+          <Route exact path="/main" element={<Main />} />
+          <Route exact path="/studentrecord" element={<StudentRecord />} />
+        </Routes>
+      </Router>
   );
+  }
 }
 
 export default App;
+//<Route exact path="/studentrecord" element={<StudentRecord />} />

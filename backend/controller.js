@@ -43,14 +43,16 @@ exports.searchStudents = (req, res) => {
 }
 
 exports.deleteStudent = (req, res) => {
+    
+    const student_id = req.body.student_id;
+    let removeStudent = 'DELETE FROM students WHERE ID = ?';
+    let removeRecord = 'DELETE FROM taken_courses WHERE ID = ?';
+    
 
-    let removeStudent = 'DELETE FROM students WHERE ID = ${req.student_id}';
-    let removeRecord = 'DELETE FROM taken_courses WHERE ID = ${req.student_id}';
-
-    let query = database.query(removeStudent, (err, result) => {
+    let query = database.query(removeStudent , [student_id], (err, result) => {
         if (err) throw err;
 
-        let query2 = database.query(removeRecord, (err, result) => {
+        let query2 = database.query(removeRecord, [student_id], (err, result) => {
             if (err) throw err;
 
             res.send('Successfully deleted student from database!');

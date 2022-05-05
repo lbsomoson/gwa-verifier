@@ -2,6 +2,7 @@
 
 var XLSX = require("xlsx");
 var config = require('./config.json');
+
 const myModule = require('./index');
 const {database} = myModule.database;
 
@@ -73,7 +74,6 @@ function processExcel(filename, program, data){
             elect_count++;
         }
 
-
         //Check validity of term
         let term = data[i].__EMPTY;
         if(term != undefined){   //term exists
@@ -135,6 +135,7 @@ function verifyname(filename, sheetName){
     var ws = wb.Sheets[sheetName];
     var fname = ws['B1'].v;
     var lname = ws['A1'].v;
+
 
     if(/^([A-Z\s])+$/.test(lname) && /^([A-Z\s])+$/.test(fname)){
         //console.log('Name: '+ lname+', '+fname);
@@ -209,6 +210,7 @@ function verifyunits(data){
         }
     }
 }
+
 
 function checkload(data){
     for(let i = 0; i<data.length;i++){
@@ -361,6 +363,7 @@ function weightIsValid(data){
     }
     
     return false;
+
 }
 
 module.exports={readData, verifyunits,checkload,processExcel, verifyname, verifycourse, verifystudno, addStudent, weightIsValid, addTakenCourses}
