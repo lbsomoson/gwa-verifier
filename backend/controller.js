@@ -16,6 +16,17 @@ exports.findAllStudents = (req, res) => {
     });
 }
 
+exports.findStudentRecord = (req, res) => {
+    let findStudentRecord = 'SELECT * FROM taken_courses where Student_ID=?';
+
+    let query = database.query(findStudentRecord, [req.id],(err, result) => {
+        if (err) throw err;
+
+        // returns the taken courses of specified student
+        res.send(result);
+    });
+}
+
 //might remove sort since this will be frontend's work
 exports.sortBy = (req, res) => {
     // assuming req.sort is the basis, and req.order is either ASC or DESC
