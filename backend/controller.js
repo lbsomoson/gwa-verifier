@@ -249,6 +249,14 @@ exports.uploadSingle = (req, res) => {
             //console.log(data);
             console.log("File is csv");
 
+            for(let j in sheet_names){
+                //console.log(sheet_names[j])
+                let errors = [];
+                //transform excel to JSON
+                let fname, lname, program, studno, gwa;
+                let data = functions.readData(filename, sheet_names[j]);
+                //console.log(data)
+            }
 
         }else if(/.+\.pdf/.test(filename)){
             //transform pdf to JSON
