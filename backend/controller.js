@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const myModule = require('./index');
 const {database} = myModule.database;
 const pdf2excel = require('pdf-to-excel');
@@ -131,20 +133,18 @@ exports.uploadSingle = (req, res) => {
                 var checkFormat = functions.processExcel(filename, program, data);
                 
                 // TODO: add students into database despite having "warnings"
-                if(checkFormat.success){
-                    let checkCalc = functions.weightIsValid(data)
+                if(!checkFormat.success){
+                    checkFormat.notes.forEach((note) => {
+                        errors.push(note)
+                    })
+                }
+
+                let checkCalc = functions.weightIsValid(data)
                     if(checkCalc.success){
                         functions.addTakenCourses(data, studno);
                     }
 
                     functions.addStudent(studno, fname, lname, program, checkCalc.gwa);
-
-                }else if(!checkFormat.success){
-                    checkFormat.notes.forEach((note) => {
-                        //console.log("Note is " + note)
-                        errors.push(note)
-                    })
-                }
 
                 if(errors.length){
                     allErrors[sheet_names[j]] = errors
@@ -358,5 +358,15 @@ exports.uploadSingle = (req, res) => {
         }
 
     }
-    
+
+    //Delete uploaded files
+    fs.readdir('files', (err, files) => {
+        if (err) console.log(err);
+      
+        for (const file of files) {
+          fs.unlink(path.join('files', file), err => {
+            if (err) console.log(err)
+          });
+        }
+      });
 } 
