@@ -21,6 +21,7 @@ function readData(filename, sheetName){
 function processExcel(filename, program, data){
 
     let notes = [];
+    let errors = [];
 
     let courses_taken = [];
     let ge_taken = [];
@@ -74,47 +75,37 @@ function processExcel(filename, program, data){
             elect_count++;
         }
 
+        //Check for underloading and overloading
+
         //Check validity of term
         let term = data[i].__EMPTY;
         if(term != undefined){   //term exists
+
             //check if term is in valid format
             if(/^l{1,2}\/\d{2}\/\d{2}$/.test(term)){
                 const termElements = term.split("/");
-                // for(let i in termElements){
-                //     console.log(termElements[i]);
-                // }
-            }else{
-                console.log("Error in term format for row" + i);
+                if(parseInt(termElements[1])+1 != parseInt(termElements[2])){
+                    notes.push("Academic Year of Term is incorrectly formatted for " + term)
+                }
+            }else if(!/^midyear 20\d{2}$/.test(term)){
+                notes.push("Error in term format for term" + term);
             }
         }
 
-        
-        //console.log(data[i]);
+    }
 
-    }
-    //console.log("Number of courses taken is " + courses_taken.length);
     if(hk11_count != 0 || hk12_count != 0){
-        // console.log("Missing HK courses");
         notes.push("Incomplete number of HK courses")
-    }else{
-        // console.log("HK courses complete");
     }
-    if(nstp1_count == 0 && nstp2_count == 0){
-        // console.log("NSTP courses completed");
-    }else{
+    if(nstp1_count != 0 || nstp2_count != 0){
         notes.push("Incomplete number of NSTP courses")
     }
-    //console.log("Number of Required GE courses taken: " + required_ge.length);
+
     if(required_ge.length < 6){
-        // console.log("Incomplete number of required GE courses")
         notes.push("Incomplete number of required GE courses")
     }
-    //console.log("Number of Elective GE courses taken: " + ge_taken.length);
     
-    if(elective_count <= elect_count){
-        // console.log("Number of electives required reached");
-        // console.log("Elective count is " + elect_count);
-    }else{
+    if(elective_count > elect_count){
         notes.push("Insufficient number of elective courses")
     }
 
@@ -214,7 +205,7 @@ function verifyunits(data){
 
 function checkload(data){
     for(let i = 0; i<data.length;i++){
-        if(data[i]["Term"]!=undefined){
+        if(data[i]["Term"]!=undefined){ //load exists
             recorded = data[i]["Term"];
             if(recorded<15){
                 console.log(recorded, "Underload");
@@ -366,4 +357,20 @@ function weightIsValid(data){
 
 }
 
-module.exports={readData, verifyunits,checkload,processExcel, verifyname, verifycourse, verifystudno, addStudent, weightIsValid, addTakenCourses}
+
+// Splits the term to a more readable format
+function termToText(term){
+    const termElements = term.split("/");
+    let term_msg = "";
+
+    if(termElements[0] === 'l'){
+        term_msg += "1st Semester of A.Y. 20" + termElements[1] + "-20" + termElements[2]; 
+    }else{
+        term_msg += "2nd Semester of A.Y. 20" + termElements[1] + "-20" + termElements[2]; 
+    }
+
+
+
+}
+
+module.exports={readData, verifyunits,checkload,processExcel, verifyname, verifycourse, verifystudno, addStudent, weightIsValid, addTakenCourses, termToText}

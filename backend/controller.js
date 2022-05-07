@@ -170,22 +170,19 @@ exports.uploadSingle = (req, res) => {
             //console.log("File is xlsx");
 
         }else if(/.+\.csv/.test(filename)){
-            //transform csv to JSON
-            //console.log("File is csv");
-            const wb = XLSX.readFile("files/" + filename)
-            var ws = wb.Sheets["Sheet1"];
+            let allErrors = {};
+            let workbook = XLSX.readFile("files/" + filename);
+            let sheet_names = workbook.SheetNames;
+            console.log(sheet_names);
 
-            var range = XLSX.utils.decode_range(ws['!ref']);
-
-            range.s.r = 2;
-            range.e.r = range.e.r - 4;
-            ws['!ref'] = XLSX.utils.encode_range(range);
-
-            var data = XLSX.utils.sheet_to_json(ws);
-
-            //console.log(data);
-            console.log("File is csv");
-
+            for(let j in sheet_names){
+                //console.log(sheet_names[j])
+                let errors = [];
+                //transform excel to JSON
+                let fname, lname, program, studno, gwa;
+                let data = functions.readData(filename, sheet_names[j]);
+                //console.log(data)
+            }
 
         }else if(/.+\.pdf/.test(filename)){
             //transform pdf to JSON
