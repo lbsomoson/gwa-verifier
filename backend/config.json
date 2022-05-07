@@ -11,6 +11,17 @@
         "BSSTAT": ["MATH 27","BIO 30","STAT 101","STAT 135","MATH 28","CMSC 12","STAT 162","STAT 182","CMSC 21","ECON 11","STAT 144","STAT 168","MATH 182","CMSC 22","ABME 10","STAT 145","STAT 163","STAT 146","STAT 173","STAT 175","STAT 181","CMSC 127","STAT 147","STAT 151","STAT 156","STAT 174","STAT 192.1","COMA 198","ENG 10","STAT 148","STAT 165","STAT 191","STAT 157","STAT 167","STAT 183","STAT 199"]
     },
 
+    "units":{
+        "BSCS": {
+            "Thesis": [15, 15, 15, 15, 18, 18, 3, 16, 15],
+            "SP": [15, 15, 15, 15, 18, 18, 3, 17, 14]
+        }
+    },
+
+    "max_units":{
+        "BSCS": 130
+    },
+
     "GE": {
         "ARTS 1": "Required",
         "COMM 10": "Required",
