@@ -33,9 +33,26 @@ function processExcel(filename, program, data){
     let elect_count = 0;
     let elective_count = 0;
     let sp_thesis = false;
+    let sp_flag = false;
+    let max_term_count = config.units[program].Thesis.length;
+    let term_count = 0;
     
 
     for(let i=0; i<data.length; i++){
+        /*
+        Things to check:
+        0. Check if the proper format of CRSE NO., Grade, Units, Weight, Cumulative, Term is followed
+        1. Check if the courses taken are in the course, if not, count it as elective (DONE)
+        2. Check if the required elective count is reached (WIP)
+        3. Check if the NSTP and HK requirements are met (DONE)
+        4. Check if student is taking an SP/Thesis (DONE)
+        5. Check if Underloading or Overloading (WIP)
+        6. Check if term has a valid format (DONE)
+        7. Check if Weight and Cumulative matches our own calculation
+        8. Check if student met the required number of units 
+
+        */
+
 
         //Check validity of courses
         if(config.course[program].includes(data[i]["CRSE NO."])){   //Check if course taken is in the program
@@ -51,6 +68,8 @@ function processExcel(filename, program, data){
             if(!sp_thesis) {
                 elective_count = 6;
                 sp_thesis = true
+                sp_flag = true
+                max_term_count = config.units[program].SP.length
             }
         }else if(data[i]["CRSE NO."] == 'HK 11'){                   //If course not in the program, check if it's a HK subject
             hk11_count--;
@@ -76,6 +95,21 @@ function processExcel(filename, program, data){
         }
 
         //Check for underloading and overloading
+        if(term_count < max_term_count){
+            if(data[i]["Term"]!=undefined){ //load exists
+                if(!sp_flag){
+                    checkload(data, i, config.units[program].Thesis, term_count, notes)
+                    term_count++;
+                }else{
+                    checkload(data, i, config.units[program].SP, term_count, notes)
+                    term_count++;
+                }
+                
+            }
+        }else{
+            notes.push("Took more terms than prescribed during course" + data[i]["CRSE NO."])
+            //console.log("Term count is "+ term_count + "during course" + data[i]["CRSE NO."])
+        }
 
         //Check validity of term
         let term = data[i].__EMPTY;
@@ -203,19 +237,19 @@ function verifyunits(data){
 }
 
 
-function checkload(data){
-    for(let i = 0; i<data.length;i++){
-        if(data[i]["Term"]!=undefined){ //load exists
-            recorded = data[i]["Term"];
-            if(recorded<15){
-                console.log(recorded, "Underload");
-            }else if(recorded>=15 && recorded<=21){
-                console.log(recorded, "Regular Load");
-            }else{
-                console.log(recorded, "Overload");
-            }
+function checkload(data, count, config, term_count, notes){
+    
+        const recorded = data[count]["Term"];
+        if(recorded<config[term_count]){
+            notes.push("Underload during " + data[count].__EMPTY)
+        }else if(recorded == config[term_count]){
+            console.log(recorded, "Regular Load");
+        }else{
+            notes.push("Overload during " + data[count].__EMPTY)
+            console.log("Count is "+ term_count +" and " + config[term_count] + "is not equal to " + data[count]["Term"] + "for term " + data[count].__EMPTY)
+            console.log(recorded, "Overload");
         }
-    }
+    
 }
 
 function addStudent(studno, fname, lname, program, gwa){
