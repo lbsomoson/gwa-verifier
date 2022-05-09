@@ -104,8 +104,8 @@ exports.uploadSingle = (req, res) => {
                 //transform excel to JSON
                 let fname, lname, program, studno, gwa;
                 let data = functions.readData(filename, sheet_names[j]);
-
                 let name = functions.verifyname(filename, sheet_names[j]);
+
                 if(name.error){
                     errors.push(name.error)
                 }else{
@@ -139,16 +139,26 @@ exports.uploadSingle = (req, res) => {
                     })
                 }
 
-                let checkCalc = functions.weightIsValid(data)
-                    if(checkCalc.success){
-                        functions.addTakenCourses(data, studno);
-                    }
-
-                    functions.addStudent(studno, fname, lname, program, checkCalc.gwa);
-
+                let notes_msg = 'Notes: '
                 if(errors.length){
                     allErrors[sheet_names[j]] = errors
+                    for(let count=0; count<errors.length; count++){
+                        if(count === (errors.length)-1){
+                            notes_msg += errors[count]
+                        }else{
+                            notes_msg += errors[count] + ", "
+                        }
+
+                    }
                 }
+
+                let checkCalc = functions.weightIsValid(data)
+
+                if(checkCalc.success){
+                    functions.addTakenCourses(data, studno);
+                }
+
+                functions.addStudent(studno, fname, lname, program, checkCalc.gwa, notes_msg);
 
             }
             if(Object.keys(allErrors).length){
@@ -282,7 +292,7 @@ exports.uploadSingle = (req, res) => {
             convertpdf();
             let newfilename = 'bar.xlsx'
             let allErrors = {};
-            let workbook = XLSX.readFile("files/" + newfilename);
+            let workbook = XLSX.readFileSync("files/" + newfilename);
             let sheet_names = workbook.SheetNames;
 
             for(let j in sheet_names){
@@ -290,72 +300,73 @@ exports.uploadSingle = (req, res) => {
                 //transform excel to JSON
                 let fname, lname, program, studno, gwa;
                 let data = functions.readData(newfilename, sheet_names[j]);
+                console.log(data)
 
-                let name = functions.verifyname(newfilename, sheet_names[j]);
-                if(name.error){
-                    errors.push(name.error)
-                }else{
-                    fname = name.fname;
-                    lname = name.lname;
-                }
+                // let name = functions.verifyname(newfilename, sheet_names[j]);
+                // if(name.error){
+                //     errors.push(name.error)
+                // }else{
+                //     fname = name.fname;
+                //     lname = name.lname;
+                // }
                 
-                studno = functions.verifystudno(newfilename, sheet_names[j]);
-                if(studno.error){
-                    errors.push(studno.error)
-                }
+                // studno = functions.verifystudno(newfilename, sheet_names[j]);
+                // if(studno.error){
+                //     errors.push(studno.error)
+                // }
 
-                program = functions.verifycourse(newfilename, sheet_names[j]);
-                if(program.error){
-                    errors.push(program.error)
-                }
+                // program = functions.verifycourse(newfilename, sheet_names[j]);
+                // if(program.error){
+                //     errors.push(program.error)
+                // }
 
-                //check if the three basic necessary information is found
-                //the student number is the identifier 
-                if(errors.length){
-                    allErrors[sheet_names[j]] = errors
-                    continue
-                }
+                // //check if the three basic necessary information is found
+                // //the student number is the identifier 
+                // if(errors.length){
+                //     allErrors[sheet_names[j]] = errors
+                //     continue
+                // }
 
-                var checkFormat = functions.processExcel(newfilename, program, data);
+                // var checkFormat = functions.processExcel(newfilename, program, data);
                 
-                // TODO: add students into database despite having "warnings"
-                if(checkFormat.success){
-                    let checkCalc = functions.weightIsValid(data)
-                    if(checkCalc.success){
-                        functions.addTakenCourses(data, studno);
-                    }
+                // // TODO: add students into database despite having "warnings"
+                // if(checkFormat.success){
+                //     let checkCalc = functions.weightIsValid(data)
+                //     if(checkCalc.success){
+                //         functions.addTakenCourses(data, studno);
+                //     }
 
-                    functions.addStudent(studno, fname, lname, program, checkCalc.gwa);
+                //     functions.addStudent(studno, fname, lname, program, checkCalc.gwa);
 
-                }else if(!checkFormat.success){
-                    checkFormat.notes.forEach((note) => {
-                        //console.log("Note is " + note)
-                        errors.push(note)
-                    })
-                }
+                // }else if(!checkFormat.success){
+                //     checkFormat.notes.forEach((note) => {
+                //         //console.log("Note is " + note)
+                //         errors.push(note)
+                //     })
+                // }
 
-                if(errors.length){
-                    allErrors[sheet_names[j]] = errors
-                }
+                // if(errors.length){
+                //     allErrors[sheet_names[j]] = errors
+                // }
 
             }
-            if(Object.keys(allErrors).length){
-                console.log("Errors on the following files:")
-                Object.keys(allErrors).forEach((key) => {
-                    let err_msg = key + ": ";
-                    for(let count=0; count<allErrors[key].length; count++){
-                        if(count === (allErrors[key].length)-1){
-                            err_msg += allErrors[key][count]
-                        }else{
-                            err_msg += allErrors[key][count] + ", "
-                        }
+        //     if(Object.keys(allErrors).length){
+        //         console.log("Errors on the following files:")
+        //         Object.keys(allErrors).forEach((key) => {
+        //             let err_msg = key + ": ";
+        //             for(let count=0; count<allErrors[key].length; count++){
+        //                 if(count === (allErrors[key].length)-1){
+        //                     err_msg += allErrors[key][count]
+        //                 }else{
+        //                     err_msg += allErrors[key][count] + ", "
+        //                 }
 
-                    }
-                    console.log(err_msg);
-                })
-            }
+        //             }
+        //             console.log(err_msg);
+        //         })
+        //     }
 
-        }
+        // }
 
     }
 
@@ -370,3 +381,5 @@ exports.uploadSingle = (req, res) => {
         }
       });
 } 
+
+}
