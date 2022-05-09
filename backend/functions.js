@@ -6,6 +6,7 @@ var config = require('./config.json');
 const myModule = require('./index');
 const {database} = myModule.database;
 
+//TO DO: Check if data exists and if the proper column names exist
 function readData(filename, sheetName){
     var wb = XLSX.readFile("files/" + filename);
     var ws = wb.Sheets[sheetName];
@@ -13,7 +14,7 @@ function readData(filename, sheetName){
     range.s.r = 3;
     ws['!ref'] = XLSX.utils.encode_range(range);
     var data = XLSX.utils.sheet_to_json(ws);
-    //console.log(data);
+    console.log(data);
     return data;
 }
 
@@ -52,34 +53,33 @@ function processExcel(filename, program, data){
         8. Check if student met the required number of units 
 
         */
-
-
+        
         //Check validity of courses
         if(config.course[program].includes(data[i]["CRSE NO."])){   //Check if course taken is in the program
             if(!courses_taken.includes(data[i]["CRSE NO."])){
                 courses_taken.push(data[i]["CRSE NO."]);
             }
-        }else if(/^[A-Z]{4} 200$/.test(data[i]["CRSE NO."])){
+        }else if(/^.+\s200$/.test(data[i]["CRSE NO."])){
             if(!sp_thesis) {
                 elective_count = 5;
                 sp_thesis = true
             }
-        }else if(/^[A-Z]{4} 190$/.test(data[i]["CRSE NO."])){
+        }else if(/^.+\s190$/.test(data[i]["CRSE NO."])){
             if(!sp_thesis) {
                 elective_count = 6;
                 sp_thesis = true
                 sp_flag = true
                 max_term_count = config.units[program].SP.length
             }
-        }else if(data[i]["CRSE NO."] == 'HK 11'){                   //If course not in the program, check if it's a HK subject
+        }else if(data[i]["CRSE NO."] === 'HK 11'){                   //If course not in the program, check if it's a HK subject
             hk11_count--;
-        }else if(data[i]["CRSE NO."] == 'HK 12'){
+        }else if(data[i]["CRSE NO."] === 'HK 12'){
             hk12_count--;
-        }else if(data[i]["CRSE NO."] == 'NSTP 1'){
+        }else if(data[i]["CRSE NO."] === 'NSTP 1'){
             nstp1_count--;
-        }else if(data[i]["CRSE NO."] == 'NSTP 2'){
+        }else if(data[i]["CRSE NO."] === 'NSTP 2'){
             nstp2_count--;
-        }else if(data[i]["CRSE NO."] == undefined) break;           //breaks if no more courses are read
+        }else if(data[i]["CRSE NO."] === undefined) break;           //breaks if no more courses are read
 
         else if(config.GE.hasOwnProperty(data[i]["CRSE NO."])){
             if(config.GE[data[i]["CRSE NO."]] === 'Required'){
@@ -87,11 +87,12 @@ function processExcel(filename, program, data){
             }else{
                 ge_taken.push(data[i]["CRSE NO."]);
             }
-        }else if(data[i]["CRSE NO."] == 'LOA'){
+        }else if(data[i]["CRSE NO."] === 'LOA'){
             notes.push("Taken LOA during " + data[i].__EMPTY)
         }
         else{
             elect_count++;
+            
         }
 
         //Check for underloading and overloading
@@ -252,10 +253,10 @@ function checkload(data, count, config, term_count, notes){
     
 }
 
-function addStudent(studno, fname, lname, program, gwa){
-    let addStudent = 'INSERT INTO students values (?, ?, ?, ?, ?)';
+function addStudent(studno, fname, lname, program, gwa, warnings){
+    let addStudent = 'INSERT INTO students values (?, ?, ?, ?, ?, ?)';
 
-    let query = database.query(addStudent, [studno, fname, lname, program, gwa] ,(err, result) => {
+    let query = database.query(addStudent, [studno, fname, lname, program, gwa, warnings] ,(err, result) => {
         if (err) throw err;
 
         console.log("Successfully added student");
@@ -312,7 +313,9 @@ function weightIsValid(data){
 
     let initSum = 0;
     let checkSum = 0;
+    let initUnits = 0;
     let units = 0;
+    let initGWA = 0;
     let gwa = 0;
     let count = 0;
     //console.log(data)
@@ -341,6 +344,7 @@ function weightIsValid(data){
                     units += 3;
                 }
             }
+            // check if course is a seminar
             else if (/.+199$/.test(data[i]["CRSE NO."])){
                 if((data[i].Grade === 'S')){
                     units += 1;
@@ -360,12 +364,10 @@ function weightIsValid(data){
                 continue;
             }
             else {
-                if(data[i].Grade*data[i].Units === data[i].Weight){
-                    //console.log(data[i]["CRSE NO."] + "\t"+ data[i].Weight);
+                if(data[i].Grade*data[i].Units === data[i].Weight){     // if the calculation is correct
                     checkSum += data[i].Weight;
                     units += data[i].Units;
-                }else{
-                    //console.log("Error in " + i);
+                }else{                                                  // if not
                     checkSum += (data[i].Grade*data[i].Units);
                     units += data[i].Units;
                 }
@@ -375,19 +377,20 @@ function weightIsValid(data){
         else {
             //console.log(data[i]);
             initSum = data[i].Cumulative;
+            initUnits = data[i].Grade;
+            initGWA = data[i+1].Grade;
             break;
         }
     }
+
     console.log(`checkSum: ${checkSum} initSum: ${initSum}`)
     gwa = checkSum/units;
-    // console.log(units);
-    // console.log(gwa);
 
-    if (checkSum == initSum) {
+    if (checkSum === initSum && units === initUnits) {
         return {'success': true, 'gwa':gwa};
     }
     
-    return false;
+    return {'success': false, 'gwa': initGWA,'warning': 'mismatch with cumulative or total units'};
 
 }
 
