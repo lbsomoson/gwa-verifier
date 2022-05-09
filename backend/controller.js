@@ -370,16 +370,16 @@ exports.uploadSingle = (req, res) => {
 
     }
 
-    // //Delete uploaded files
-    // fs.readdir('files', (err, files) => {
-    //     if (err) console.log(err);
+    //Delete uploaded files
+    fs.readdir('files', (err, files) => {
+        if (err) console.log(err);
       
-    //     for (const file of files) {
-    //       fs.unlink(path.join('files', file), err => {
-    //         if (err) console.log(err)
-    //       });
-    //     }
-    //   });
+        for (const file of files) {
+          fs.unlink(path.join('files', file), err => {
+            if (err) console.log(err)
+          });
+        }
+      });
 } 
 
 }
