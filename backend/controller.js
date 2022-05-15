@@ -93,18 +93,20 @@ exports.uploadSingle = (req, res) => {
     console.log(req.files);
     for(let i=0; i<req.files.length; i++){
         let filename = req.files[i].originalname;
-        //console.log(filename);
-        if(/.+\.xlsx/.test(filename)){
+        
+        if(/.+\.xlsx/.test(filename) || /.+\.csv/.test(filename)){
             let allErrors = {};
             let workbook = XLSX.readFile("files/" + filename);
             let sheet_names = workbook.SheetNames;
 
             for(let j in sheet_names){
-                let errors = [];
                 //transform excel to JSON
-                let fname, lname, program, studno, gwa;
-                let data = functions.readData(filename, sheet_names[j]);
-                let name = functions.verifyname(filename, sheet_names[j]);
+                let errors = [];  
+                let name, fname, lname, program, studno, gwa;
+
+                name = functions.verifyname(filename, sheet_names[j]);
+                studno = functions.verifystudno(filename, sheet_names[j]);
+                program = functions.verifycourse(filename, sheet_names[j]);
 
                 if(name.error){
                     errors.push(name.error)
@@ -113,22 +115,26 @@ exports.uploadSingle = (req, res) => {
                     lname = name.lname;
                 }
                 
-                studno = functions.verifystudno(filename, sheet_names[j]);
                 if(studno.error){
                     errors.push(studno.error)
                 }
 
-                program = functions.verifycourse(filename, sheet_names[j]);
                 if(program.error){
                     errors.push(program.error)
                 }
-
+                
                 //check if the three basic necessary information is found
                 //the student number is the identifier 
                 if(errors.length){
                     allErrors[sheet_names[j]] = errors
                     continue
                 }
+
+                let data = functions.readData(filename, sheet_names[j]);
+                if(data.error){
+                    errors.push(data.error)
+                }
+
 
                 var checkFormat = functions.processExcel(filename, program, data);
                 
@@ -175,97 +181,6 @@ exports.uploadSingle = (req, res) => {
                     }
                     console.log(err_msg);
                 })
-            }
-            
-            //console.log("File is xlsx");
-
-        }else if(/.+\.csv/.test(filename)){
-            //transform csv to JSON
-            //console.log("File is csv");
-            let allErrors = {};
-            let workbook = XLSX.readFile("files/" + filename);
-            let sheet_names = workbook.SheetNames;
-
-            for(let j in sheet_names){
-                let errors = [];
-                //transform excel to JSON
-                let fname, lname, program, studno, gwa;
-                let data = functions.readData(filename, sheet_names[j]);
-
-                let name = functions.verifyname(filename, sheet_names[j]);
-                if(name.error){
-                    errors.push(name.error)
-                }else{
-                    fname = name.fname;
-                    lname = name.lname;
-                }
-                
-                studno = functions.verifystudno(filename, sheet_names[j]);
-                if(studno.error){
-                    errors.push(studno.error)
-                }
-
-                program = functions.verifycourse(filename, sheet_names[j]);
-                if(program.error){
-                    errors.push(program.error)
-                }
-
-                //check if the three basic necessary information is found
-                //the student number is the identifier 
-                if(errors.length){
-                    allErrors[sheet_names[j]] = errors
-                    continue
-                }
-
-                var checkFormat = functions.processExcel(filename, program, data);
-                
-                // TODO: add students into database despite having "warnings"
-                if(checkFormat.success){
-                    let checkCalc = functions.weightIsValid(data)
-                    if(checkCalc.success){
-                        functions.addTakenCourses(data, studno);
-                    }
-
-                    functions.addStudent(studno, fname, lname, program, checkCalc.gwa);
-
-                }else if(!checkFormat.success){
-                    checkFormat.notes.forEach((note) => {
-                        //console.log("Note is " + note)
-                        errors.push(note)
-                    })
-                }
-
-                if(errors.length){
-                    allErrors[sheet_names[j]] = errors
-                }
-
-            }
-            if(Object.keys(allErrors).length){
-                console.log("Errors on the following files:")
-                Object.keys(allErrors).forEach((key) => {
-                    let err_msg = key + ": ";
-                    for(let count=0; count<allErrors[key].length; count++){
-                        if(count === (allErrors[key].length)-1){
-                            err_msg += allErrors[key][count]
-                        }else{
-                            err_msg += allErrors[key][count] + ", "
-                        }
-
-                    }
-                    console.log(err_msg);
-                })
-            }
-
-            //console.log(data);
-            console.log("File is csv");
-
-            for(let j in sheet_names){
-                //console.log(sheet_names[j])
-                let errors = [];
-                //transform excel to JSON
-                let fname, lname, program, studno, gwa;
-                let data = functions.readData(filename, sheet_names[j]);
-                //console.log(data)
             }
 
         }else if(/.+\.pdf/.test(filename)){
