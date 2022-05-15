@@ -14,7 +14,9 @@ function readData(filename, sheetName){
     range.s.r = 3;
     ws['!ref'] = XLSX.utils.encode_range(range);
     var data = XLSX.utils.sheet_to_json(ws);
-    console.log(data);
+    if(data.length === 0){
+        return {'error': 'data does not exist'}
+    }
     return data;
 }
 
@@ -31,7 +33,7 @@ function processExcel(filename, program, data){
     let hk12_count = 3;
     let nstp1_count = 1;
     let nstp2_count = 1;
-    let elect_count = 0;
+    let taken_elective_count = 0;
     let elective_count = 0;
     let sp_thesis = false;
     let sp_flag = false;
@@ -49,81 +51,85 @@ function processExcel(filename, program, data){
         4. Check if student is taking an SP/Thesis (DONE)
         5. Check if Underloading or Overloading (WIP)
         6. Check if term has a valid format (DONE)
-        7. Check if Weight and Cumulative matches our own calculation
+        7. Check if Weight and Cumulative matches our own calculation (DONE)
         8. Check if student met the required number of units 
 
         */
         
-        //Check validity of courses
-        if(config.course[program].includes(data[i]["CRSE NO."])){   //Check if course taken is in the program
-            if(!courses_taken.includes(data[i]["CRSE NO."])){
-                courses_taken.push(data[i]["CRSE NO."]);
-            }
-        }else if(/^.+\s200$/.test(data[i]["CRSE NO."])){
-            if(!sp_thesis) {
-                elective_count = 5;
-                sp_thesis = true
-            }
-        }else if(/^.+\s190$/.test(data[i]["CRSE NO."])){
-            if(!sp_thesis) {
-                elective_count = 6;
-                sp_thesis = true
-                sp_flag = true
-                max_term_count = config.units[program].SP.length
-            }
-        }else if(data[i]["CRSE NO."] === 'HK 11'){                   //If course not in the program, check if it's a HK subject
-            hk11_count--;
-        }else if(data[i]["CRSE NO."] === 'HK 12'){
-            hk12_count--;
-        }else if(data[i]["CRSE NO."] === 'NSTP 1'){
-            nstp1_count--;
-        }else if(data[i]["CRSE NO."] === 'NSTP 2'){
-            nstp2_count--;
-        }else if(data[i]["CRSE NO."] === undefined) break;           //breaks if no more courses are read
-
-        else if(config.GE.hasOwnProperty(data[i]["CRSE NO."])){
-            if(config.GE[data[i]["CRSE NO."]] === 'Required'){
-                required_ge.push(data[i]["CRSE NO."]);
-            }else{
-                ge_taken.push(data[i]["CRSE NO."]);
-            }
-        }else if(data[i]["CRSE NO."] === 'LOA'){
-            notes.push("Taken LOA during " + data[i].__EMPTY)
-        }
-        else{
-            elect_count++;
-            
-        }
-
-        //Check for underloading and overloading
-        if(term_count < max_term_count){
-            if(data[i]["Term"]!=undefined){ //load exists
-                if(!sp_flag){
-                    checkload(data, i, config.units[program].Thesis, term_count, notes)
-                    term_count++;
-                }else{
-                    checkload(data, i, config.units[program].SP, term_count, notes)
-                    term_count++;
+        if(data[i]["CRSE NO."] && data[i].Grade && data[i].Units && data[i].Weight && data[i].Cumulative){
+            //Check validity of courses
+            if(config.course[program].includes(data[i]["CRSE NO."])){   //Check if course taken is in the program
+                if(!courses_taken.includes(data[i]["CRSE NO."])){
+                    courses_taken.push(data[i]["CRSE NO."]);
                 }
+            }else if(/^.+\s200$/.test(data[i]["CRSE NO."])){
+                if(!sp_thesis) {
+                    elective_count = 5;
+                    sp_thesis = true
+                }
+            }else if(/^.+\s190$/.test(data[i]["CRSE NO."])){
+                if(!sp_thesis) {
+                    elective_count = 6;
+                    sp_thesis = true
+                    sp_flag = true
+                    max_term_count = config.units[program].SP.length
+                }
+            }else if(data[i]["CRSE NO."] === 'HK 11'){                   //If course not in the program, check if it's a HK subject
+                hk11_count--;
+            }else if(data[i]["CRSE NO."] === 'HK 12'){
+                hk12_count--;
+            }else if(data[i]["CRSE NO."] === 'NSTP 1'){
+                nstp1_count--;
+            }else if(data[i]["CRSE NO."] === 'NSTP 2'){
+                nstp2_count--;
+            }
+            else if(config.GE.hasOwnProperty(data[i]["CRSE NO."])){
+                if(config.GE[data[i]["CRSE NO."]] === 'Required'){
+                    required_ge.push(data[i]["CRSE NO."]);
+                }else{
+                    ge_taken.push(data[i]["CRSE NO."]);
+                }
+            }else if(data[i]["CRSE NO."] === 'LOA'){
+                notes.push("Taken LOA during " + data[i].__EMPTY)
+            }
+            else if(data[i]["CRSE NO."] === 'AWOL'){
+                notes.push("Taken AWOL during " + data[i].__EMPTY)
+            }
+            else{
+                taken_elective_count++;
                 
             }
-        }else{
-            notes.push("Took more terms than prescribed during course" + data[i]["CRSE NO."])
-            //console.log("Term count is "+ term_count + "during course" + data[i]["CRSE NO."])
-        }
 
-        //Check validity of term
-        let term = data[i].__EMPTY;
-        if(term != undefined){   //term exists
-
-            //check if term is in valid format
-            if(/^l{1,2}\/\d{2}\/\d{2}$/.test(term)){
-                const termElements = term.split("/");
-                if(parseInt(termElements[1])+1 != parseInt(termElements[2])){
-                    notes.push("Academic Year of Term is incorrectly formatted for " + term)
+            //Check for underloading and overloading
+            if(term_count < max_term_count){
+                if(data[i]["Term"]!=undefined){ //load exists
+                    if(!sp_flag){
+                        checkload(data, i, config.units[program].Thesis, term_count, notes)
+                        term_count++;
+                    }else{
+                        checkload(data, i, config.units[program].SP, term_count, notes)
+                        term_count++;
+                    }
+                    
                 }
-            }else if(!/^midyear 20\d{2}$/.test(term)){
-                notes.push("Error in term format for term" + term);
+            }else{
+                notes.push("Took more terms than prescribed during course" + data[i]["CRSE NO."])
+                //console.log("Term count is "+ term_count + "during course" + data[i]["CRSE NO."])
+            }
+
+            //Check validity of term
+            let term = data[i].__EMPTY;
+            if(term != undefined){   //term exists
+
+                //check if term is in valid format
+                if(/^l{1,2}\/\d{2}\/\d{2}$/.test(term)){
+                    const termElements = term.split("/");
+                    if(parseInt(termElements[1])+1 != parseInt(termElements[2])){
+                        notes.push("Academic Year of Term is incorrectly formatted for " + term)
+                    }
+                }else if(!/^midyear 20\d{2}$/.test(term)){
+                    notes.push("Error in term format for term" + term);
+                }
             }
         }
 
@@ -140,7 +146,7 @@ function processExcel(filename, program, data){
         notes.push("Incomplete number of required GE courses")
     }
     
-    if(elective_count > elect_count){
+    if(elective_count > taken_elective_count){
         notes.push("Insufficient number of elective courses")
     }
 
@@ -282,6 +288,7 @@ function addTakenCourses(data, studno){
     let count = 1;
 
     for(let i=0; i<data.length; i++){
+        console.log("Adding a course")
         if (data[i]['CRSE NO.'] != undefined){
             if(['LOA', 'AWOL'].includes(data[i]['CRSE NO.'])){
                 if(data[i]['CRSE NO.'] === 'LOA'){
@@ -317,11 +324,10 @@ function weightIsValid(data){
     let units = 0;
     let initGWA = 0;
     let gwa = 0;
-    let count = 0;
-    //console.log(data)
+    let warnings = [];
+
     for(let i = 0; i<data.length; i++){
         
-
         if (data[i]['CRSE NO.'] != undefined){
             // check if course is of 200 series (thesis)
             if(/.+200$/.test(data[i]["CRSE NO."])){
@@ -352,10 +358,8 @@ function weightIsValid(data){
                 }
                 else {
                     if(data[i].Grade*data[i].Units === data[i].Weight){
-                        //console.log(data[i]["CRSE NO."] + "\t"+ data[i].Weight);
                         checkSum += data[i].Weight;
                     }else{
-                        //console.log("Error in " + i);
                         checkSum += (data[i].Grade*data[i].Units);
                     }
                 }
@@ -364,6 +368,16 @@ function weightIsValid(data){
                 continue;
             }
             else {
+                if(['INC', 'DFG'].includes(data[i].Grade)){
+                    warnings.push('Student has a grade of INC or DFG for course '+ data[i]["CRSE NO."])
+                    continue
+                }
+                
+                else if(data[i].Grade === 'DRP'){
+                    warnings.push('Student has a grade of DRP for course '+ data[i]["CRSE NO."])
+                    continue
+                }
+
                 if(data[i].Grade*data[i].Units === data[i].Weight){     // if the calculation is correct
                     checkSum += data[i].Weight;
                     units += data[i].Units;
@@ -372,10 +386,8 @@ function weightIsValid(data){
                     units += data[i].Units;
                 }
             }
-            //console.log(`checkSum: ${checkSum}`)
         }
         else {
-            //console.log(data[i]);
             initSum = data[i].Cumulative;
             initUnits = data[i].Grade;
             initGWA = data[i+1].Grade;
@@ -386,11 +398,12 @@ function weightIsValid(data){
     console.log(`checkSum: ${checkSum} initSum: ${initSum}`)
     gwa = checkSum/units;
 
-    if (checkSum === initSum && units === initUnits) {
-        return {'success': true, 'gwa':gwa};
+    if (checkSum === initSum && units === initUnits && gwa === initGWA) {
+        return {'success': true, 'gwa':gwa, 'units':units};
     }
     
-    return {'success': false, 'gwa': initGWA,'warning': 'mismatch with cumulative or total units'};
+    warnings.push('mismatch with cumulative weight, total units, or gwa')
+    return {'success': true, 'gwa': initGWA , 'units':units, 'warning': warnings};
 
 }
 
