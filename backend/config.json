@@ -1,5 +1,5 @@
 {
-    "programs": ["BSCS", "BACA", "BAPHLO"],
+    "programs": ["BSCS", "BACA", "BAPHLO", "BASOC"],
     "course": {
         "BSCS": ["CMSC 12", "CMSC 56", "MATH 27", "CMSC 21", "CMSC 57", "MATH 28", "CMSC 22", "CMSC 150", "CMSC 123", "CMSC 130", "CMSC 23", "CMSC 100", "CMSC 127", "CMSC 131", "STAT 101", "CMSC 124", "CMSC 125", "CMSC 141", "CMSC 170", "CMSC 132", "CMSC 128", "CMSC 142", "CMSC 137", "CMSC 173", "CMSC 180", "CMSC 199", "ENG 10"],
         "BAPHLO": ["PHLO 11","PHLO 12","ECON 11","POSC 10","PHLO 150","PHLO 171","SPEC","PHLO 110","PHLO 112","PHLO 173","PHLO 111","PHLO 120","PHLO 174","PHLO 181","PHLO 195","PHLO 197","PHLO 113","PHLO 182","PHLO 176","PHLO 178","PHLO 160","PHLO 184","PHLO 185","PHLO 200"],
@@ -15,6 +15,9 @@
         "BSCS": {
             "Thesis": [15, 15, 15, 15, 18, 18, 3, 16, 15],
             "SP": [15, 15, 15, 15, 18, 18, 3, 17, 14]
+        },
+        "BASOC": {
+            "Thesis": [15, 15, 6, 15, 15, 6, 15, 15, 3, 16, 15]
         }
     },
 
@@ -41,6 +44,12 @@
         "SCIENCE 11": "Elective",
         "SOSC 3": "Elective",
         "WIKA 1": "Elective"
+    },
+
+    "elective": {
+        "BASOC": {
+            "Thesis": 6
+        }
     }
         
 }
