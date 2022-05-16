@@ -64,7 +64,7 @@ function processExcel(filename, program, data){
                 }
             }else if(/^.+\s200$/.test(data[i]["CRSE NO."])){
                 if(!sp_thesis) {
-                    elective_count = 5;
+                    elective_count = config.elective[program].Thesis;
                     sp_thesis = true
                 }
             }else if(/^.+\s190$/.test(data[i]["CRSE NO."])){
@@ -76,7 +76,7 @@ function processExcel(filename, program, data){
                 }
             }else if(data[i]["CRSE NO."] === 'HK 11'){                   //If course not in the program, check if it's a HK subject
                 hk11_count--;
-            }else if(data[i]["CRSE NO."] === 'HK 12'){
+            }else if(data[i]["CRSE NO."] === 'HK 12' || data[i]["CRSE NO."] === 'HK 13'){
                 hk12_count--;
             }else if(data[i]["CRSE NO."] === 'NSTP 1'){
                 nstp1_count--;
@@ -206,12 +206,11 @@ function verifycourse(filename, sheetName){
     var ws = wb.Sheets[sheetName];
     var course = String(ws['A3'].v);
 
-    var coursecodes = ['BSCS','BACA'];
-    if(coursecodes.includes(course)){
+    if(config.programs.includes(course)){
         //console.log('Course: '+course);
     }else{
         course = String(ws['A2'].v);
-        if(coursecodes.includes(course)){
+        if(config.programs.includes(course)){
             //console.log('Course: '+course);
         }else{
             //console.log(course+ ' is not a valid course');

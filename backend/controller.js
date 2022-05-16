@@ -59,7 +59,7 @@ exports.deleteStudent = (req, res) => {
     
     const student_id = req.body.student_id;
     let removeStudent = 'DELETE FROM students WHERE ID = ?';
-    let removeRecord = 'DELETE FROM taken_courses WHERE ID = ?';
+    let removeRecord = 'DELETE FROM taken_courses WHERE Student_ID = ?';
     
 
     let query = database.query(removeStudent , [student_id], (err, result) => {
@@ -122,7 +122,7 @@ exports.uploadSingle = (req, res) => {
                 if(program.error){
                     errors.push(program.error)
                 }
-                
+
                 //check if the three basic necessary information is found
                 //the student number is the identifier 
                 if(errors.length){
@@ -134,7 +134,6 @@ exports.uploadSingle = (req, res) => {
                 if(data.error){
                     errors.push(data.error)
                 }
-
 
                 var checkFormat = functions.processExcel(filename, program, data);
                 
