@@ -19,12 +19,13 @@ exports.findAllStudents = (req, res) => {
 }
 
 exports.findStudentRecord = (req, res) => {
-    let findStudentRecord = 'SELECT * FROM taken_courses where Student_ID=?';
+    let findStudentRecord = `SELECT * FROM taken_courses where Student_ID=?`;
 
     let query = database.query(findStudentRecord, [req.id],(err, result) => {
         if (err) throw err;
 
         // returns the taken courses of specified student
+        console.log(result)
         res.send(result);
     });
 }
@@ -102,11 +103,12 @@ exports.uploadSingle = (req, res) => {
             for(let j in sheet_names){
                 //transform excel to JSON
                 let errors = [];  
-                let name, fname, lname, program, studno, gwa;
+                let name, fname, lname, program, studno, gwa, headers;
 
                 name = functions.verifyname(filename, sheet_names[j]);
                 studno = functions.verifystudno(filename, sheet_names[j]);
                 program = functions.verifycourse(filename, sheet_names[j]);
+                headers = functions.verifyHeaders(filename, sheet_names[j]);
 
                 if(name.error){
                     errors.push(name.error)
@@ -121,6 +123,10 @@ exports.uploadSingle = (req, res) => {
 
                 if(program.error){
                     errors.push(program.error)
+                }
+
+                if(!headers.success){
+                    errors.push(headers.error)
                 }
 
                 //check if the three basic necessary information is found
@@ -210,77 +216,89 @@ exports.uploadSingle = (req, res) => {
             let sheet_names = workbook.SheetNames;
 
             for(let j in sheet_names){
-                let errors = [];
                 //transform excel to JSON
-                let fname, lname, program, studno, gwa;
+                let errors = [];  
+                let name, fname, lname, program, studno, gwa;
+
+                name = functions.verifyname(newfilename, sheet_names[j]);
+                studno = functions.verifystudno(newfilename, sheet_names[j]);
+                program = functions.verifycourse(newfilename, sheet_names[j]);
+
+                if(name.error){
+                    errors.push(name.error)
+                }else{
+                    fname = name.fname;
+                    lname = name.lname;
+                }
+                
+                if(studno.error){
+                    errors.push(studno.error)
+                }
+
+                if(program.error){
+                    errors.push(program.error)
+                }
+
+                //check if the three basic necessary information is found
+                //the student number is the identifier 
+                if(errors.length){
+                    allErrors[sheet_names[j]] = errors
+                    continue
+                }
+
                 let data = functions.readData(newfilename, sheet_names[j]);
-                console.log(data)
+                if(data.error){
+                    errors.push(data.error)
+                }
 
-                // let name = functions.verifyname(newfilename, sheet_names[j]);
-                // if(name.error){
-                //     errors.push(name.error)
-                // }else{
-                //     fname = name.fname;
-                //     lname = name.lname;
-                // }
+                var checkFormat = functions.processExcel(newfilename, program, data);
                 
-                // studno = functions.verifystudno(newfilename, sheet_names[j]);
-                // if(studno.error){
-                //     errors.push(studno.error)
-                // }
+                // TODO: add students into database despite having "warnings"
+                if(!checkFormat.success){
+                    checkFormat.notes.forEach((note) => {
+                        errors.push(note)
+                    })
+                }
 
-                // program = functions.verifycourse(newfilename, sheet_names[j]);
-                // if(program.error){
-                //     errors.push(program.error)
-                // }
+                let notes_msg = 'Notes: '
+                if(errors.length){
+                    allErrors[sheet_names[j]] = errors
+                    for(let count=0; count<errors.length; count++){
+                        if(count === (errors.length)-1){
+                            notes_msg += errors[count]
+                        }else{
+                            notes_msg += errors[count] + ", "
+                        }
 
-                // //check if the three basic necessary information is found
-                // //the student number is the identifier 
-                // if(errors.length){
-                //     allErrors[sheet_names[j]] = errors
-                //     continue
-                // }
+                    }
+                }
 
-                // var checkFormat = functions.processExcel(newfilename, program, data);
-                
-                // // TODO: add students into database despite having "warnings"
-                // if(checkFormat.success){
-                //     let checkCalc = functions.weightIsValid(data)
-                //     if(checkCalc.success){
-                //         functions.addTakenCourses(data, studno);
-                //     }
+                let checkCalc = functions.weightIsValid(data)
 
-                //     functions.addStudent(studno, fname, lname, program, checkCalc.gwa);
+                if(checkCalc.success){
+                    functions.addTakenCourses(data, studno);
+                }
 
-                // }else if(!checkFormat.success){
-                //     checkFormat.notes.forEach((note) => {
-                //         //console.log("Note is " + note)
-                //         errors.push(note)
-                //     })
-                // }
-
-                // if(errors.length){
-                //     allErrors[sheet_names[j]] = errors
-                // }
+                functions.addStudent(studno, fname, lname, program, checkCalc.gwa, notes_msg);
 
             }
-        //     if(Object.keys(allErrors).length){
-        //         console.log("Errors on the following files:")
-        //         Object.keys(allErrors).forEach((key) => {
-        //             let err_msg = key + ": ";
-        //             for(let count=0; count<allErrors[key].length; count++){
-        //                 if(count === (allErrors[key].length)-1){
-        //                     err_msg += allErrors[key][count]
-        //                 }else{
-        //                     err_msg += allErrors[key][count] + ", "
-        //                 }
+            if(Object.keys(allErrors).length){
+                console.log("Errors on the following files:")
+                Object.keys(allErrors).forEach((key) => {
+                    let err_msg = key + ": ";
+                    for(let count=0; count<allErrors[key].length; count++){
+                        if(count === (allErrors[key].length)-1){
+                            err_msg += allErrors[key][count]
+                        }else{
+                            err_msg += allErrors[key][count] + ", "
+                        }
 
-        //             }
-        //             console.log(err_msg);
-        //         })
-        //     }
+                    }
+                    console.log(err_msg);
+                })
+            }
 
-        // }
+        }
 
     }
 
@@ -296,4 +314,3 @@ exports.uploadSingle = (req, res) => {
       });
 } 
 
-}
