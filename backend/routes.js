@@ -17,4 +17,5 @@ module.exports = (app) => {
   app.get("/sortstudents", controller.sortBy);
   app.post("/deletestudent", controller.deleteStudent);
   app.post("/deleteallstudents", controller.deleteAllStudents);
+  app.get("/downloadSummary", controller.downloadSummary);
 }
