@@ -1,4 +1,6 @@
 const fs = require('fs');
+const { jsPDF } = require("jspdf"); 
+const autoTable = require("jspdf-autotable");
 const path = require('path');
 const myModule = require('./index');
 const {database} = myModule.database;
@@ -93,33 +95,25 @@ exports.deleteAllStudents = (req, res) => {
 exports.downloadSummary = (req, res) =>{
 
     let qualified = 'SELECT * from students';
-
+    
     let query = database.query(qualified, (err, result) =>{
         if (err) throw err;
 
         let summary = JSON.parse(JSON.stringify(result))
-        fs.writeFile('output.txt', ' ', function(err){
-            if (err) throw err;
-            });
+        var doc = new jsPDF();
+       
+        
         for (i in summary){
-            console.log(summary[i]);
-            fs.appendFile('output.txt',  'ID: ' + summary[i].ID +"\n" + 
-                                        'First Name: ' + summary[i].First_Name + "\n" + 
-                                        'Last Name: ' + summary[i].Last_Name + "\n"+
-                                        'Program: ' + summary[i].Program + "\n"+
-                                        'GWA: ' + summary[i].GWA + "\n"+
-                                        'Warnings: ' + summary[i].Warnings + "\n" +"\n" , function(err){
-                                            if (err) throw err;
-                                            console.log('Saved!');
-            }
             
-    )}
-        // res.send(summary);
-        // fs.writeFile('output.txt', JSON.stringify(summary), function(err){
-        //     if (err) throw err;
-        //     console.log('Saved!');
-        // });
-    })
+            let toTable = Object.values(summary[i]);
+            doc.autoTable({
+                head:[['ID', 'First name', 'Last name', 'Program', 'GWA', 'Notes']],
+                body: [toTable]
+            })
+            doc.save('table.pdf');
+
+    }
+})
 }
 
 exports.uploadSingle = (req, res) => {
