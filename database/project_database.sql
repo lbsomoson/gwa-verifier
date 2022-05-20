@@ -128,6 +128,7 @@ CREATE TABLE `students` (
   `Last_Name` varchar(20) DEFAULT NULL,
   `Program` varchar(5) DEFAULT NULL,
   `GWA` decimal(5,4) DEFAULT NULL,
+  `Qualified` tinyint(1) DEFAULT 1,
   `Warnings` tinytext DEFAULT NULL,
   PRIMARY KEY (`ID`),
   KEY `student_program_fk` (`Program`),
