@@ -14,7 +14,7 @@ function readData(filename, sheetName){
     range.s.r = 3;
     ws['!ref'] = XLSX.utils.encode_range(range);
     var data = XLSX.utils.sheet_to_json(ws);
-    console.log(data)
+    //console.log(data)
     if(data.length === 0){
         return {'error': 'data does not exist'}
     }
@@ -287,10 +287,10 @@ function checkload(data, count, config, term_count, notes){
     
 }
 
-function addStudent(studno, fname, lname, program, gwa, warnings){
-    let addStudent = 'INSERT INTO students values (?, ?, ?, ?, ?, ?)';
+function addStudent(studno, fname, lname, program, gwa, qualified, warnings){
+    let addStudent = 'INSERT INTO students values (?, ?, ?, ?, ?, ?, ?)';
 
-    let query = database.query(addStudent, [studno, fname, lname, program, gwa, warnings] ,(err, result) => {
+    let query = database.query(addStudent, [studno, fname, lname, program, gwa, qualified, warnings] ,(err, result) => {
         if (err) throw err;
 
         console.log("Successfully added student");
@@ -348,6 +348,7 @@ function weightIsValid(data){
     let units = 0;
     let initGWA = 0;
     let gwa = 0;
+    let qualified_for_honors = true;
     let warnings = [];
 
     for(let i = 0; i<data.length; i++){
@@ -388,11 +389,16 @@ function weightIsValid(data){
                     }
                 }
             }
-            else if(['AWOL', 'LOA'].includes(data[i]["CRSE NO."])){
+            else if(['LOA'].includes(data[i]["CRSE NO."])){
+                continue;
+            }
+            else if(['AWOL'].includes(data[i]["CRSE NO."])){
+                qualified_for_honors = false;
                 continue;
             }
             else {
                 if(['INC', 'DFG'].includes(data[i].Grade)){
+                    qualified_for_honors = false;
                     warnings.push('Student has a grade of INC or DFG for course '+ data[i]["CRSE NO."])
                     continue
                 }
@@ -433,13 +439,17 @@ function weightIsValid(data){
 
     console.log(`checkSum: ${checkSum} initSum: ${initSum}`)
     gwa = checkSum/units;
+    if(gwa > 1.75) {
+        console.log('GWA did not reach atlast 1.75');
+        qualified_for_honors = false;
+    }
 
     if (checkSum === initSum && units === initUnits && gwa === initGWA) {
-        return {'success': true, 'gwa':gwa, 'units':units};
+        return {'success': true, 'gwa':gwa, 'units':units, 'qualified':qualified_for_honors};
     }
     
     warnings.push('mismatch with cumulative weight, total units, or gwa')
-    return {'success': true, 'gwa': initGWA , 'units':units, 'warning': warnings};
+    return {'success': true, 'gwa': initGWA , 'units':units, 'qualified':qualified_for_honors, 'warning': warnings};
 
 }
 

@@ -14,6 +14,8 @@ module.exports = (app) => {
   app.get("/viewstudents", controller.findAllStudents);
   app.get("/viewRecords", controller.findStudentRecord);
   app.get("/searchstudents", controller.searchStudents);
+  app.post("/searchstudentsGwa", controller.searchStudentsByGwa);
+  app.post("/searchstudentsID", controller.searchStudentsByID);
   app.get("/sortstudents", controller.sortBy);
   app.post("/deletestudent", controller.deleteStudent);
   app.post("/deleteallstudents", controller.deleteAllStudents);

@@ -59,9 +59,31 @@ exports.sortBy = (req, res) => {
 exports.searchStudents = (req, res) => {
 
     // assuming req.search is the text inside the search bar for the 
-    let search = 'SELECT * FROM students WHERE (SELECT CONCAT(First_Name, " ", Last_Name) AS Full_Name) LIKE \"%${req.search}%\"';
+    //let search = 'SELECT * FROM students WHERE (SELECT CONCAT(First_Name, " ", Last_Name) AS Full_Name) LIKE \"%${req.search}%\"';
+    let search = 'SELECT * FROM students WHERE First_Name = ? AND Last_Name = ?';
+    let query = database.query(search, [req.body.fn,req.body.ln], (err, result) => {
+        if (err) throw err;
 
-    let query = database.query(search, (err, result) => {
+        // returns in the database table
+        res.send(result);
+    });
+}
+
+exports.searchStudentsByGwa = (req, res) => {
+
+    let search = 'SELECT * FROM students WHERE GWA = ?';
+    let query = database.query(search,[req.body.gwa], (err, result) => {
+        if (err) throw err;
+
+        // returns in the database table
+        res.send(result);
+    });
+}
+
+exports.searchStudentsByID = (req, res) => {
+
+    let search = 'SELECT * FROM students WHERE ID = ?';
+    let query = database.query(search,[req.body.id], (err, result) => {
         if (err) throw err;
 
         // returns in the database table
@@ -204,9 +226,16 @@ exports.uploadSingle = (req, res) => {
 
                 if(checkCalc.success){
                     functions.addTakenCourses(data, studno);
+                    if(checkCalc.qualified){
+                        console.log("Student is qualified");
+                        functions.addStudent(studno, fname, lname, program, checkCalc.gwa, 1, notes_msg);
+                    }else{
+                        console.log("Student is not qualified");
+                        functions.addStudent(studno, fname, lname, program, checkCalc.gwa, 0, notes_msg);
+                    }   
                 }
 
-                functions.addStudent(studno, fname, lname, program, checkCalc.gwa, notes_msg);
+                
 
             }
             if(Object.keys(allErrors).length){
