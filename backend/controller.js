@@ -20,6 +20,17 @@ exports.findAllStudents = (req, res) => {
     });
 }
 
+exports.findQualifiedStudents = (req, res) => {
+    let findQualifiedStudents = 'SELECT * FROM students WHERE Qualified = 1';
+
+    let query = database.query(findQualifiedStudents, (err, result) => {
+        if (err) throw err;
+
+        // returns all existing students in the database table
+        res.send(result);
+    });
+}
+
 exports.findStudentRecord = (req, res) => {
     let findStudentRecord = `SELECT * FROM taken_courses where Student_ID=?`;
 
