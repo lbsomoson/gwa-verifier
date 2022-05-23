@@ -11,8 +11,13 @@ module.exports = (app) => {
   app.post("/loginUser", authController.login);
   app.post("/checkifloggedin", authController.checkIfLoggedIn);
   app.post("/single", upload.array("files", 10), controller.uploadSingle);
+  app.get("/viewusers", controller.findAllUsers);
+  app.post("/deleteuser", controller.deleteUser);
   app.get("/viewstudents", controller.findAllStudents);
-  app.get("/viewRecords", controller.findStudentRecord);
+  app.post("/viewRecords", controller.findStudentRecord);
+  app.post("/editRecord", controller.editStudentRecord);
+  app.post("/addedithistory", controller.addEditHistory);
+  app.get("/viewedithistory", controller.findAllEdits);
   app.get("/searchstudents", controller.searchStudents);
   app.post("/searchstudentsGwa", controller.searchStudentsByGwa);
   app.post("/searchstudentsID", controller.searchStudentsByID);
