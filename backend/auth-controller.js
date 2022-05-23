@@ -26,10 +26,8 @@ exports.login = (req, res) => {
                     type: result[0].Type
                 }
 
-                const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {expiresIn: "600s"});
-            
+                const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {expiresIn: "1d"});
 
-    
                 return res.send({result, token, username})
             }
 
@@ -41,8 +39,6 @@ exports.login = (req, res) => {
     
 }
 
-//Sample sign up while waiting for frontend post request
-//TODO: change the sql query according to the post request
 exports.signUp = (req, res) => {
     const username = req.body.username;
     const password = req.body.userpassword;
@@ -55,22 +51,11 @@ exports.signUp = (req, res) => {
         console.log(result);
         res.send("Successfully Added user to database!");
     })
-
-    //Replace SQL query above with this when frontend is connected
-    // let sql = 'INSERT INTO users (Username, Password, Type) VALUES (?, ?, ?)';
-    // let username = req.body.username, password = req.body.password, type = req.body.type;
-    // let query = database.query(sql2, [username, password, type], (err, result) => {
-    //     if(err) throw err;
-    //     console.log("No Error");
-    //     console.log(result);
-    //     res.send("Successfully Added user to database!");
-    // })
 }
 
 exports.checkIfLoggedIn = (req, res) => {
 
     if (!req.cookies || !req.cookies.authToken) {
-        console.log("no cookies found")
         return res.send({ isLoggedIn: false });
     }
     

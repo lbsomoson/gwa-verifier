@@ -431,14 +431,15 @@ function weightIsValid(data){
 
             initSum = data[i].Cumulative;
             initUnits = data[i].Grade;
-            initGWA = data[i+1].Grade;
+            initGWA = parseFloat(data[i+1].Grade).toFixed(4);
             break;
         }
         //console.log("Checksum is now " + checkSum)
     }
 
     console.log(`checkSum: ${checkSum} initSum: ${initSum}`)
-    gwa = checkSum/units;
+    gwa = (checkSum/units).toFixed(4);
+
     if(gwa > 1.75) {
         console.log('GWA did not reach atlast 1.75');
         qualified_for_honors = false;
