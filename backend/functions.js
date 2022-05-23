@@ -497,9 +497,9 @@ function processEdit(edited_data){
     let student_id = edited_data.studentID;
     let data = edited_data.courses;
 
-    let getProgram = 'SELECT Program FROM students WHERE ID = \'2018-82531\'';
+    let getProgram = 'SELECT Program FROM students WHERE ID = ?';
 
-    let progquery = database.query(getProgram, (err, result) => {
+    let progquery = database.query(getProgram, [student_id], (err, result) => {
         if (err) throw err;
         
         let program = result[0].Program;
