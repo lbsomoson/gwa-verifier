@@ -495,6 +495,7 @@ function addEditedTakenCourses(data, studno){
 function processEdit(data){
     let notes = [];
     let errors = [];
+    let warnings = [];
 
     let courses_taken = [];
     let ge_taken = [];
@@ -647,18 +648,15 @@ function processEdit(data){
     }
 
     const student_id = data[0].Student_ID;
-    let removeStudent = 'DELETE FROM students WHERE ID = ?';
+
+    // let removeStudent = 'DELETE FROM students WHERE ID = ?';
     let removeRecord = 'DELETE FROM taken_courses WHERE Student_ID = ?';
-    
 
-    let query = database.query(removeStudent , [student_id], (err, result) => {
+    let query = database.query(removeRecord , [student_id], (err, result) => {
         if (err) throw err;
-
-        let query2 = database.query(removeRecord, [student_id], (err, result) => {
-            if (err) throw err;
-
-            res.send('Successfully deleted student from database!');
-        });
+        
+        addEditedTakenCourses(data, student_id);
+    
     });
 
     // if(notes.length){   //notes is not empty
@@ -666,6 +664,19 @@ function processEdit(data){
     // }
 
     // return {"success": true, "error": "None"}
+}
+
+/*
+| Username = Authenticated User's username
+| ID = Respective Student's student number?
+| notes = edit notes (details of the edit action)
+*/
+function addEditHistory(Username, ID, notes){
+    let addHistory = 'INSERT INTO edit_history (Username, ID, Datetime_of_edit, Edit_notes) VALUES (?, ?, NOW(), ?)';
+
+    let query = database.query(addHistory, [Username, ID, notes], (err, result) => {
+        res.send('Updated edit history');
+    });
 }
 
 module.exports={readData, verifyunits,checkload,processExcel, verifyname, verifycourse, verifystudno, addStudent, weightIsValid, addTakenCourses, termToText, verifyHeaders}

@@ -8,6 +8,27 @@ const pdf2excel = require('pdf-to-excel');
 const functions = require('./functions');
 let XLSX = require("xlsx");
 
+exports.findAllUsers = (req, res) => {
+    let findAllUsers = 'SELECT * FROM users';
+
+    let query = database.query(findAllUsers, (err, results) => {
+        if (err) throw err;
+
+        res.send(result);
+    });
+}
+
+exports.deleteUser = (req, res) => {
+    const Username = req.body.Username;
+
+    let removeUser = 'DELETE FROM users WHERE Username = ?';
+
+    let query = database.query(removeUser, [Username], (err, result) => {
+        if (err) throw err;
+
+        res.send(`Successfully deleted user '${Username}'!`);
+    });
+}
 
 exports.findAllStudents = (req, res) => {
     let findAllStudents = 'SELECT * FROM students';
@@ -39,6 +60,16 @@ exports.findStudentRecord = (req, res) => {
 
         // returns the taken courses of specified student
         console.log(result)
+        res.send(result);
+    });
+}
+
+exports.findAllEdits = (req, res) => {
+    let findAllEdits = 'SELECT * FROM edit_history';
+
+    let query = database.query(findAllEdits, (err, result) => {
+        if (err) throw err;
+
         res.send(result);
     });
 }
