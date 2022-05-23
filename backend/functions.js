@@ -433,11 +433,11 @@ function weightIsValid(data,ispdf){
                     if(data[i-1].__EMPTY_3){
                         initSum = data[i-1].__EMPTY_3;
                         initUnits = data[i-1].__EMPTY_2;
-                        parseFloat(data[i].Grade).toFixed(4);
+                        initGWA = parseFloat(data[i].Grade).toFixed(4);
                     }else{
                         initSum = data[i-1].__EMPTY_2;
                         initUnits = data[i-1].__EMPTY_1;
-                        parseFloat(data[i].Grade).toFixed(4);
+                        initGWA = parseFloat(data[i].Grade).toFixed(4);
                     }
                 }
             }else{
