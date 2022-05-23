@@ -440,7 +440,9 @@ exports.uploadSingle = (req, res) => {
                 filename_err_msg.push(all_err_msg)
                 err_msg_arr.push(filename_err_msg);
             });
-            
+            convertPromise.catch((error) =>{
+                throw error;
+            })
 
         }
 
