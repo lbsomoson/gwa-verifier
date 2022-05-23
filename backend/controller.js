@@ -7,7 +7,29 @@ const {database} = myModule.database;
 const pdf2excel = require('pdf-to-excel');
 const functions = require('./functions');
 let XLSX = require("xlsx");
+const { callbackify } = require('util');
 
+exports.findAllUsers = (req, res) => {
+    let findAllUsers = 'SELECT * FROM users';
+
+    let query = database.query(findAllUsers, (err, results) => {
+        if (err) throw err;
+
+        res.send(result);
+    });
+}
+
+exports.deleteUser = (req, res) => {
+    const Username = req.body.Username;
+
+    let removeUser = 'DELETE FROM users WHERE Username = ?';
+
+    let query = database.query(removeUser, [Username], (err, result) => {
+        if (err) throw err;
+
+        res.send(`Successfully deleted user '${Username}'!`);
+    });
+}
 
 exports.findAllUsers = (req, res) => {
     let findAllUsers = 'SELECT * FROM users';
@@ -80,6 +102,7 @@ exports.findAllActivities = (req, res) => {
 
 
 exports.findAllStudents = (req, res) => {
+
     let findAllStudents = 'SELECT * FROM students';
 
     let query = database.query(findAllStudents, (err, result) => {
@@ -109,6 +132,28 @@ exports.findStudentRecord = (req, res) => {
 
         // returns the taken courses of specified student
         console.log(result)
+        res.send(result);
+    });
+}
+
+exports.editStudentRecord = (req, res) => {
+    functions.processEdit(req.body.data);
+}
+
+exports.addEditHistory = (req, res) => {
+    let addHistory = 'INSERT INTO edit_history (Username, ID, Datetime_of_edit, Edit_notes) VALUES (?, ?, NOW(), ?)';
+
+    let query = database.query(addHistory, [req.body.Username, req.body.ID, req.body.notes], (err, result) => {
+        res.send('Updated edit history');
+    });
+}
+
+exports.findAllEdits = (req, res) => {
+    let findAllEdits = 'SELECT * FROM edit_history';
+
+    let query = database.query(findAllEdits, (err, result) => {
+        if (err) throw err;
+
         res.send(result);
     });
 }
