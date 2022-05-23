@@ -104,7 +104,7 @@ exports.findQualifiedStudents = (req, res) => {
 exports.findStudentRecord = (req, res) => {
     let findStudentRecord = `SELECT * FROM taken_courses where Student_ID=?`;
 
-    let query = database.query(findStudentRecord, [req.id],(err, result) => {
+    let query = database.query(findStudentRecord, [req.body.id],(err, result) => {
         if (err) throw err;
 
         // returns the taken courses of specified student
@@ -218,6 +218,7 @@ exports.downloadSummary = (req, res) =>{
     }
 })
 }
+
 
 exports.uploadSingle = (req, res) => {
     console.log(req.files);
