@@ -501,9 +501,12 @@ function processEdit(edited_data){
         if (err) throw err;
         
         let program = result[0].Program;
-        let notes = [];
         let errors = [];
         let warnings = [];
+
+        let checkSum = 0;
+        let units = 0;
+        let gwa = 0;
 
         let courses_taken = [];
         let ge_taken = [];
@@ -518,6 +521,7 @@ function processEdit(edited_data){
         let sp_flag = false;
         let max_term_count = config.units[program].Thesis.length;
         let term_count = 0;
+        let qualified_for_honors = 1;
 
         for(let i=0; i<data.length; i++){
 
@@ -581,11 +585,12 @@ function processEdit(edited_data){
                             ge_taken.push(data[i].Course_Code);
                         }
                     }else if(data[i].Course_Code === 'LOA'){
-                        notes.push("Taken LOA during " + data[i].__EMPTY)
+                        warnings.push("Taken LOA during " + data[i].__EMPTY)
                         continue
                     }
                     else if(data[i].Course_Code === 'AWOL'){
-                        notes.push("AWOL during " + data[i].__EMPTY)
+                        qualified_for_honors = 0;
+                        warnings.push("AWOL during " + data[i].__EMPTY)
                         continue
                     }
                     else{
@@ -598,6 +603,7 @@ function processEdit(edited_data){
                     /*                                  */
 
                     if(['INC', 'DFG'].includes(data[i].Grade)){
+                        qualified_for_honors = 0;
                         warnings.push('Student has a grade of INC or DFG for course '+ data[i].Course_Code)
                         continue
                     }
@@ -621,38 +627,64 @@ function processEdit(edited_data){
                 if(term_count < max_term_count){
                     if(data[i]["Term"]!=undefined){ //load exists
                         if(!sp_flag){
-                            checkload(data, i, config.units[program].Thesis, term_count, notes)
+                            checkload(data, i, config.units[program].Thesis, term_count, warnings)
                             term_count++;
                         }else{
-                            checkload(data, i, config.units[program].SP, term_count, notes)
+                            checkload(data, i, config.units[program].SP, term_count, warnings)
                             term_count++;
                         }
                         
                     }
                 }else{
-                    notes.push("Took more terms than prescribed during course" + data[i].Course_Code)
+                    warnings.push("Took more terms than prescribed during course" + data[i].Course_Code)
                 }
 
         }
+        
+        if (units > 0){
+            gwa = checkSum / units;
+        }
+
+        if (gwa > 1.75 || gwa === 0){
+            qualified_for_honors = 0;
+        }
 
         if(hk11_count != 0 || hk12_count != 0){
-            notes.push("Incomplete number of HK courses")
+            warnings.push("Incomplete number of HK courses")
         }
         if(nstp1_count != 0 || nstp2_count != 0){
-            notes.push("Incomplete number of NSTP courses")
+            warnings.push("Incomplete number of NSTP courses")
         }
 
         if(required_ge.length < 6){
-            notes.push("Incomplete number of required GE courses")
+            warnings.push("Incomplete number of required GE courses")
         }
         
         if(elective_count > taken_elective_count){
-            notes.push("Insufficient number of elective courses")
+            warnings.push("Insufficient number of elective courses")
         }
 
         if(sp_thesis != true){
-            notes.push("No SP/Thesis")
+            warnings.push("No SP/Thesis")
         }
+
+        let warnings_msg = 'Notes: '
+        if (warnings.length){
+            for (let count = 0; count < warnings.length; count++){
+                if (count === (warnings.length)-1){
+                    warnings_msg += warnings[count];
+                }
+                else{
+                    warnings_msg += warnings[count] + ", ";
+                }
+            }
+        } 
+
+        let updateStudent = 'UPDATE students SET GWA = ?, Qualified = ?, Warnings = ? WHERE ID = ?';
+
+        let studentquery = database.query(updateStudent, [gwa, qualified_for_honors, warnings_msg, student_id], (err, result) => {
+            if (err) throw err;
+        });
 
         // let removeStudent = 'DELETE FROM students WHERE ID = ?';
         let removeRecord = 'DELETE FROM taken_courses WHERE Student_ID = ?';
