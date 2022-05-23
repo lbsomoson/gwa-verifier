@@ -411,9 +411,14 @@ exports.uploadSingle = (req, res) => {
 
                     if(checkCalc.success){
                         functions.addTakenCourses(data, studno);
+                        if(checkCalc.qualified){
+                            console.log("Student is qualified");
+                            functions.addStudent(studno, fname, lname, program, checkCalc.gwa, 1, notes_msg);
+                        }else{
+                            console.log("Student is not qualified");
+                            functions.addStudent(studno, fname, lname, program, checkCalc.gwa, 0, notes_msg);
+                        }   
                     }
-
-                    functions.addStudent(studno, fname, lname, program, checkCalc.gwa, notes_msg);
 
                 }
                 let filename_err_msg = []
