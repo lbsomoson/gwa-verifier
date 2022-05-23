@@ -33,10 +33,6 @@ exports.deleteUser = (req, res) => {
 
 exports.findAllStudents = (req, res) => {
 
-    let prog = 'magic';
-    prog = functions.getStudentProgram('2018-82531');
-    console.log(`prog: ${prog}`);
-
     let findAllStudents = 'SELECT * FROM students';
 
     let query = database.query(findAllStudents, (err, result) => {
