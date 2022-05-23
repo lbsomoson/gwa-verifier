@@ -469,6 +469,24 @@ function termToText(term){
 
 }
 
+function checkloadforEdit(data, count, config, term_count, notes){
+    let recorded = 0;
+    for (let i = 0; i < data.length; i++){
+        if (data[i].Term === data[count].Term) {
+            recorded += data[i].Units;
+        }
+    }
+    
+    if(recorded<config[term_count]){
+        notes.push("Underload during " + data[count].Term)
+    }else if(recorded == config[term_count]){
+        //console.log(recorded, "Regular Load");
+    }else{
+        notes.push("Overload during " + data[count].Term)
+    }
+
+}
+
 function addEditedTakenCourses(data, studno){
     let count = 1;
     
@@ -476,15 +494,15 @@ function addEditedTakenCourses(data, studno){
         //console.log("Adding a course")
         if(['LOA', 'AWOL'].includes(data[i].Course_Code)){
             if(data[i].Course_Code === 'LOA'){
-                addCourse(count, studno, 'LOA', null, null, null, null, data[i].__EMPTY);
+                addCourse(count, studno, 'LOA', null, null, null, null, data[i].Term);
                 count++;
             }else{
-                addCourse(count, studno, 'AWOL', null, null, null, null, data[i].__EMPTY);
+                addCourse(count, studno, 'AWOL', null, null, null, null, data[i].Term);
                 count++;
             }
             
         }else{
-            addCourse(count, studno, data[i].Course_Code, null, data[i].Grade, data[i].Units, data[i].Weight, data[i].__EMPTY);
+            addCourse(count, studno, data[i].Course_Code, null, data[i].Grade, data[i].Units, data[i].Weight, data[i].Term);
             count++;
         }
     }
@@ -585,12 +603,12 @@ function processEdit(edited_data){
                             ge_taken.push(data[i].Course_Code);
                         }
                     }else if(data[i].Course_Code === 'LOA'){
-                        warnings.push("Taken LOA during " + data[i].__EMPTY)
+                        warnings.push("Taken LOA during " + data[i].Term)
                         continue
                     }
                     else if(data[i].Course_Code === 'AWOL'){
                         qualified_for_honors = 0;
-                        warnings.push("AWOL during " + data[i].__EMPTY)
+                        warnings.push("AWOL during " + data[i].Term)
                         continue
                     }
                     else{
@@ -625,15 +643,14 @@ function processEdit(edited_data){
 
                 //Check for underloading and overloading
                 if(term_count < max_term_count){
-                    if(data[i]["Term"]!=undefined){ //load exists
+                    if(i === (data.length-1) || !(data[i].Term === data[i+1].Term)){ //load exists
                         if(!sp_flag){
-                            checkload(data, i, config.units[program].Thesis, term_count, warnings)
+                            checkloadforEdit(data, i, config.units[program].Thesis, term_count, warnings)
                             term_count++;
                         }else{
-                            checkload(data, i, config.units[program].SP, term_count, warnings)
+                            checkloadforEdit(data, i, config.units[program].SP, term_count, warnings)
                             term_count++;
                         }
-                        
                     }
                 }else{
                     warnings.push("Took more terms than prescribed during course" + data[i].Course_Code)
