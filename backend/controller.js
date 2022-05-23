@@ -292,7 +292,7 @@ exports.uploadSingle = (req, res) => {
                     }
                 }
 
-                let checkCalc = functions.weightIsValid(data)
+                let checkCalc = functions.weightIsValid(data,false)
 
                 if(checkCalc.success){
                     functions.addTakenCourses(data, studno);
@@ -407,13 +407,18 @@ exports.uploadSingle = (req, res) => {
                         }
                     }
 
-                    let checkCalc = functions.weightIsValid(data)
+                    let checkCalc = functions.weightIsValid(data,true)
 
                     if(checkCalc.success){
                         functions.addTakenCourses(data, studno);
+                        if(checkCalc.qualified){
+                            console.log("Student is qualified");
+                            functions.addStudent(studno, fname, lname, program, checkCalc.gwa, 1, notes_msg);
+                        }else{
+                            console.log("Student is not qualified");
+                            functions.addStudent(studno, fname, lname, program, checkCalc.gwa, 0, notes_msg);
+                        }   
                     }
-
-                    functions.addStudent(studno, fname, lname, program, checkCalc.gwa, notes_msg);
 
                 }
                 let filename_err_msg = []
@@ -440,7 +445,9 @@ exports.uploadSingle = (req, res) => {
                 filename_err_msg.push(all_err_msg)
                 err_msg_arr.push(filename_err_msg);
             });
-            
+            convertPromise.catch((error) =>{
+                throw error;
+            })
 
         }
 
