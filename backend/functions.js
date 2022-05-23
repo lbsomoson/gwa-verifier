@@ -340,7 +340,7 @@ function addTakenCourses(data, studno){
 }
 
 
-function weightIsValid(data){
+function weightIsValid(data,ispdf){
 
     let initSum = 0;
     let checkSum = 0;
@@ -428,15 +428,28 @@ function weightIsValid(data){
             //     }
             //     break;
             // }
-
-            initSum = data[i].Cumulative;
-            initUnits = data[i].Grade;
-            initGWA = parseFloat(data[i+1].Grade).toFixed(4);
+            if(ispdf){
+                if(data[i-1].__EMPTY_2 != undefined){  //pdf
+                    if(data[i-1].__EMPTY_3){
+                        initSum = data[i-1].__EMPTY_3;
+                        initUnits = data[i-1].__EMPTY_2;
+                        initGWA = data[i].Grade;
+                    }else{
+                        initSum = data[i-1].__EMPTY_2;
+                        initUnits = data[i-1].__EMPTY_1;
+                        initGWA = data[i].Grade;
+                    }
+                }
+            }else{
+                initSum = data[i].Cumulative;
+                initUnits = data[i].Grade;
+                initGWA = parseFloat(data[i+1].Grade).toFixed(4);
+            }            
             break;
         }
         //console.log("Checksum is now " + checkSum)
     }
-
+    console.log(`initGWA: ${initGWA}`)
     console.log(`checkSum: ${checkSum} initSum: ${initSum}`)
     gwa = (checkSum/units).toFixed(4);
 

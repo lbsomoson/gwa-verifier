@@ -292,7 +292,7 @@ exports.uploadSingle = (req, res) => {
                     }
                 }
 
-                let checkCalc = functions.weightIsValid(data)
+                let checkCalc = functions.weightIsValid(data,false)
 
                 if(checkCalc.success){
                     functions.addTakenCourses(data, studno);
@@ -407,7 +407,7 @@ exports.uploadSingle = (req, res) => {
                         }
                     }
 
-                    let checkCalc = functions.weightIsValid(data)
+                    let checkCalc = functions.weightIsValid(data,true)
 
                     if(checkCalc.success){
                         functions.addTakenCourses(data, studno);
