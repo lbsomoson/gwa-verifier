@@ -20,7 +20,7 @@ module.exports = (app) => {
   app.post("/deletestudent", controller.deleteStudent);
   app.post("/deleteallstudents", controller.deleteAllStudents);
   app.get("/downloadSummary", controller.downloadSummary);
-  app.post("/getQualified", controller.findQualifiedStudents);
+  app.get("/getQualified", controller.findQualifiedStudents);
   app.get("/viewusers", controller.findAllUsers);
   app.post("/deleteuser", controller.deleteUser);
   app.post("/addactivity", controller.addActivity);
