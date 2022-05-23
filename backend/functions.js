@@ -471,7 +471,7 @@ function termToText(term){
 
 function addEditedTakenCourses(data, studno){
     let count = 1;
-
+    
     for(let i=0; i<data.length; i++){
         //console.log("Adding a course")
         if(['LOA', 'AWOL'].includes(data[i].Course_Code)){
@@ -488,7 +488,7 @@ function addEditedTakenCourses(data, studno){
             count++;
         }
     }
-    console.log("Added edited courses");
+    console.log("Updated student record for student", studno);
     //console.log("Count is " + count);
 }
 
@@ -496,10 +496,8 @@ function processEdit(edited_data){
     
     let student_id = edited_data.studentID;
     let data = edited_data.courses;
-
-    let getProgram = 'SELECT Program FROM students WHERE ID = ?';
-
-    let progquery = database.query(getProgram, [student_id], (err, result) => {
+    
+    let progquery = database.query('SELECT Program FROM students WHERE ID = ' + database.escape(student_id), (err, result) => {
         if (err) throw err;
         
         let program = result[0].Program;

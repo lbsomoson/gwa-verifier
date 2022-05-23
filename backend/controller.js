@@ -67,7 +67,7 @@ exports.findStudentRecord = (req, res) => {
 }
 
 exports.editStudentRecord = (req, res) => {
-    processEdit(req.body.data);
+    functions.processEdit(req.body.data);
 }
 
 exports.addEditHistory = (req, res) => {
