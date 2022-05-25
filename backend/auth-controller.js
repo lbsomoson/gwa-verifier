@@ -7,7 +7,7 @@ exports.login = (req, res) => {
     //check if username is valid
     let findUser = 'SELECT * FROM users WHERE Username = ? AND Password = ?';
     const username = req.body.username;
-    const password = req.body.password;
+    const password = req.body.password; 
 
     let query = database.query(findUser, [username, password] , (err, result) => {
         if(err){
@@ -78,10 +78,16 @@ exports.checkIfLoggedIn = (req, res) => {
                     console.log("err in db")
                     return res.send({ isLoggedin: false});
                 }
-                console.log("Found user");
+                //console.log("Found user");
             })
 
-            console.log("username: "+user_name)
+            //console.log("username: "+user_name)
             return res.send({ isLoggedin: true, username: user_name, type: type });
         });
+}
+
+
+exports.testResponse = (req, res) => {
+    console.log("Testing Response . . .");
+    //return res.send("Response Received");
 }
