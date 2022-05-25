@@ -7,7 +7,7 @@ exports.login = (req, res) => {
     //check if username is valid
     let findUser = 'SELECT * FROM users WHERE Username = ? AND Password = ?';
     const username = req.body.username;
-    const password = req.body.password;
+    const password = req.body.password; 
 
     let query = database.query(findUser, [username, password] , (err, result) => {
         if(err){

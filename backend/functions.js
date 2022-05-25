@@ -607,7 +607,6 @@ function processEdit(edited_data){
                         warnings.push('Student has a grade of DRP for course '+ data[i].Course_Code)
                         continue
                     }
-
                     if (!isNaN(parseFloat(data[i].Grade)) && !isNaN(parseFloat(data[i].Units))){
                         if(parseFloat(data[i].Grade)*parseFloat(data[i].Units) === data[i].Weight){     // if the calculation is correct
                             checkSum += data[i].Weight;
