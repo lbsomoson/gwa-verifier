@@ -236,7 +236,7 @@ exports.downloadSummary = (req, res) =>{
         }  
         doc.autoTable({
             head:[['ID', 'First name', 'Last name', 'Program', 'GWA', 'Notes']],
-            body: [toTable]
+            body: toTable
         })
         doc.save('table.pdf');
 
