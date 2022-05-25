@@ -219,8 +219,8 @@ exports.deleteAllStudents = (req, res) => {
 }
 
 exports.downloadSummary = (req, res) =>{
-    console.log("in download");
-    let qualified = 'SELECT * from students where Qualified=1';
+    let qualified = "SELECT ID, First_Name, Last_Name, Program, GWA, Warnings from students WHERE Qualified = '1' ";
+
     
     let query = database.query(qualified, (err, result) =>{
         if (err) throw err;
@@ -229,17 +229,17 @@ exports.downloadSummary = (req, res) =>{
         console.log(summary)
         var doc = new jsPDF();
        
-        
-        for (i in summary){
-            
-            let toTable = Object.values(summary[i]);
-            doc.autoTable({
-                head:[['ID', 'First name', 'Last name', 'Program', 'GWA', 'Qualified', 'Notes']],
-                body: [toTable]
-            })
-            doc.save('table.pdf');
+        let toTable = summary.map(Object.values);
+        for (i in toTable){
+            toTable[i] = Object.values(toTable[i])
+        }  
+        doc.autoTable({
+            head:[['ID', 'First name', 'Last name', 'Program', 'GWA', 'Notes']],
+            body: [toTable]
+        })
+        doc.save('table.pdf');
 
-    }
+    
 })
 }
 

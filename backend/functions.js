@@ -487,7 +487,16 @@ function checkloadforEdit(data, count, config, term_count, notes){
     let recorded = 0;
     for (let i = 0; i < data.length; i++){
         if (data[i].Term === data[count].Term) {
-            recorded += data[i].Units;
+            if(/^.+\s200$/.test(data[i].Course_Code) && isNaN(parseFloat(data[i].Units))){
+                recorded += 6;
+            }
+            else if (/^.+\s190$/.test(data[i].Course_Code) && isNaN(parseFloat(data[i].Units))){
+                recorded += 3;
+            }
+            else{
+                recorded += parseFloat(data[i].Units);
+            }
+            
         }
     }
     
@@ -529,7 +538,7 @@ function processEdit(edited_data){
     let student_id = edited_data.studentID;
     let data = edited_data.courses;
     
-    let progquery = database.query('SELECT Program FROM students WHERE ID = ' + database.escape(student_id), (err, result) => {
+    let progquery = database.query('SELECT Program FROM students WHERE ID = ?',[student_id], (err, result) => {
         if (err) throw err;
         
         let program = result[0].Program;
@@ -567,8 +576,8 @@ function processEdit(edited_data){
                     if((data[i].Grade === 'S' || data[i].Grade === 'U')){
                         continue;
                     }
-                    else if(!isNaN(data[i].Grade)){
-                        checkSum += (data[i].Grade*6);
+                    else if(!isNaN(parseFloat(data[i].Grade))){
+                        checkSum += (parseFloat(data[i].Grade)*6);
                         units += 6;
                     }
 
@@ -583,8 +592,8 @@ function processEdit(edited_data){
                     if((data[i].Grade === 'S' || data[i].Grade === 'U')){
                         continue;
                     }
-                    else if(!isNaN(data[i].Grade)){
-                        checkSum += (data[i].Grade*3);
+                    else if(!isNaN(parseFloat(data[i].Grade))){
+                        checkSum += (parseFloat(data[i].Grade)*3);
                         units += 3;
                     }
                 }else if (/.+199$/.test(data[i].Course_Code)){
@@ -644,13 +653,14 @@ function processEdit(edited_data){
                         warnings.push('Student has a grade of DRP for course '+ data[i].Course_Code)
                         continue
                     }
-
-                    if(data[i].Grade*data[i].Units === data[i].Weight){     // if the calculation is correct
-                        checkSum += data[i].Weight;
-                        units += data[i].Units;
-                    }else{                                                  // if not
-                        checkSum += (data[i].Grade*data[i].Units);
-                        units += data[i].Units;
+                    if (!isNaN(parseFloat(data[i].Grade)) && !isNaN(parseFloat(data[i].Units))){
+                        if(parseFloat(data[i].Grade)*parseFloat(data[i].Units) === data[i].Weight){     // if the calculation is correct
+                            checkSum += data[i].Weight;
+                            units += parseFloat(data[i].Units);
+                        }else{                                                  // if not
+                            checkSum += (parseFloat(data[i].Grade)*parseFloat(data[i].Units));
+                            units += parseFloat(data[i].Units);
+                        }
                     }
 
                 }
