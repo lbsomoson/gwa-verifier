@@ -1,35 +1,14 @@
+let XLSX = require("xlsx");
 const fs = require('fs');
-const { jsPDF } = require("jspdf"); 
 const autoTable = require("jspdf-autotable");
 const path = require('path');
 const myModule = require('./index');
-const {database} = myModule.database;
 const pdf2excel = require('pdf-to-excel');
 const functions = require('./functions');
-let XLSX = require("xlsx");
+const verify_functions = require('./verify_functions');
+const {database} = myModule.database;
+const { jsPDF } = require("jspdf"); 
 const { callbackify } = require('util');
-
-exports.findAllUsers = (req, res) => {
-    let findAllUsers = 'SELECT * FROM users';
-
-    let query = database.query(findAllUsers, (err, results) => {
-        if (err) throw err;
-
-        res.send(result);
-    });
-}
-
-exports.deleteUser = (req, res) => {
-    const Username = req.body.Username;
-
-    let removeUser = 'DELETE FROM users WHERE Username = ?';
-
-    let query = database.query(removeUser, [Username], (err, result) => {
-        if (err) throw err;
-
-        res.send(`Successfully deleted user '${Username}'!`);
-    });
-}
 
 exports.findAllUsers = (req, res) => {
     let findAllUsers = 'SELECT * FROM users';
@@ -129,14 +108,13 @@ exports.findStudentRecord = (req, res) => {
 
     let query = database.query(findStudentRecord, [req.body.id],(err, result) => {
         if (err) throw err;
-
-        // returns the taken courses of specified student
-        console.log(result)
         res.send(result);
     });
 }
 
 exports.editStudentRecord = (req, res) => {
+    console.log("In edit student record");
+    console.log(req.body.data);
     functions.processEdit(req.body.data);
 }
 
@@ -241,13 +219,14 @@ exports.deleteAllStudents = (req, res) => {
 }
 
 exports.downloadSummary = (req, res) =>{
-
     let qualified = "SELECT ID, First_Name, Last_Name, Program, GWA, Warnings from students WHERE Qualified = '1' ";
+
     
     let query = database.query(qualified, (err, result) =>{
         if (err) throw err;
 
         let summary = JSON.parse(JSON.stringify(result))
+        console.log(summary)
         var doc = new jsPDF();
        
         let toTable = summary.map(Object.values);
@@ -281,29 +260,12 @@ exports.uploadSingle = (req, res) => {
                 let errors = [];  
                 let name, fname, lname, program, studno, gwa, headers;
 
-                name = functions.verifyname(filename, sheet_names[j]);
-                studno = functions.verifystudno(filename, sheet_names[j]);
-                program = functions.verifycourse(filename, sheet_names[j]);
-                headers = functions.verifyHeaders(filename, sheet_names[j]);
+                name = verify_functions.verifyname(filename, sheet_names[j]);
+                studno = verify_functions.verifystudno(filename, sheet_names[j]);
+                program = verify_functions.verifycourse(filename, sheet_names[j]);
+                headers = verify_functions.verifyHeaders(filename, sheet_names[j]);
 
-                if(name.error){
-                    errors.push(name.error)
-                }else{
-                    fname = name.fname;
-                    lname = name.lname;
-                }
-                
-                if(studno.error){
-                    errors.push(studno.error)
-                }
-
-                if(program.error){
-                    errors.push(program.error)
-                }
-
-                if(!headers.success){
-                    errors.push(headers.error)
-                }
+                verify_functions.verifyErrors(name, studno, program, headers, fname, lname, errors);
 
                 //check if the three basic necessary information is found
                 //the student number is the identifier 
@@ -325,6 +287,16 @@ exports.uploadSingle = (req, res) => {
                     })
                 }
 
+                let checkCalc = functions.weightIsValid(data,false)
+                console.log(checkCalc.warning)
+
+                if(checkCalc.warning){
+                    checkCalc.warning.forEach((note) => {
+                        console.log(note);
+                        errors.push(note)
+                    })
+                }
+
                 let notes_msg = 'Notes: '
                 if(errors.length){
                     allErrors[sheet_names[j]] = errors
@@ -338,7 +310,6 @@ exports.uploadSingle = (req, res) => {
                     }
                 }
 
-                let checkCalc = functions.weightIsValid(data,false)
 
                 if(checkCalc.success){
                     functions.addTakenCourses(data, studno);
@@ -400,9 +371,10 @@ exports.uploadSingle = (req, res) => {
                     let errors = [];  
                     let name, fname, lname, program, studno, gwa;
 
-                    name = functions.verifyname(newfilename, sheet_names[j]);
-                    studno = functions.verifystudno(newfilename, sheet_names[j]);
-                    program = functions.verifycourse(newfilename, sheet_names[j]);
+                    name = verify_functions.verifyname(newfilename, sheet_names[j]);
+                    studno = verify_functions.verifystudno(newfilename, sheet_names[j]);
+                    program = verify_functions.verifycourse(newfilename, sheet_names[j]);
+                    //headers = verify_functions.verifyHeaders(filename, sheet_names[j]);
 
                     if(name.error){
                         errors.push(name.error)
@@ -418,6 +390,10 @@ exports.uploadSingle = (req, res) => {
                     if(program.error){
                         errors.push(program.error)
                     }
+
+                    // if(!headers.success){
+                    //     errors.push(headers.error)
+                    // }
 
                     //check if the three basic necessary information is found
                     //the student number is the identifier 
@@ -440,6 +416,15 @@ exports.uploadSingle = (req, res) => {
                         })
                     }
 
+                    let checkCalc = functions.weightIsValid(data,true)
+
+                    if(checkCalc.warning){
+                        checkCalc.warning.forEach((note) => {
+                            console.log(note);
+                            errors.push(note)
+                        })
+                    }
+
                     let notes_msg = 'Notes: '
                     if(errors.length){
                         allErrors[sheet_names[j]] = errors
@@ -452,8 +437,6 @@ exports.uploadSingle = (req, res) => {
 
                         }
                     }
-
-                    let checkCalc = functions.weightIsValid(data,true)
 
                     if(checkCalc.success){
                         functions.addTakenCourses(data, studno);
@@ -469,6 +452,7 @@ exports.uploadSingle = (req, res) => {
                 }
                 let filename_err_msg = []
                 let all_err_msg = [];
+                filename_err_msg.push(filename);
                 if(Object.keys(allErrors).length){
                     console.log("Errors on the following files:")
                     Object.keys(allErrors).forEach((key) => {
@@ -490,9 +474,8 @@ exports.uploadSingle = (req, res) => {
                 }
                 filename_err_msg.push(all_err_msg)
                 err_msg_arr.push(filename_err_msg);
-            });
-            convertPromise.catch((error) =>{
-                throw error;
+            }).catch((error) =>{
+                console.log(error);
             })
 
         }
@@ -500,15 +483,15 @@ exports.uploadSingle = (req, res) => {
     }
 
     //Delete uploaded files
-    fs.readdir('files', (err, files) => {
-        if (err) console.log(err);
+    // fs.readdir('files', (err, files) => {
+    //     if (err) console.log(err);
       
-        for (const file of files) {
-          fs.unlink(path.join('files', file), err => {
-            if (err) console.log(err)
-          });
-        }
-      });
+    //     for (const file of files) {
+    //       fs.unlink(path.join('files', file), err => {
+    //         if (err) console.log(err)
+    //       });
+    //     }
+    //   });
 
     res.send({msg:err_msg_arr});
 } 
