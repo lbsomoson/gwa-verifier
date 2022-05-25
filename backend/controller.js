@@ -6,6 +6,7 @@ const myModule = require('./index');
 const pdf2excel = require('pdf-to-excel');
 const functions = require('./functions');
 const verify_functions = require('./verify_functions');
+const misc_functions = require('./misc_functions');
 const {database} = myModule.database;
 const { jsPDF } = require("jspdf"); 
 const { callbackify } = require('util');
@@ -235,7 +236,7 @@ exports.downloadSummary = (req, res) =>{
             let toTable = Object.values(summary[i]);
             doc.autoTable({
                 head:[['ID', 'First name', 'Last name', 'Program', 'GWA', 'Qualified', 'Notes']],
-                body: [toTable]
+                body: toTable
             })
             doc.save('table.pdf');
 
@@ -249,6 +250,7 @@ exports.uploadSingle = (req, res) => {
     let err_msg_arr = [];
     for(let i=0; i<req.files.length; i++){
         let filename = req.files[i].originalname;
+        //console.log(filename)
         
         if(/.+\.xlsx/.test(filename) || /.+\.csv/.test(filename)){
             let allErrors = {};
@@ -265,51 +267,42 @@ exports.uploadSingle = (req, res) => {
                 program = verify_functions.verifycourse(filename, sheet_names[j]);
                 headers = verify_functions.verifyHeaders(filename, sheet_names[j]);
 
-                verify_functions.verifyErrors(name, studno, program, headers, fname, lname, errors);
-
-                //check if the three basic necessary information is found
-                //the student number is the identifier 
-                if(errors.length){
+                // Verify if file has the necessary information
+                let verifyFile = verify_functions.verifyErrors(name, studno, program, headers, fname, lname, errors);
+                if(verifyFile.success){
+                    fname = verifyFile.firstName.toUpperCase();
+                    lname = verifyFile.lastName.toUpperCase();
+                }else{
                     allErrors[sheet_names[j]] = errors
                     continue
                 }
 
-                let data = functions.readData(filename, sheet_names[j]);
+                // Get the data 
+                let data = functions.readData(filename, sheet_names[j], false);
                 if(data.error){
                     errors.push(data.error)
+                    allErrors[sheet_names[j]] = errors
+                    continue
                 }
 
+                // Check if the necessary courses are taken
                 var checkFormat = functions.processExcel(filename, program, data);
-                
                 if(!checkFormat.success){
                     checkFormat.notes.forEach((note) => {
                         errors.push(note)
                     })
                 }
 
-                let checkCalc = functions.weightIsValid(data,false)
-                console.log(checkCalc.warning)
-
+                // Calculate the Cumulative Weight, Total Units and GWA
+                let checkCalc = functions.weightIsValid(data,false) 
                 if(checkCalc.warning){
                     checkCalc.warning.forEach((note) => {
                         console.log(note);
                         errors.push(note)
                     })
                 }
-
-                let notes_msg = 'Notes: '
-                if(errors.length){
-                    allErrors[sheet_names[j]] = errors
-                    for(let count=0; count<errors.length; count++){
-                        if(count === (errors.length)-1){
-                            notes_msg += errors[count]
-                        }else{
-                            notes_msg += errors[count] + ", "
-                        }
-
-                    }
-                }
-
+    
+                let notes_msg = misc_functions.createNotes(errors, allErrors, sheet_names, j);
 
                 if(checkCalc.success){
                     functions.addTakenCourses(data, studno);
@@ -322,38 +315,18 @@ exports.uploadSingle = (req, res) => {
                     }   
                 }
 
-                
-
             }
 
             let filename_err_msg = []
             let all_err_msg = [];
             filename_err_msg.push(filename);
-            if(Object.keys(allErrors).length){
-                console.log("Errors on the following files:")
-                Object.keys(allErrors).forEach((key) => {
-                    let err_msg = key + ": ";
-                    for(let count=0; count<allErrors[key].length; count++){
-                        if(count === (allErrors[key].length)-1){
-                            err_msg += allErrors[key][count]
-                        }else{
-                            err_msg += allErrors[key][count] + ", "
-                        }
 
-                    }
-                    console.log(err_msg);
-                    all_err_msg.push(err_msg);
-                })
-            }else{
-                let err_msg = "No warnings";
-                all_err_msg.push(err_msg);
-            }
-            filename_err_msg.push(all_err_msg);
-            err_msg_arr.push(filename_err_msg);
+            misc_functions.listFileErrors(allErrors, all_err_msg, filename_err_msg, err_msg_arr);
+            
 
         }else if(/.+\.pdf/.test(filename)){
             //transform pdf to JSON
-            newfilename = filename.substring(0, filename.lastIndexOf('.')) + '.xlsx';
+            let newfilename = filename.substring(0, filename.lastIndexOf('.')) + '.xlsx';
             async function convertpdf(){
                 let convertPromise = new Promise(function(resolve){
                     
@@ -402,7 +375,7 @@ exports.uploadSingle = (req, res) => {
                         continue
                     }
 
-                    let data = functions.readData(newfilename, sheet_names[j]);
+                    let data = functions.readData(newfilename, sheet_names[j], true);
                     if(data.error){
                         errors.push(data.error)
                     }
@@ -474,6 +447,18 @@ exports.uploadSingle = (req, res) => {
                 }
                 filename_err_msg.push(all_err_msg)
                 err_msg_arr.push(filename_err_msg);
+
+                // fs.readdir('files', (err, files) => {
+                //     if (err) console.log(err);
+    
+                //     fs.unlink(path.join('files', newfilename), err => {
+                //         if (err) console.log(err)
+                //     });
+                //     fs.unlink(path.join('files', filename), err => {
+                //         if (err) console.log(err)
+                //     });
+    
+                // });
             }).catch((error) =>{
                 console.log(error);
             })
@@ -483,15 +468,7 @@ exports.uploadSingle = (req, res) => {
     }
 
     //Delete uploaded files
-    // fs.readdir('files', (err, files) => {
-    //     if (err) console.log(err);
-      
-    //     for (const file of files) {
-    //       fs.unlink(path.join('files', file), err => {
-    //         if (err) console.log(err)
-    //       });
-    //     }
-    //   });
+    
 
     res.send({msg:err_msg_arr});
 } 

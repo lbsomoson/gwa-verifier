@@ -7,14 +7,12 @@ function verifyname(filename, sheetName){
     var fname = ws['B1'].v;
     var lname = ws['A1'].v;
 
-    if(/^([a-zA-Z])+$/.test(lname) && /^([a-zA-Z])+$/.test(fname) && (fname != undefined || lname !=undefined)){
-        //console.log('Name: '+ lname+', '+fname + ' is a valid name');
+    if(/^([a-zA-Z])+$/.test(lname) && /^([a-zA-Z])+$/.test(fname) && (fname != undefined && lname !=undefined)){
+        return {"fname": fname, "lname": lname}
     }else{
-        //console.log(lname+', '+fname+' is not a valid name');
         return {"error": "Name is not valid"}   
     }
 
-    return {"fname": fname, "lname": lname}
 }
 
 function verifystudno(filename, sheetName){
@@ -84,7 +82,6 @@ function verifyHeaders(filename, sheetName){
 
     for(let i=0; i<Object.keys(headers).length; i++){
         if(!(data[0][i] === headers[i])){
-            console.log(data[0][i] + " is not equal to " + headers[i])
             return {'success': false, 'error':'Wrong format for headers'}
         }
     }
@@ -115,9 +112,6 @@ function verifyunits(data){
 function verifyErrors(name, studno, program, headers, fname, lname, errors) {
     if(name.error){
         errors.push(name.error)
-    }else{
-        fname = name.fname;
-        lname = name.lname;
     }
     
     if(studno.error){
@@ -131,6 +125,13 @@ function verifyErrors(name, studno, program, headers, fname, lname, errors) {
     if(!headers.success){
         errors.push(headers.error)
     }
+
+    if(errors.length){
+        return {"success": false}
+    }
+
+    return {"success": true, "firstName": name.fname, "lastName": name.lname}
+    
 }
 
 module.exports={verifyunits, verifyname, verifycourse, verifystudno, verifyHeaders, verifyErrors}
