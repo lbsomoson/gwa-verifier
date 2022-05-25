@@ -487,7 +487,16 @@ function checkloadforEdit(data, count, config, term_count, notes){
     let recorded = 0;
     for (let i = 0; i < data.length; i++){
         if (data[i].Term === data[count].Term) {
-            recorded += parseFloat(data[i].Units);
+            if(/^.+\s200$/.test(data[i].Course_Code) && isNaN(parseFloat(data[i].Units))){
+                recorded += 6;
+            }
+            else if (/^.+\s190$/.test(data[i].Course_Code) && isNaN(parseFloat(data[i].Units))){
+                recorded += 3;
+            }
+            else{
+                recorded += parseFloat(data[i].Units);
+            }
+            
         }
     }
     
