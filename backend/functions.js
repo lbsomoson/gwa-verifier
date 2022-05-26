@@ -149,6 +149,7 @@ function processExcel(filename, program, data){
     let sp_flag = false;
     let max_term_count = config.units[program].Thesis.length;
     let term_count = 0;
+    let max_unit_count = config.max_units[program].Thesis;
     
 
     for(let i=0; i<data.length; i++){
@@ -183,6 +184,7 @@ function processExcel(filename, program, data){
                     sp_thesis = true
                     sp_flag = true
                     max_term_count = config.units[program].SP.length
+                    max_unit_count = config.max_units[program].SP;
                 }
             }else if(data[i]["CRSE NO."] === 'HK 11'){                   //If course not in the program, check if it's a HK subject
                 hk11_count--;
@@ -228,6 +230,12 @@ function processExcel(filename, program, data){
             
         }
 
+    }
+
+    if(units < max_unit_count){
+        notes.push("Less than required number of units")
+    }else{
+        console.log("Required units reached")
     }
 
     if(hk11_count != 0 || hk12_count != 0){
