@@ -426,7 +426,7 @@ function weightIsValid(data,ispdf){
     gwa = (checkSum/units).toFixed(4);
 
     if(units < max_unit_count){
-        console.log("Less than required number of units")
+        warnings.push("Less than required number of units")
     }else{
         console.log("Required units reached")
     }
