@@ -324,7 +324,7 @@ function addTakenCourses(data, studno){
 }
 
 
-function weightIsValid(data,ispdf){
+function weightIsValid(data,program,ispdf){
 
     let initSum = 0;
     let checkSum = 0;

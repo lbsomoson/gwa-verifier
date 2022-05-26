@@ -294,7 +294,7 @@ exports.uploadSingle = (req, res) => {
                 }
 
                 // Calculate the Cumulative Weight, Total Units and GWA
-                let checkCalc = functions.weightIsValid(data,false) 
+                let checkCalc = functions.weightIsValid(data,program,false) 
                 if(checkCalc.warning){
                     checkCalc.warning.forEach((note) => {
                         console.log(note);
@@ -389,7 +389,7 @@ exports.uploadSingle = (req, res) => {
                         })
                     }
 
-                    let checkCalc = functions.weightIsValid(data,true)
+                    let checkCalc = functions.weightIsValid(data,program,true)
 
                     if(checkCalc.warning){
                         checkCalc.warning.forEach((note) => {
