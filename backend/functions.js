@@ -149,7 +149,7 @@ function processExcel(filename, program, data){
     let sp_flag = false;
     let max_term_count = config.units[program].Thesis.length;
     let term_count = 0;
-    let max_unit_count = config.max_units[program].Thesis;
+    
     
 
     for(let i=0; i<data.length; i++){
@@ -184,7 +184,6 @@ function processExcel(filename, program, data){
                     sp_thesis = true
                     sp_flag = true
                     max_term_count = config.units[program].SP.length
-                    max_unit_count = config.max_units[program].SP;
                 }
             }else if(data[i]["CRSE NO."] === 'HK 11'){                   //If course not in the program, check if it's a HK subject
                 hk11_count--;
@@ -230,12 +229,6 @@ function processExcel(filename, program, data){
             
         }
 
-    }
-
-    if(units < max_unit_count){
-        notes.push("Less than required number of units")
-    }else{
-        console.log("Required units reached")
     }
 
     if(hk11_count != 0 || hk12_count != 0){
@@ -341,6 +334,7 @@ function weightIsValid(data,ispdf){
     let gwa = 0;
     let qualified_for_honors = true;
     let warnings = [];
+    let max_unit_count = config.max_units[program].Thesis;
 
     for(let i = 0; i<data.length; i++){
         
@@ -359,6 +353,7 @@ function weightIsValid(data,ispdf){
 
             // Check if course is of 190 series (special problem)
             else if (/.+190$/.test(data[i]["CRSE NO."])){
+                max_unit_count = config.max_units[program].SP;
                 if((data[i].Grade === 'S' || data[i].Grade === 'U')){
                     continue;
                 }
@@ -429,6 +424,12 @@ function weightIsValid(data,ispdf){
     console.log(`initGWA: ${initGWA}`)
     console.log(`checkSum: ${checkSum} initSum: ${initSum}`)
     gwa = (checkSum/units).toFixed(4);
+
+    if(units < max_unit_count){
+        console.log("Less than required number of units")
+    }else{
+        console.log("Required units reached")
+    }
 
     if(gwa > 1.75) {
         console.log('GWA did not reach atlast 1.75');
