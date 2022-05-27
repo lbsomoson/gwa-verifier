@@ -260,6 +260,7 @@ exports.uploadSingle = (req, res) => {
             for(let j in sheet_names){
                 //transform excel to JSON
                 let errors = [];  
+                let GWA_requirement_check = true;
                 let name, fname, lname, program, studno, gwa, headers;
 
                 name = verify_functions.verifyname(filename, sheet_names[j]);
@@ -278,12 +279,21 @@ exports.uploadSingle = (req, res) => {
                 }
 
                 // Get the data 
-                let data = functions.readData(filename, sheet_names[j], false);
-                if(data.error){
+                let readData = functions.readData(filename, sheet_names[j], false);
+                if(readData.error){
                     errors.push(data.error)
                     allErrors[sheet_names[j]] = errors
                     continue
                 }
+
+                if(readData.notes.length){
+                    readData.notes.forEach((note) => {
+                        errors.push(note)
+                    })
+                }
+
+                data = readData.data;
+                GWA_requirement_check = readData.req_GWA;
 
                 // Check if the necessary courses are taken
                 var checkFormat = functions.processExcel(filename, program, data);
@@ -294,7 +304,7 @@ exports.uploadSingle = (req, res) => {
                 }
 
                 // Calculate the Cumulative Weight, Total Units and GWA
-                let checkCalc = functions.weightIsValid(data,program,false) 
+                let checkCalc = functions.weightIsValid(data, program, false, GWA_requirement_check) 
                 if(checkCalc.warning){
                     checkCalc.warning.forEach((note) => {
                         console.log(note);
@@ -322,8 +332,16 @@ exports.uploadSingle = (req, res) => {
             filename_err_msg.push(filename);
 
             misc_functions.listFileErrors(allErrors, all_err_msg, filename_err_msg, err_msg_arr);
-            
 
+            // Delete uploaded files
+            fs.readdir('files', (err, files) => {
+                if (err) console.log(err);
+
+                fs.unlink(path.join('files', filename), err => {
+                    if (err) console.log(err)
+                });
+
+            });
         }else if(/.+\.pdf/.test(filename)){
             //transform pdf to JSON
             let newfilename = filename.substring(0, filename.lastIndexOf('.')) + '.xlsx';
@@ -406,17 +424,17 @@ exports.uploadSingle = (req, res) => {
 
                 misc_functions.listFileErrors(allErrors, all_err_msg, filename_err_msg, err_msg_arr);
 
-                // fs.readdir('files', (err, files) => {
-                //     if (err) console.log(err);
+                fs.readdir('files', (err, files) => {
+                    if (err) console.log(err);
     
-                //     fs.unlink(path.join('files', newfilename), err => {
-                //         if (err) console.log(err)
-                //     });
-                //     fs.unlink(path.join('files', filename), err => {
-                //         if (err) console.log(err)
-                //     });
+                    fs.unlink(path.join('files', newfilename), err => {
+                        if (err) console.log(err)
+                    });
+                    fs.unlink(path.join('files', filename), err => {
+                        if (err) console.log(err)
+                    });
     
-                // });
+                });
             }).catch((error) =>{
                 console.log(error);
             })
