@@ -348,22 +348,16 @@ exports.uploadSingle = (req, res) => {
                     studno = verify_functions.verifystudno(newfilename, sheet_names[j]);
                     program = verify_functions.verifycourse(newfilename, sheet_names[j]);
                     //headers = verify_functions.verifyHeaders(filename, sheet_names[j]);
-
-                    if(name.error){
-                        errors.push(name.error)
+                    
+                    let verifyFile = verify_functions.verifyErrors(name, studno, program, headers, fname, lname, errors);
+                    if(verifyFile.success){
+                        fname = verifyFile.firstName.toUpperCase();
+                        lname = verifyFile.lastName.toUpperCase();
                     }else{
-                        fname = name.fname;
-                        lname = name.lname;
+                        allErrors[sheet_names[j]] = errors
+                        continue
                     }
                     
-                    if(studno.error){
-                        errors.push(studno.error)
-                    }
-
-                    if(program.error){
-                        errors.push(program.error)
-                    }
-
                     // if(!headers.success){
                     //     errors.push(headers.error)
                     // }
