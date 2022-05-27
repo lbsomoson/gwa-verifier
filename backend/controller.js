@@ -294,7 +294,7 @@ exports.uploadSingle = (req, res) => {
                 }
 
                 // Calculate the Cumulative Weight, Total Units and GWA
-                let checkCalc = functions.weightIsValid(data,false) 
+                let checkCalc = functions.weightIsValid(data,program,false) 
                 if(checkCalc.warning){
                     checkCalc.warning.forEach((note) => {
                         console.log(note);
@@ -342,49 +342,43 @@ exports.uploadSingle = (req, res) => {
                 for(let j in sheet_names){
                     //transform excel to JSON
                     let errors = [];  
-                    let name, fname, lname, program, studno, gwa;
+                    let name, fname, lname, program, studno, gwa, headers;
 
                     name = verify_functions.verifyname(newfilename, sheet_names[j]);
                     studno = verify_functions.verifystudno(newfilename, sheet_names[j]);
                     program = verify_functions.verifycourse(newfilename, sheet_names[j]);
-                    //headers = verify_functions.verifyHeaders(filename, sheet_names[j]);
+
+                    headers = verify_functions.verifyHeaders(newfilename, sheet_names[j]);
                     
+                    // Verify if file has the necessary information
                     let verifyFile = verify_functions.verifyErrors(name, studno, program, headers, fname, lname, errors);
                     if(verifyFile.success){
                         fname = verifyFile.firstName.toUpperCase();
                         lname = verifyFile.lastName.toUpperCase();
                     }else{
-                        allErrors[sheet_names[j]] = errors
-                        continue
-                    }
-                    
-                    // if(!headers.success){
-                    //     errors.push(headers.error)
-                    // }
 
-                    //check if the three basic necessary information is found
-                    //the student number is the identifier 
-                    if(errors.length){
                         allErrors[sheet_names[j]] = errors
                         continue
                     }
 
-                    let data = functions.readData(newfilename, sheet_names[j], true);
+                    // Get the data 
+                    let data = functions.readData(filename, sheet_names[j], false);
                     if(data.error){
                         errors.push(data.error)
+                        allErrors[sheet_names[j]] = errors
+                        continue
                     }
-
-                    var checkFormat = functions.processExcel(newfilename, program, data);
                     
-                    // TODO: add students into database despite having "warnings"
+                    // Check if the necessary courses are taken
+                    var checkFormat = functions.processExcel(newfilename, program, data);
                     if(!checkFormat.success){
                         checkFormat.notes.forEach((note) => {
                             errors.push(note)
                         })
                     }
 
-                    let checkCalc = functions.weightIsValid(data,true)
-
+                    // Calculate the Cumulative Weight, Total Units and GWA
+                    let checkCalc = functions.weightIsValid(data,program,true)
                     if(checkCalc.warning){
                         checkCalc.warning.forEach((note) => {
                             console.log(note);
@@ -392,18 +386,7 @@ exports.uploadSingle = (req, res) => {
                         })
                     }
 
-                    let notes_msg = 'Notes: '
-                    if(errors.length){
-                        allErrors[sheet_names[j]] = errors
-                        for(let count=0; count<errors.length; count++){
-                            if(count === (errors.length)-1){
-                                notes_msg += errors[count]
-                            }else{
-                                notes_msg += errors[count] + ", "
-                            }
-
-                        }
-                    }
+                    let notes_msg = misc_functions.createNotes(errors, allErrors, sheet_names, j);
 
                     if(checkCalc.success){
                         functions.addTakenCourses(data, studno);
@@ -420,27 +403,8 @@ exports.uploadSingle = (req, res) => {
                 let filename_err_msg = []
                 let all_err_msg = [];
                 filename_err_msg.push(filename);
-                if(Object.keys(allErrors).length){
-                    console.log("Errors on the following files:")
-                    Object.keys(allErrors).forEach((key) => {
-                        let err_msg = key + ": ";
-                        for(let count=0; count<allErrors[key].length; count++){
-                            if(count === (allErrors[key].length)-1){
-                                err_msg += allErrors[key][count]
-                            }else{
-                                err_msg += allErrors[key][count] + ", "
-                            }
 
-                        }
-                        console.log(err_msg);
-                        all_err_msg.push(err_msg);
-                    })
-                }else{
-                    let err_msg = "No warnings";
-                    all_err_msg.push(err_msg);
-                }
-                filename_err_msg.push(all_err_msg)
-                err_msg_arr.push(filename_err_msg);
+                misc_functions.listFileErrors(allErrors, all_err_msg, filename_err_msg, err_msg_arr);
 
                 // fs.readdir('files', (err, files) => {
                 //     if (err) console.log(err);
