@@ -347,6 +347,7 @@ exports.uploadSingle = (req, res) => {
                     name = verify_functions.verifyname(newfilename, sheet_names[j]);
                     studno = verify_functions.verifystudno(newfilename, sheet_names[j]);
                     program = verify_functions.verifycourse(newfilename, sheet_names[j]);
+
                     headers = verify_functions.verifyHeaders(newfilename, sheet_names[j]);
                     
                     // Verify if file has the necessary information
@@ -355,6 +356,7 @@ exports.uploadSingle = (req, res) => {
                         fname = verifyFile.firstName.toUpperCase();
                         lname = verifyFile.lastName.toUpperCase();
                     }else{
+
                         allErrors[sheet_names[j]] = errors
                         continue
                     }
