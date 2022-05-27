@@ -152,6 +152,7 @@ function processExcel(filename, program, data){
     console.log("Max units count is " + max_units_count);
     let term_count = 0;
     
+    
 
     for(let i=0; i<data.length; i++){
         /*
@@ -325,7 +326,7 @@ function addTakenCourses(data, studno){
 }
 
 
-function weightIsValid(data,ispdf){
+function weightIsValid(data,program,ispdf){
 
     let initSum = 0;
     let checkSum = 0;
@@ -335,6 +336,7 @@ function weightIsValid(data,ispdf){
     let gwa = 0;
     let qualified_for_honors = true;
     let warnings = [];
+    let max_unit_count = config.max_units[program].Thesis;
 
     for(let i = 0; i<data.length; i++){
         
@@ -353,6 +355,7 @@ function weightIsValid(data,ispdf){
 
             // Check if course is of 190 series (special problem)
             else if (/.+190$/.test(data[i]["CRSE NO."])){
+                max_unit_count = config.max_units[program].SP;
                 if((data[i].Grade === 'S' || data[i].Grade === 'U')){
                     continue;
                 }
@@ -423,6 +426,12 @@ function weightIsValid(data,ispdf){
     console.log(`initGWA: ${initGWA}`)
     console.log(`checkSum: ${checkSum} initSum: ${initSum}`)
     gwa = (checkSum/units).toFixed(4);
+
+    if(units < max_unit_count){
+        warnings.push("Less than required number of units")
+    }else{
+        console.log("Required units reached")
+    }
 
     if(gwa > 1.75) {
         console.log('GWA did not reach atlast 1.75');
