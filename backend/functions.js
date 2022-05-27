@@ -107,12 +107,12 @@ function readData(filename, sheetName, isPdf){
             else if (!gwa_check){
                 if(data[index]["CRSE NO."] && data[index].Grade){ 
                     if((typeof data[index]["CRSE NO."] != 'string' || data[index]["CRSE NO."].trim() !== "GWA") || isNaN(data[index].Grade)){
-                        return {'error': 'Unexpected format for GWA'}
+                        //return {'error': 'Unexpected format for GWA'}
                     }else{
                         gwa_check = true;
                     }
                 }else{
-                    return {'error': 'GWA not found'}
+                    //return {'error': 'GWA not found'}
                 }
     
             }
@@ -148,6 +148,8 @@ function processExcel(filename, program, data){
     let sp_thesis = false;
     let sp_flag = false;
     let max_term_count = config.units[program].Thesis.length;
+    let max_units_count = config.max_units[program].SP;
+    console.log("Max units count is " + max_units_count);
     let term_count = 0;
     
 
@@ -434,6 +436,7 @@ function weightIsValid(data,ispdf){
 
     
     warnings.push('Mismatch with Cumulative Weight, Total Units, or GWA')
+    qualified_for_honors = false;
     return {'success': true, 'gwa': initGWA , 'units':units, 'qualified':qualified_for_honors, 'warning': warnings};
 
 }
