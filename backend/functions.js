@@ -33,22 +33,48 @@ function readData(filename, sheetName, isPdf){
 
     let notes = [];
 
+    let accepted_grades = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 4, 5, 'INC', 'DRP', 'DFG', 'S', 'U', 'P'];
 
     for(let i=0; i<data.length; i++){
-        if((data[i]["CRSE NO."] && data[i].Grade && (data[i].Units === 0 || data[i].Units) && (data[i].Weight === 0 || data[i].Weight) && data[i].Cumulative) || (data[i]["CRSE NO."] && data[i].Term) ){
-            if(data[i]["Term"]){ // If load exists, then term must also exist
-                if(isNaN(data[i]["Term"])){
+        if((data[i]["CRSE NO."] && data[i].Grade && (data[i].Units === 0 || data[i].Units) && (data[i].Weight === 0 || data[i].Weight) && (data[i].Cumulative === 0 || data[i].Cumulative)) || (data[i]["CRSE NO."] && data[i].Term) ){
+            
+            // Check the type of the courses
+            if(typeof data[i]["CRSE NO."] !== "string"){
+                return {'error': `${data[i]["CRSE NO."]} is not of the proper format`}
+            }
 
-                    
+            // Check for the special case of LOA/AWOL
+            if(['LOA', 'AWOL'].includes(data[i]["CRSE NO."])){
+                if(data[i].Grade || data[i].Units || data[i].Weight || data[i].Cumulative){
+                    return {'error': 'LOA/AWOL must not have a Grade/Units/Weight/Cumulative'}
+                }
+            }
+
+            // Check if the Grade is accepted or not
+            if(!accepted_grades.includes(data[i].Grade)){
+                return {'error': `A grade of ${data[i].Grade} is not accepted`}
+            }
+
+            // Check if the number of units is accepted
+            if(!/^\d$/.test(data[i].Units)){
+                if(!/^\d\(\d\)$/.test(data[i].Units)){
+                    return {'error': `${data[i].Units} is not an acceptable number of units`}
+                }
+            }
+
+
+            if(data[i]["Term"]){ // If load exists, then term must also exist
+                if(isNaN(data[i]["Term"])){ 
                     return {'error': 'A Semester Load is not a Number'}
                 }
                 if(data[i].__EMPTY){
-
                     semesterCount++;
                 }else{
                     return {'error': 'Term does not exist'}
                 }
             }
+
+            
             end_range++;
         }
 

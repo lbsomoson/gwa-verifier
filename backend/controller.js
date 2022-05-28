@@ -338,7 +338,7 @@ exports.uploadSingle = (req, res) => {
                 // Get the data 
                 let readData = functions.readData(filename, sheet_names[j], false);
                 if(readData.error){
-                    errors.push(data.error)
+                    errors.push(readData.error)
                     allErrors[sheet_names[j]] = errors
                     continue
                 }
@@ -441,12 +441,22 @@ exports.uploadSingle = (req, res) => {
 
 
                     // Get the data 
-                    let data = functions.readData(filename, sheet_names[j], false);
-                    if(data.error){
-                        errors.push(data.error)
+                    let readData = functions.readData(filename, sheet_names[j], false);
+                    if(readData.error){
+                        errors.push(readData.error)
                         allErrors[sheet_names[j]] = errors
                         continue
                     }
+
+
+                    if(readData.notes.length){
+                        readData.notes.forEach((note) => {
+                            errors.push(note)
+                        })
+                    }
+
+                    data = readData.data;
+                    GWA_requirement_check = readData.req_GWA;
                     
                     // Check if the necessary courses are taken
                     var checkFormat = functions.processExcel(newfilename, program, data);
@@ -457,7 +467,7 @@ exports.uploadSingle = (req, res) => {
                     }
 
                     // Calculate the Cumulative Weight, Total Units and GWA
-                    let checkCalc = functions.weightIsValid(data,program,true)
+                    let checkCalc = functions.weightIsValid(data, program, false, GWA_requirement_check) 
 
                     if(checkCalc.warning){
                         checkCalc.warning.forEach((note) => {
