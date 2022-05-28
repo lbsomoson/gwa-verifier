@@ -87,6 +87,7 @@ class AddUserForm extends React.Component{
                             //console.log("Select user type");
                         }
                     
+
                     }else{
                         alert("Passwords are different");
                         //console.log("passwords are different")

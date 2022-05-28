@@ -40,6 +40,7 @@ class Login extends React.Component{
     }
 
     loginUser(){ //sends to the back end the values placed in the input fields
+        console.log('Attempting Login . . .');
         Axios.post("http://localhost:3001/loginUser",
         {username: this.state.username1,
         password: this.state.password1}).then((response) => {
@@ -70,6 +71,7 @@ class Login extends React.Component{
                 
             }
         })
+        console.log('Attempting to Test . . .');
     }
 
     render(){
@@ -98,6 +100,7 @@ class Login extends React.Component{
                         className={`button-text ${styles.LogInButton}`} 
                         onClick={this.loginUser}
                     >LOGIN</button>
+
                 </div>
                 </div>
         )
