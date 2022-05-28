@@ -11,6 +11,40 @@ const {database} = myModule.database;
 const { jsPDF } = require("jspdf"); 
 const { callbackify } = require('util');
 
+
+exports.findUser = (req, res) => {
+    
+    const username = req.query.username;
+    console.log(username);
+    let findUser = 'SELECT * FROM users WHERE Username= ?';
+  
+
+    let query = database.query(findUser , [username], (err, result) => {
+        if (err) throw err;
+        console.log(result);
+    
+        const rows = Object.values(JSON.parse(JSON.stringify(result)));
+        if(rows.length > 0){
+            
+            res.send(result);
+        }else{
+            res.send({msg: "Not found"});
+        }
+
+    });
+}
+
+exports.updateUser = (req, res) => {
+    
+    const username = req.body.username;
+    const type = req.body.type;
+    let updateUser = 'UPDATE users SET Type = ? WHERE Username = ?';
+
+    let query = database.query(updateUser , [type, username], (err, result) => {
+        if (err) throw err;
+    });
+}
+
 exports.findAllUsers = (req, res) => {
     let findAllUsers = 'SELECT * FROM users';
 
@@ -45,8 +79,28 @@ exports.addActivity= (req, res) => {
     const action = req.body.action;
    
     let addActivity = 'INSERT INTO activities(Username, Action, Date) values (?, ?, now())';
+    let countActivity = 'SELECT COUNT(*) AS rowcount FROM activities';
+    let deleteActivity = 'DELETE FROM activities LIMIT 500';
+    
+    let query1 = database.query(countActivity, (err, result) => {
+        if (err) throw err;
 
-    let query = database.query(addActivity, [username, action] ,(err, result) => {
+        const nrows = Object.values(JSON.parse(JSON.stringify(result)));
+
+        
+        console.log(nrows[0].rowcount);
+        if (nrows[0].rowcount == 1000){
+            let query2 = database.query(deleteActivity, (err, result) => {
+                if (err) throw err;
+        
+                console.log("Successfully deleted oldest 500 activities");
+                //res.send(result);
+            });
+        }  
+       
+    });
+
+    let query3 = database.query(addActivity, [username, action] ,(err, result) => {
         if (err) throw err;
 
         console.log("Successfully added activity");
