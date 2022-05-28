@@ -19,6 +19,7 @@ class Login extends React.Component{
         this.updateUsername = this.updateUsername.bind(this)
         this.updatePassword = this.updatePassword.bind(this)
         this.loginUser = this.loginUser.bind(this)
+        this.addActivity = this.addActivity.bind(this)
         
     }
     componentDidMount(){
@@ -30,7 +31,16 @@ class Login extends React.Component{
     updatePassword(e){  //stores the value inputted in the password field
         this.setState({password1: e.target.value})
     }
+
+    addActivity(){
+        Axios.post("http://localhost:3001/addActivity",
+        {username: this.state.username1, action: "logged in"}).then((response) => {
+            console.log(response)
+        })
+    }
+
     loginUser(){ //sends to the back end the values placed in the input fields
+        console.log('Attempting Login . . .');
         Axios.post("http://localhost:3001/loginUser",
         {username: this.state.username1,
         password: this.state.password1}).then((response) => {
@@ -56,10 +66,12 @@ class Login extends React.Component{
                         age: 60*60,
                         sameSite: "lax"
                 });
+                this.addActivity();
 
                 
             }
         })
+        console.log('Attempting to Test . . .');
     }
 
     render(){
@@ -88,6 +100,7 @@ class Login extends React.Component{
                         className={`button-text ${styles.LogInButton}`} 
                         onClick={this.loginUser}
                     >LOGIN</button>
+
                 </div>
                 </div>
         )

@@ -1,0 +1,30 @@
+.table{
+    background-color: #ffffff;
+    /*border-radius: 10px;*/
+    border-style: hidden;
+    /*margin-top: 30px;*/
+    /*margin-right: 20px;*/
+}
+.date{
+    width: 12%;
+    background-color: #aeacac;
+}
+
+.time{
+    width: 12%;
+    background-color: #aeacac;
+}
+
+.username{
+    width: 16%;
+    background-color: #aeacac;
+}
+
+.action{
+    width: 60%;
+    background-color: #aeacac;
+}
+
+.row{
+    border-bottom-style: hidden;
+}

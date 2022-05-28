@@ -1,4 +1,5 @@
 import React from 'react';
+import Axios from 'axios';
 import styles from './StudentDataTabs.module.css';
 import { Navigate } from "react-router";
 import {BasicButton} from '../../components';
@@ -24,6 +25,11 @@ class StudentDataTabs extends React.Component{
         window.localStorage.setItem("studentLN",this.state.viewStudent.Last_Name);
         window.localStorage.setItem("studentProgram",this.state.viewStudent.Program);
         window.localStorage.setItem("studentGWA",this.state.viewStudent.GWA);
+        const str = "viewed student record: " + this.state.viewStudent.Last_Name + " " + this.state.viewStudent.First_Name + " (" + this.state.viewStudent.ID + ")";
+        Axios.post("http://localhost:3001/addActivity",
+        {username: localStorage.getItem("user"), action: str}).then((response) => {
+            console.log(response)
+        })
         //console.log(this.state.viewStudent.ID);
         //console.log(this.state.viewStudent.First_Name);
         //console.log(this.state.viewStudent.Last_Name);

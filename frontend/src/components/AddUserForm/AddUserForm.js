@@ -64,7 +64,12 @@ class AddUserForm extends React.Component{
             if (this.state.userPassword.length > 0){
                 if(this.state.userPassword === this.state.userRePassword){
                     if(this.state.userType !== ""){
-                        this.addUserPostFunc()
+                        this.addUserPostFunc();
+                        const str = "added new user: " + this.state.userName;
+                        Axios.post("http://localhost:3001/addActivity",
+                        {username: localStorage.getItem("user"), action: str}).then((response) => {
+                            console.log(response)
+                        })
                     }else{
                         alert("Select User Type");
                     }
