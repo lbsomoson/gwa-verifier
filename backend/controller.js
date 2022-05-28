@@ -119,7 +119,7 @@ exports.editStudentRecord = (req, res) => {
 }
 
 exports.addEditHistory = (req, res) => {
-    let addHistory = 'INSERT INTO edit_history (Username, ID, Datetime_of_edit, Edit_notes) VALUES (?, ?, NOW(), ?)';
+    let addHistory = 'INSERT INTO edit_history ((SELECT COUNT(*) FROM edit_history), Username, Student_ID, Datetime_of_edit, Edit_notes) VALUES (?, ?, NOW(), ?)';
     let query = database.query(addHistory, [req.body.Username, req.body.ID, req.body.notes], (err, result) => {
         if (err) throw err;
 
