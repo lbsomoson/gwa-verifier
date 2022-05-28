@@ -19,6 +19,7 @@ class Login extends React.Component{
         this.updateUsername = this.updateUsername.bind(this)
         this.updatePassword = this.updatePassword.bind(this)
         this.loginUser = this.loginUser.bind(this)
+        this.addActivity = this.addActivity.bind(this)
         
     }
     componentDidMount(){
@@ -30,6 +31,14 @@ class Login extends React.Component{
     updatePassword(e){  //stores the value inputted in the password field
         this.setState({password1: e.target.value})
     }
+
+    addActivity(){
+        Axios.post("http://localhost:3001/addActivity",
+        {username: this.state.username1, action: "logged in"}).then((response) => {
+            console.log(response)
+        })
+    }
+
     loginUser(){ //sends to the back end the values placed in the input fields
         Axios.post("http://localhost:3001/loginUser",
         {username: this.state.username1,
@@ -56,6 +65,7 @@ class Login extends React.Component{
                         age: 60*60,
                         sameSite: "lax"
                 });
+                this.addActivity();
 
                 
             }

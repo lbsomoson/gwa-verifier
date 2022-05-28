@@ -15,12 +15,16 @@
 .left{
     flex: 1;
     margin-left: 50px;
-    /*background: lightgreen;*/
+    
+    /*background: lightgreen;
+    height: 100%;
+    */
 }
 
 .right{
     width: 40%;
-    /*background: lightblue;*/
+    /*background: lightblue;
+    height: 100%;*/
 }
 
 .buttonGroup{
@@ -56,18 +60,42 @@
 
 .buttonGroup2 {
     display: flex;
-    align-items: center;
+    /*align-items: center;*/
     flex-direction: column;
+    margin-right: 150px;
+    margin-left: 150px;
     margin-top: 20px;
-    justify-content: center;
+    /*justify-content: center;*/
 }
 
 .button {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 .addUser{
-    position: absolute;
+    position: fixed;
     left:36%;
-    top: 40%
+    top: 25%
+}
+
+.modal{
+    position: relative;
+    overflow-y: auto;
+    max-height: 500px;
+    padding: 15px;
+}
+
+
+.table{
+    background-color: #ffffff;
+    /*border-radius: 10px;*/
+    border-style: hidden;
+    /*margin-bottom: 20px;*/
+    /*margin-top: 30px;*/
+    /*margin-right: 20px;*/
+}
+
+
+.row{
+    border-bottom-style: hidden;
 }

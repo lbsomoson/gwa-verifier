@@ -42,51 +42,72 @@ class AddUserForm extends React.Component{
         this.setState({userRePassword: e.target.value});
     }
 
-    getUser(user){
-
+    getUser(){
+        
+        console.log(this.state.userName);
         console.log("checking if user exists already");
-        Axios.post("http://localhost:3001/findUser",
-        {username: user}).then((response) => {
-            if(response.data.msg){
-                console.log("not found on record");
-                
-            }else{
-                console.log("found on record");
-                
-            }
-            
-        })
+        return new Promise((resolve)=> {
+            Axios.get("http://localhost:3001/finduser",
+                {params: {username: this.state.userName}}).then( (response) => {
+                    console.log(response)
+                    
+                        if(response.data.msg){
+                                console.log("not found on record");
+                                console.log("found will be set to TRUE");
+                                resolve(true);
+                        }else{
+                                console.log("found on record");
+                                console.log("found will be set to FALSE");
+                                resolve(false);
+                        }
+                    })
+                    
+            })
     }
 
-    addUser(){
-        console.log(this.state.userName);
+    async addUser(){
+       const result =  await this.getUser();
+       console.log(result);
+       this.setState(this.setState({found: result}), () => {
         if(this.state.userName.length > 0){
-            if (this.state.userPassword.length > 0){
-                if(this.state.userPassword === this.state.userRePassword){
-                    if(this.state.userType !== ""){
-                        this.addUserPostFunc()
+            if(this.state.found === true){
+                if (this.state.userPassword.length > 0){
+                    if(this.state.userPassword === this.state.userRePassword){
+                        if(this.state.userType !== ""){
+                            //console.log("USER ADDED");
+                            this.addUserPostFunc();
+                            const str = "added new user: " + this.state.userName;
+                            Axios.post("http://localhost:3001/addActivity",
+                            {username: localStorage.getItem("user"), action: str}).then((response) => {
+                                console.log(response)
+                            })
+                            
+                        }else{
+                            alert("Select User Type");
+                            //console.log("Select user type");
+                        }
+                    
                     }else{
-                        alert("Select User Type");
+                        alert("Passwords are different");
+                        //console.log("passwords are different")
                     }
                 
-                }else{
-                    alert("Passwords are different");
-                }
 
+                }else{
+                    alert("Add a password");
+                    //console.log("Add a password");
+                }
             }else{
-                alert("Add a password");
+                alert("USER NOT ADDED, USER ALREADY EXISTS");
+                //console.log("USER NOT ADDED, USER ALREADY EXISTS");
             }
-        
 
         }else{
             alert("ADD USER NAME");
+            //console.log("Add Username");
         }
+       });
 
-        /*
-        console.log("username: "+this.state.userName);
-        console.log("password: "+this.state.userPassword);
-        console.log("type: "+this.state.userType);
-        */
     }
 
     addUserPostFunc(){
