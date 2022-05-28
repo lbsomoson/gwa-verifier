@@ -19,7 +19,7 @@ module.exports = (app) => {
   app.post("/editRecord", controller.editStudentRecord);
   app.post("/addedithistory", controller.addEditHistory);
   app.get("/viewedithistory", controller.findAllEdits);
-  app.get("/searchstudents", controller.searchStudents);
+  app.post("/searchstudents", controller.searchStudents);
 
   app.post("/searchstudentsGwa", controller.searchStudentsByGwa);
   app.post("/searchstudentsID", controller.searchStudentsByID);
