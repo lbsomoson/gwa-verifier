@@ -111,6 +111,7 @@ exports.checkIfLoggedIn = (req, res) => {
                     console.log("err in db")
                     return res.send({ isLoggedin: false});
                 }
+
             })
 
             return res.send({ isLoggedin: true, username: user_name, type: type });

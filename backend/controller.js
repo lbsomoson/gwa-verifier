@@ -114,15 +114,17 @@ exports.findStudentRecord = (req, res) => {
 }
 
 exports.editStudentRecord = (req, res) => {
-    console.log("In edit student record");
-    console.log(req.body.data);
-    functions.processEdit(req.body.data);
+
+    obj = functions.processEdit(req.body.data);
+    res.send(obj);
+
 }
 
 exports.addEditHistory = (req, res) => {
     let addHistory = 'INSERT INTO edit_history (Username, ID, Datetime_of_edit, Edit_notes) VALUES (?, ?, NOW(), ?)';
-
     let query = database.query(addHistory, [req.body.Username, req.body.ID, req.body.notes], (err, result) => {
+        if (err) throw err;
+
         res.send('Updated edit history');
     });
 }
@@ -274,6 +276,7 @@ exports.uploadSingle = (req, res) => {
                     fname = verifyFile.firstName.toUpperCase();
                     lname = verifyFile.lastName.toUpperCase();
                 }else{
+
                     allErrors[sheet_names[j]] = errors
                     continue
                 }
@@ -285,6 +288,7 @@ exports.uploadSingle = (req, res) => {
                     allErrors[sheet_names[j]] = errors
                     continue
                 }
+
 
                 if(readData.notes.length){
                     readData.notes.forEach((note) => {
@@ -305,6 +309,7 @@ exports.uploadSingle = (req, res) => {
 
                 // Calculate the Cumulative Weight, Total Units and GWA
                 let checkCalc = functions.weightIsValid(data, program, false, GWA_requirement_check) 
+      
                 if(checkCalc.warning){
                     checkCalc.warning.forEach((note) => {
                         console.log(note);
@@ -366,6 +371,7 @@ exports.uploadSingle = (req, res) => {
                     studno = verify_functions.verifystudno(newfilename, sheet_names[j]);
                     program = verify_functions.verifycourse(newfilename, sheet_names[j]);
 
+
                     headers = verify_functions.verifyHeaders(newfilename, sheet_names[j]);
                     
                     // Verify if file has the necessary information
@@ -378,6 +384,7 @@ exports.uploadSingle = (req, res) => {
                         allErrors[sheet_names[j]] = errors
                         continue
                     }
+
 
                     // Get the data 
                     let data = functions.readData(filename, sheet_names[j], false);
@@ -397,11 +404,13 @@ exports.uploadSingle = (req, res) => {
 
                     // Calculate the Cumulative Weight, Total Units and GWA
                     let checkCalc = functions.weightIsValid(data,program,true)
+
                     if(checkCalc.warning){
                         checkCalc.warning.forEach((note) => {
                             console.log(note);
                             errors.push(note)
                         })
+
                     }
 
                     let notes_msg = misc_functions.createNotes(errors, allErrors, sheet_names, j);
@@ -421,6 +430,7 @@ exports.uploadSingle = (req, res) => {
                 let filename_err_msg = []
                 let all_err_msg = [];
                 filename_err_msg.push(filename);
+
 
                 misc_functions.listFileErrors(allErrors, all_err_msg, filename_err_msg, err_msg_arr);
 

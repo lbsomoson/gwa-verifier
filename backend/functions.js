@@ -2,6 +2,7 @@ var XLSX = require("xlsx");
 var config = require('./config.json');
 const { checkIfLoggedIn } = require("./auth-controller");
 const myModule = require('./index');
+const { response } = require("express");
 const {database} = myModule.database;
 
 function checkTermValidity(term){
@@ -29,16 +30,20 @@ function readData(filename, sheetName, isPdf){
     let units_and_checksum_check = false;
     let gwa_check = false;
     let semesterCount = 0;
+
     let notes = [];
+
 
     for(let i=0; i<data.length; i++){
         if((data[i]["CRSE NO."] && data[i].Grade && (data[i].Units === 0 || data[i].Units) && (data[i].Weight === 0 || data[i].Weight) && data[i].Cumulative) || (data[i]["CRSE NO."] && data[i].Term) ){
             if(data[i]["Term"]){ // If load exists, then term must also exist
                 if(isNaN(data[i]["Term"])){
+
                     
                     return {'error': 'A Semester Load is not a Number'}
                 }
                 if(data[i].__EMPTY){
+
                     semesterCount++;
                 }else{
                     return {'error': 'Term does not exist'}
@@ -66,6 +71,7 @@ function readData(filename, sheetName, isPdf){
                 if(data[index].__EMPTY_2){
                     if(data[index].__EMPTY_3){
                         if(isNaN(data[index].__EMPTY_2) || isNaN(data[index].__EMPTY_3)){
+
                             passedCheck = false;
                             notes.push('Total Units or Cumulative Weight is not a number');
                             //return {'error': 'Total Units or Cumulative Weight is not a number'}
@@ -86,6 +92,7 @@ function readData(filename, sheetName, isPdf){
                 }
 
                 units_and_checksum_check = true;
+
             }
             else if (!gwa_check){
                 if(data[index]["CRSE NO."] && data[index].Grade){ 
@@ -114,28 +121,35 @@ function readData(filename, sheetName, isPdf){
                         passedCheck = false;
                         notes.push('Total Units or Cumulative Weight is not a number');
                         //return {'error': 'Total Units or Cumulative Weight is not a number'}
+
                     }else{
                         units_and_checksum_check = true;
                     }
                 }else{
+
                     passedCheck = false;
                     notes.push('Total Units or Cumulative Weight is not found');
                     //return {'error': 'Total Units or Cumulative Weight is not found'}
+
                 }
             }
             else if (!gwa_check){
                 if(data[index]["CRSE NO."] && data[index].Grade){ 
                     if((typeof data[index]["CRSE NO."] != 'string' || data[index]["CRSE NO."].trim() !== "GWA") || isNaN(data[index].Grade)){
+
                         passedCheck = false;
                         notes.push('Unexpected format for GWA');
                         //return {'error': 'Unexpected format for GWA'}
+
                     }else{
                         gwa_check = true;
                     }
                 }else{
+
                     passedCheck = false;
                     notes.push('GWA not found');
                     //return {'error': 'GWA not found'}
+
                 }
     
             }
@@ -150,6 +164,7 @@ function readData(filename, sheetName, isPdf){
     if(realData.length === 0){
         return {'error': 'Data does not exist'}
     }
+
 
     return {"data": data, "req_GWA": passedCheck, "notes": notes};
 }
@@ -177,6 +192,7 @@ function processExcel(filename, program, data){
     
 
     for(let i=0; i<data.length; i++){
+
         if((data[i]["CRSE NO."] && data[i].Grade && (data[i].Weight === 0 || data[i].Weight) && data[i].Cumulative) || (data[i]["CRSE NO."] && data[i].Term) ){
             //Check validity of courses
             if(config.course[program].includes(data[i]["CRSE NO."])){   //Check if course taken is in the program
@@ -263,6 +279,7 @@ function processExcel(filename, program, data){
     if(notes.length){   //notes is not empty
         return {"success": false, "notes": notes}
     }
+
 
     return {"success": true}
 }
@@ -455,6 +472,7 @@ function weightIsValid(data, program, ispdf, GWA_requirement_check){
     }
 
     if (checkSum === initSum && units === initUnits && gwa === initGWA) {
+
         return {'success': true, 'gwa':gwa, 'units':units, 'qualified':qualified_for_honors, 'warning': warnings};
     }
     
@@ -520,208 +538,204 @@ function processEdit(edited_data){
     
     let student_id = edited_data.studentID;
     let data = edited_data.courses;
-    
-    let progquery = database.query('SELECT Program FROM students WHERE ID = ?',[student_id], (err, result) => {
-        if (err) throw err;
-        
-        let program = result[0].Program;
-        let errors = [];
-        let warnings = [];
+    let program = edited_data.studentProgram;
 
-        let checkSum = 0;
-        let units = 0;
-        let gwa = 0;
+    let warnings = [];
 
-        let courses_taken = [];
-        let ge_taken = [];
-        let required_ge = [];
-        let hk11_count = 1;
-        let hk12_count = 3;
-        let nstp1_count = 1;
-        let nstp2_count = 1;
-        let taken_elective_count = 0;
-        let elective_count = 0;
-        let sp_thesis = false;
-        let sp_flag = false;
-        let max_term_count = config.units[program].Thesis.length;
-        let term_count = 0;
-        let qualified_for_honors = 1;
+    let checkSum = 0;
+    let units = 0;
+    let gwa = 0;
 
-        for(let i=0; i<data.length; i++){
+    let courses_taken = [];
+    let ge_taken = [];
+    let required_ge = [];
+    let hk11_count = 1;
+    let hk12_count = 3;
+    let nstp1_count = 1;
+    let nstp2_count = 1;
+    let taken_elective_count = 0;
+    let elective_count = 0;
+    let sp_thesis = false;
+    let sp_flag = false;
+    let max_term_count = config.units[program].Thesis.length;
+    let term_count = 0;
+    let qualified_for_honors = 1;
 
-                if(/^.+\s200$/.test(data[i].Course_Code)){
-                    //console.log(data[i].Course_Code + " is Thesis")
-                    if(!sp_thesis) {
-                        elective_count = config.elective[program].Thesis;
-                        sp_thesis = true
-                    }
+    for(let i=0; i<data.length; i++){
 
-                    if((data[i].Grade === 'S' || data[i].Grade === 'U')){
-                        continue;
-                    }
-                    else if(!isNaN(parseFloat(data[i].Grade))){
-                        checkSum += (parseFloat(data[i].Grade)*6);
-                        units += 6;
-                    }
+        if(/^.+\s200$/.test(data[i].Course_Code)){
+            //console.log(data[i].Course_Code + " is Thesis")
+            if(!sp_thesis) {
+                elective_count = config.elective[program].Thesis;
+                sp_thesis = true
+            }
 
-                }else if(/^.+\s190$/.test(data[i].Course_Code)){
-                    if(!sp_thesis) {
-                        elective_count = config.elective[program].SP;
-                        sp_thesis = true
-                        sp_flag = true
-                        max_term_count = config.units[program].SP.length
-                    }
+            if((data[i].Grade === 'S' || data[i].Grade === 'U')){
+                continue;
+            }
+            else if(!isNaN(parseFloat(data[i].Grade))){
+                checkSum += (parseFloat(data[i].Grade)*6);
+                units += 6;
+            }
 
-                    if((data[i].Grade === 'S' || data[i].Grade === 'U')){
-                        continue;
-                    }
-                    else if(!isNaN(parseFloat(data[i].Grade))){
-                        checkSum += (parseFloat(data[i].Grade)*3);
-                        units += 3;
-                    }
-                }else if (/.+199$/.test(data[i].Course_Code)){
-                    if(!courses_taken.includes(data[i].Course_Code)){
-                        courses_taken.push(data[i].Course_Code);
-                    }
+        }else if(/^.+\s190$/.test(data[i].Course_Code)){
+            if(!sp_thesis) {
+                elective_count = config.elective[program].SP;
+                sp_thesis = true
+                sp_flag = true
+                max_term_count = config.units[program].SP.length
+            }
 
-                    if((data[i].Grade === 'S' || data[i].Grade === 'U')){
-                        units += 1;
-                        continue;
-                    }
+            if((data[i].Grade === 'S' || data[i].Grade === 'U')){
+                continue;
+            }
+            else if(!isNaN(parseFloat(data[i].Grade))){
+                checkSum += (parseFloat(data[i].Grade)*3);
+                units += 3;
+            }
+        }else if (/.+199$/.test(data[i].Course_Code)){
+            if(!courses_taken.includes(data[i].Course_Code)){
+                courses_taken.push(data[i].Course_Code);
+            }
+
+            if((data[i].Grade === 'S' || data[i].Grade === 'U')){
+                units += 1;
+                continue;
+            }
+        }else{
+            if(config.course[program].includes(data[i].Course_Code)){   //Check if course taken is in the program
+                if(!courses_taken.includes(data[i].Course_Code)){
+                    courses_taken.push(data[i].Course_Code);
+                }
+            }else if(data[i].Course_Code === 'HK 11'){                   //If course not in the program, check if it's a HK subject
+                hk11_count--;
+            }else if(data[i].Course_Code === 'HK 12' || data[i].Course_Code === 'HK 13'){
+                hk12_count--;
+            }else if(data[i].Course_Code === 'NSTP 1'){
+                nstp1_count--;
+            }else if(data[i].Course_Code === 'NSTP 2'){
+                nstp2_count--;
+            }
+            else if(config.GE.hasOwnProperty(data[i].Course_Code)){
+                if(config.GE[data[i].Course_Code] === 'Required'){
+                    required_ge.push(data[i].Course_Code);
                 }else{
-                    if(config.course[program].includes(data[i].Course_Code)){   //Check if course taken is in the program
-                        if(!courses_taken.includes(data[i].Course_Code)){
-                            courses_taken.push(data[i].Course_Code);
-                        }
-                    }else if(data[i].Course_Code === 'HK 11'){                   //If course not in the program, check if it's a HK subject
-                        hk11_count--;
-                    }else if(data[i].Course_Code === 'HK 12' || data[i].Course_Code === 'HK 13'){
-                        hk12_count--;
-                    }else if(data[i].Course_Code === 'NSTP 1'){
-                        nstp1_count--;
-                    }else if(data[i].Course_Code === 'NSTP 2'){
-                        nstp2_count--;
-                    }
-                    else if(config.GE.hasOwnProperty(data[i].Course_Code)){
-                        if(config.GE[data[i].Course_Code] === 'Required'){
-                            required_ge.push(data[i].Course_Code);
-                        }else{
-                            ge_taken.push(data[i].Course_Code);
-                        }
-                    }else if(data[i].Course_Code === 'LOA'){
-                        warnings.push("Taken LOA during " + data[i].Term)
-                        continue
-                    }
-                    else if(data[i].Course_Code === 'AWOL'){
-                        qualified_for_honors = 0;
-                        warnings.push("AWOL during " + data[i].Term)
-                        continue
-                    }
-                    else{
-                        taken_elective_count++;
-                        //console.log(data[i].Course_Code + "is Elective");
-                    }
-
-                    /*                                  */
-                    /*          GRADE CHECKING          */
-                    /*                                  */
-
-                    if(['INC', 'DFG'].includes(data[i].Grade)){
-                        qualified_for_honors = 0;
-                        warnings.push('Student has a grade of INC or DFG for course '+ data[i].Course_Code)
-                        continue
-                    }
-                    
-                    else if(data[i].Grade === 'DRP'){
-                        warnings.push('Student has a grade of DRP for course '+ data[i].Course_Code)
-                        continue
-                    }
-                    if (!isNaN(parseFloat(data[i].Grade)) && !isNaN(parseFloat(data[i].Units))){
-                        if(parseFloat(data[i].Grade)*parseFloat(data[i].Units) === data[i].Weight){     // if the calculation is correct
-                            checkSum += data[i].Weight;
-                            units += parseFloat(data[i].Units);
-                        }else{                                                  // if not
-                            checkSum += (parseFloat(data[i].Grade)*parseFloat(data[i].Units));
-                            units += parseFloat(data[i].Units);
-                        }
-                    }
-
+                    ge_taken.push(data[i].Course_Code);
                 }
+            }else if(data[i].Course_Code === 'LOA'){
+                warnings.push("Taken LOA during " + data[i].Term)
+                continue
+            }
+            else if(data[i].Course_Code === 'AWOL'){
+                qualified_for_honors = 0;
+                warnings.push("AWOL during " + data[i].Term)
+                continue
+            }
+            else{
+                taken_elective_count++;
+                //console.log(data[i].Course_Code + "is Elective");
+            }
 
-                //Check for underloading and overloading
-                if(term_count < max_term_count){
-                    if(i === (data.length-1) || !(data[i].Term === data[i+1].Term)){ //load exists
-                        if(!sp_flag){
-                            checkloadforEdit(data, i, config.units[program].Thesis, term_count, warnings)
-                            term_count++;
-                        }else{
-                            checkloadforEdit(data, i, config.units[program].SP, term_count, warnings)
-                            term_count++;
-                        }
-                    }
-                }else{
-                    warnings.push("Took more terms than prescribed during course" + data[i].Course_Code)
-                }
+            /*                                  */
+            /*          GRADE CHECKING          */
+            /*                                  */
 
-        }
-        
-        if (units > 0){
-            gwa = checkSum / units;
-        }
-
-        if (gwa > 1.75 || gwa === 0){
-            qualified_for_honors = 0;
-        }
-
-        if(hk11_count != 0 || hk12_count != 0){
-            warnings.push("Incomplete number of HK courses")
-        }
-        if(nstp1_count != 0 || nstp2_count != 0){
-            warnings.push("Incomplete number of NSTP courses")
-        }
-
-        if(required_ge.length < 6){
-            warnings.push("Incomplete number of required GE courses")
-        }
-        
-        if(elective_count > taken_elective_count){
-            warnings.push("Insufficient number of elective courses")
-            console.log("Elective count remaining is: " + elective_count)
-        }
-
-        if(sp_thesis != true){
-            warnings.push("No SP/Thesis")
-        }
-
-        let warnings_msg = 'Notes: '
-        if (warnings.length){
-            for (let count = 0; count < warnings.length; count++){
-                if (count === (warnings.length)-1){
-                    warnings_msg += warnings[count];
-                }
-                else{
-                    warnings_msg += warnings[count] + ", ";
+            if(['INC', 'DFG'].includes(data[i].Grade)){
+                qualified_for_honors = 0;
+                warnings.push('Student has a grade of INC or DFG for course '+ data[i].Course_Code)
+                continue
+            }
+            
+            else if(data[i].Grade === 'DRP'){
+                warnings.push('Student has a grade of DRP for course '+ data[i].Course_Code)
+                continue
+            }
+            if (!isNaN(parseFloat(data[i].Grade)) && !isNaN(parseFloat(data[i].Units))){
+                if(parseFloat(data[i].Grade)*parseFloat(data[i].Units) === data[i].Weight){     // if the calculation is correct
+                    checkSum += data[i].Weight;
+                    units += parseFloat(data[i].Units);
+                }else{                                                  // if not
+                    checkSum += (parseFloat(data[i].Grade)*parseFloat(data[i].Units));
+                    units += parseFloat(data[i].Units);
                 }
             }
-        } 
 
-        let updateStudent = 'UPDATE students SET GWA = ?, Qualified = ?, Warnings = ? WHERE ID = ?';
+        }
 
-        let studentquery = database.query(updateStudent, [gwa, qualified_for_honors, warnings_msg, student_id], (err, result) => {
-            if (err) throw err;
-        });
+        //Check for underloading and overloading
+        if(term_count < max_term_count){
+            if(i === (data.length-1) || !(data[i].Term === data[i+1].Term)){ //load exists
+                if(!sp_flag){
+                    checkloadforEdit(data, i, config.units[program].Thesis, term_count, warnings)
+                    term_count++;
+                }else{
+                    checkloadforEdit(data, i, config.units[program].SP, term_count, warnings)
+                    term_count++;
+                }
+            }
+        }else{
+            warnings.push("Took more terms than prescribed during course" + data[i].Course_Code)
 
-        // let removeStudent = 'DELETE FROM students WHERE ID = ?';
-        let removeRecord = 'DELETE FROM taken_courses WHERE Student_ID = ?';
+        }
 
-        let query = database.query(removeRecord , [student_id], (err, result) => {
+    }
+    
+    if (units > 0){
+        gwa = checkSum / units;
+    }
+
+    if (gwa > 1.75 || gwa === 0){
+        qualified_for_honors = 0;
+    }
+
+    if(hk11_count != 0 || hk12_count != 0){
+        warnings.push("Incomplete number of HK courses")
+    }
+    if(nstp1_count != 0 || nstp2_count != 0){
+        warnings.push("Incomplete number of NSTP courses")
+    }
+
+    if(required_ge.length < 6){
+        warnings.push("Incomplete number of required GE courses")
+    }
+    
+    if(elective_count > taken_elective_count){
+        warnings.push("Insufficient number of elective courses")
+        console.log("Elective count remaining is: " + elective_count)
+    }
+
+    if(sp_thesis != true){
+        warnings.push("No SP/Thesis")
+    }
+
+    let warnings_msg = 'Notes: '
+    if (warnings.length){
+        for (let count = 0; count < warnings.length; count++){
+            if (count === (warnings.length)-1){
+                warnings_msg += warnings[count];
+            }
+            else{
+                warnings_msg += warnings[count] + ", ";
+            }
+        }
+    } 
+
+    let updateStudent = 'UPDATE students SET GWA = ?, Qualified = ?, Warnings = ? WHERE ID = ?';
+    let removeRecord = 'DELETE FROM taken_courses WHERE Student_ID = ?';
+
+    database.query(updateStudent, [gwa, qualified_for_honors, warnings_msg, student_id], (err, result) => {
+        if (err) throw err;
+
+        database.query(removeRecord , [student_id], (err, result) => {
             if (err) throw err;
             
             addEditedTakenCourses(data, student_id);
-        
+            
         });
-        
     });
+
+    return true;
+
 }
 
 

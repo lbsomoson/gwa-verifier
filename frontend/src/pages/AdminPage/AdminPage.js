@@ -15,6 +15,9 @@ class AdminPage extends React.Component{
             users: [],
             showAddUser: 0,
             deleteUser: null,
+
+            changeUser: null,
+
             viewUser: null,
             viewActivities: [],
             isViewClicked: 0,
@@ -28,6 +31,8 @@ class AdminPage extends React.Component{
         this.deleteUser = this.deleteUser.bind(this);
         this.handleViewClicked = this.handleViewClicked.bind(this);
         this.getUserActivities = this.getUserActivities.bind(this);
+        this.handleChangeClicked = this.handleChangeClicked.bind(this);
+
     }
     
     getUserActivities(){
@@ -38,7 +43,38 @@ class AdminPage extends React.Component{
         })
     }
 
-    
+
+    handleChangeClicked(){
+
+        if(this.state.changeUser.Type === "member"){
+            Axios.post("http://localhost:3001/updateuser",
+            {username: this.state.changeUser.Username, type:"admin"}).then((response) => {
+                console.log(response)
+            })
+
+            const str = "updated user: " + this.state.changeUser.Username + " (from " + this.state.changeUser.Type + " to admin)";
+            Axios.post("http://localhost:3001/addActivity",
+            {username: localStorage.getItem("user"), action: str}).then((response) => {
+                console.log(response)
+            })
+
+        }else{
+            Axios.post("http://localhost:3001/updateuser",
+            {username: this.state.changeUser.Username, type:"member"}).then((response) => {
+                console.log(response)
+            })
+            const str = "updated user: " + this.state.changeUser.Username + " (from " + this.state.changeUser.Type + " to member)";
+            Axios.post("http://localhost:3001/addActivity",
+            {username: localStorage.getItem("user"), action: str}).then((response) => {
+                console.log(response)
+            })
+        }
+
+        window.location.reload()
+       
+    }
+
+
     handleViewClicked() {
         this.setState({isViewClicked: 1});
         this.getUserActivities();
@@ -282,6 +318,27 @@ class AdminPage extends React.Component{
                                             </BasicButton>
 
                                         </div>
+
+                                        <div className={styles.view}>
+                                            <BasicButton 
+                                                label = "change user type"
+                                                color="red" 
+                                                variant="outline"
+                                                size="small" 
+                                                onClick=
+                                                   {
+                                                        () => { 
+                                                        this.setState({changeUser: userDataTab}, () => {
+                                                        //console.log(this.state.viewStudent);
+                                                        this.handleChangeClicked();
+                                                        });
+        
+                                                    }}
+                                            >    
+                                            </BasicButton>
+
+                                        </div>
+
                                     </div>
                                 )
                             }else{
@@ -299,3 +356,4 @@ class AdminPage extends React.Component{
 export default AdminPage
 
 //<UserDataTabs data={this.state.users} />
+
