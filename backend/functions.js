@@ -34,6 +34,7 @@ function readData(filename, sheetName, isPdf){
     let notes = [];
 
     let accepted_grades = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 4, 5, 'INC', 'DRP', 'DFG', 'S', 'U', 'P'];
+    let Thesis_SP_grades = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 4, 5, 'S', 'U'];
 
     for(let i=0; i<data.length; i++){
         if((data[i]["CRSE NO."] && data[i].Grade && (data[i].Units === 0 || data[i].Units) && (data[i].Weight === 0 || data[i].Weight) && (data[i].Cumulative === 0 || data[i].Cumulative)) || (data[i]["CRSE NO."] && data[i].Term) ){
@@ -41,6 +42,24 @@ function readData(filename, sheetName, isPdf){
             // Check the type of the courses
             if(typeof data[i]["CRSE NO."] !== "string"){
                 return {'error': `${data[i]["CRSE NO."]} is not of the proper format`}
+            }
+
+            if(/^.+\s200$/.test(data[i]["CRSE NO."])){
+                if(!Thesis_SP_grades.includes(data[i].Grade)){
+                    return {'error': `A grade of ${data[i].Grade} is not accepted for Thesis`}
+                }
+            }
+                
+            if(/^.+\s190$/.test(data[i]["CRSE NO."])){
+                if(!Thesis_SP_grades.includes(data[i].Grade)){
+                    return {'error': `A grade of ${data[i].Grade} is not accepted for SP`}
+                }
+            }
+
+            if(/^.+\s199$/.test(data[i]["CRSE NO."])){
+                if(!['S', 'U'].includes(data[i].Grade)){
+                    return {'error': `A grade of ${data[i].Grade} is not accepted for Seminars`}
+                }
             }
 
             // Check for the special case of LOA/AWOL
@@ -201,25 +220,29 @@ function processExcel(filename, program, data){
     let notes = [];
 
     let courses_taken = [];
-    let ge_taken = [];
     let required_ge = [];
-    let hk11_count = 1;
-    let hk12_count = 3;
-    let nstp1_count = 1;
-    let nstp2_count = 1;
+    let ge_taken = [];
+    
     let taken_elective_count = 0;
     let elective_count = 0;
+    let term_count = 0;
+
+    let nstp1_count = 1;
+    let nstp2_count = 1;
+    let hk11_count = 1;
+
+    let hk12_count = 3;
+    
     let sp_thesis = false;
     let sp_flag = false;
+
     let max_term_count = config.units[program].Thesis.length;
-    //let max_units_count = config.max_units[program].SP;
-    let term_count = 0;
     
     
 
     for(let i=0; i<data.length; i++){
 
-        if((data[i]["CRSE NO."] && data[i].Grade && (data[i].Weight === 0 || data[i].Weight) && data[i].Cumulative) || (data[i]["CRSE NO."] && data[i].Term) ){
+        if((data[i]["CRSE NO."] && data[i].Grade && (data[i].Units === 0 || data[i].Units) && (data[i].Weight === 0 || data[i].Weight) && (data[i].Cumulative === 0 || data[i].Cumulative)) || (data[i]["CRSE NO."] && data[i].Term)){
             //Check validity of courses
             if(config.course[program].includes(data[i]["CRSE NO."])){   //Check if course taken is in the program
                 if(!courses_taken.includes(data[i]["CRSE NO."])){
@@ -275,7 +298,7 @@ function processExcel(filename, program, data){
                     
                 }
             }else{
-                notes.push("Took more terms than prescribed during course" + data[i]["CRSE NO."])
+                notes.push("Took more terms than prescribed.")
             }
             
         }
@@ -295,7 +318,6 @@ function processExcel(filename, program, data){
     
     if(elective_count > taken_elective_count){
         notes.push("Insufficient number of elective courses")
-        console.log("Elective left: " + elective_count)
     }
 
     if(sp_thesis != true){
@@ -312,7 +334,6 @@ function processExcel(filename, program, data){
 
 
 function checkload(data, count, config, term_count, notes){
-    
         const recorded = data[count]["Term"];
         if(recorded<config[term_count]){
             notes.push("Underload during " + data[count].__EMPTY)
@@ -378,17 +399,21 @@ function addTakenCourses(data, studno){
 
 function weightIsValid(data, program, ispdf, GWA_requirement_check){
 
-    let initSum = 0;
-    let checkSum = 0;
-    let initUnits = 0;
-    let units = 0;
-    let initGWA = 0;
-    let gwa = 0;
-    let GWA_reqs_check = GWA_requirement_check;
-    let qualified_for_honors = true;
     let warnings = [];
+
+    let gwa = 0;
+    let units = 0;
+    let checkSum = 0;
+    
+    let initGWA = 0;
+    let initSum = 0;
+    let initUnits = 0;
+
+    let completed_Thesis_SP = false;
+    let qualified_for_honors = true;
+
+    let GWA_reqs_check = GWA_requirement_check;
     let max_unit_count = config.max_units[program].Thesis;
-    console.log('Required unit count is' + max_unit_count);
 
     for(let i = 0; i<data.length; i++){
         
@@ -399,6 +424,10 @@ function weightIsValid(data, program, ispdf, GWA_requirement_check){
                 if((data[i].Grade === 'S' || data[i].Grade === 'U')){
                     continue;
                 }else if(!isNaN(data[i].Grade)){
+                    if(data[i].Grade !== 5){
+                        completed_Thesis_SP = true;
+                    }
+
                     checkSum += (data[i].Grade*6);
                     units += 6;
                 }
@@ -412,6 +441,9 @@ function weightIsValid(data, program, ispdf, GWA_requirement_check){
                     continue;
                 }
                 else if(!isNaN(data[i].Grade)){
+                    if(data[i].Grade !== 5){
+                        completed_Thesis_SP = true;
+                    }
                     checkSum += (data[i].Grade*3);
                     units += 3;
                 }
@@ -420,7 +452,6 @@ function weightIsValid(data, program, ispdf, GWA_requirement_check){
             // Check if course is a seminar
             else if (/.+199$/.test(data[i]["CRSE NO."])){
                 if((data[i].Grade === 'S' || data[i].Grade === 'U')){
-                    
                     continue;
                 }else{
                     warnings.push('199 courses or Seminars can only have a grade of `S` or `U`');
@@ -447,6 +478,11 @@ function weightIsValid(data, program, ispdf, GWA_requirement_check){
                     continue
                 }
 
+                else if(data[i].Grade === 'P'){
+                    units += data[i].Units
+                    continue
+                }
+
                 if(data[i].Grade*data[i].Units === data[i].Weight){     // if the calculation is correct
                     checkSum += data[i].Weight;
                     units += data[i].Units;
@@ -459,9 +495,7 @@ function weightIsValid(data, program, ispdf, GWA_requirement_check){
         else {
             if(!GWA_reqs_check){
                 if(ispdf){
-                    console.log(data[i-1])
                     if(data[i-1].__EMPTY_2 != undefined){  //pdf
-                        console.log(data[i-1].__EMPTY_2)
                         if(data[i-1].__EMPTY_3){
                             initSum = data[i-1].__EMPTY_3;
                             initUnits = data[i-1].__EMPTY_2;
@@ -486,27 +520,26 @@ function weightIsValid(data, program, ispdf, GWA_requirement_check){
 
     gwa = (checkSum/units).toFixed(4);
 
-    if(units < max_unit_count){
-        warnings.push("Less than required number of units")
-    }else{
-        console.log("Required units reached")
+    if(!completed_Thesis_SP){
+        qualified_for_honors = false;
+        warnings.push("Thesis or SP was not completed")
     }
 
     if(gwa > 1.75) {
-        console.log('GWA did not reach atlast 1.75');
         qualified_for_honors = false;
     }
 
-    if (checkSum === initSum && units === initUnits && gwa === initGWA) {
+    if(units < max_unit_count){
+        warnings.push("Less than required number of units")
+    }
 
-        return {'success': true, 'gwa':gwa, 'units':units, 'qualified':qualified_for_honors, 'warning': warnings};
+    if(!GWA_reqs_check){
+        if (!(checkSum === initSum && units === initUnits && gwa === initGWA)){
+            warnings.push('Mismatch with Cumulative Weight, Total Units, or GWA')
+            qualified_for_honors = false;
+        }
     }
     
-    if(!GWA_reqs_check){
-        warnings.push('Mismatch with Cumulative Weight, Total Units, or GWA')
-    }
-
-    qualified_for_honors = false;
     return {'success': true, 'gwa': gwa , 'units':units, 'qualified':qualified_for_honors, 'warning': warnings};
 
 }
