@@ -33,4 +33,7 @@ module.exports = (app) => {
   app.post("/addactivity", controller.addActivity);
   app.get("/finduseractivities", controller.findUserActivities);
   app.get("/findallactivities", controller.findAllActivities);
+  
+  app.get("/finduser", controller.findUser);
+  app.post("/updateuser", controller.updateUser);
 }
