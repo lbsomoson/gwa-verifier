@@ -8,7 +8,7 @@ import {
 import "./normalize.css";
 import "./typography.css";
 
-import { Main, Login,StudentRecord } from "./pages";
+import { Main, Login,StudentRecord, AdminPage } from "./pages";
 import { AddUserForm, StudentDataTabs } from './components';
 
 class App extends React.Component{
@@ -36,6 +36,7 @@ class App extends React.Component{
           <Route exact path="/" element={<Login />} />
           <Route exact path="/main" element={<Main />} />
           <Route exact path="/studentrecord" element={<StudentRecord />} />
+          <Route exact path="/adminpage" element={<AdminPage />} />
         </Routes>
       </Router>
   );
