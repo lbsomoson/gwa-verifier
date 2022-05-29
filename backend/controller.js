@@ -354,33 +354,52 @@ exports.uploadSingle = (req, res) => {
                 GWA_requirement_check = readData.req_GWA;
 
                 // Check if the necessary courses are taken
-                var checkFormat = functions.processExcel(filename, program, data);
-                if(!checkFormat.success){
-                    checkFormat.notes.forEach((note) => {
-                        errors.push(note)
-                    })
-                }
+                // var checkFormat = functions.processExcel(filename, program, data);
+                // if(!checkFormat.success){
+                //     checkFormat.notes.forEach((note) => {
+                //         errors.push(note)
+                //     })
+                // }
 
-                // Calculate the Cumulative Weight, Total Units and GWA
-                let checkCalc = functions.weightIsValid(data, program, false, GWA_requirement_check) 
+                // // Calculate the Cumulative Weight, Total Units and GWA
+                // let checkCalc = functions.weightIsValid(data, program, false, GWA_requirement_check) 
       
-                if(checkCalc.warning){
-                    checkCalc.warning.forEach((note) => {
-                        console.log(note);
+                // if(checkCalc.warning){
+                //     checkCalc.warning.forEach((note) => {
+                //         console.log(note);
+                //         errors.push(note)
+                //     })
+                // }
+
+                let processFile = functions.processFile(program, data, false, GWA_requirement_check)
+
+                if(processFile.notes){
+                    processFile.notes.forEach((note) => {
                         errors.push(note)
                     })
                 }
     
                 let notes_msg = misc_functions.createNotes(errors, allErrors, sheet_names, j);
 
-                if(checkCalc.success){
+                // if(checkCalc.success){
+                //     functions.addTakenCourses(data, studno);
+                //     if(checkCalc.qualified){
+                //         console.log("Student is qualified");
+                //         functions.addStudent(studno, fname, lname, program, checkCalc.gwa, 1, notes_msg);
+                //     }else{
+                //         console.log("Student is not qualified");
+                //         functions.addStudent(studno, fname, lname, program, checkCalc.gwa, 0, notes_msg);
+                //     }   
+                // }
+
+                if(processFile.success){
                     functions.addTakenCourses(data, studno);
-                    if(checkCalc.qualified){
+                    if(processFile.qualified){
                         console.log("Student is qualified");
-                        functions.addStudent(studno, fname, lname, program, checkCalc.gwa, 1, notes_msg);
+                        functions.addStudent(studno, fname, lname, program, processFile.gwa, 1, notes_msg);
                     }else{
                         console.log("Student is not qualified");
-                        functions.addStudent(studno, fname, lname, program, checkCalc.gwa, 0, notes_msg);
+                        functions.addStudent(studno, fname, lname, program, processFile.gwa, 0, notes_msg);
                     }   
                 }
 
