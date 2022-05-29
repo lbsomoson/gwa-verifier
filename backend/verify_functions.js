@@ -4,8 +4,11 @@ var config = require('./config.json');
 function verifyname(filename, sheetName){
     var wb = XLSX.readFile("files/" + filename, {sheetStubs: true});
     var ws = wb.Sheets[sheetName];
-    var fname = ws['B1'].v;
-    var lname = ws['A1'].v;
+    var fname = ws['B1'].v.trim();
+    var lname = ws['A1'].v.trim();
+
+    console.log(fname)
+    console.log(lname)
 
     if(/^([a-zA-Z])+$/.test(lname) && /^([a-zA-Z])+$/.test(fname) && (fname != undefined && lname !=undefined)){
         return {"fname": fname, "lname": lname}
@@ -82,6 +85,7 @@ function verifyHeaders(filename, sheetName){
 
     for(let i=0; i<Object.keys(headers).length; i++){
         if(!(data[0][i] === headers[i])){
+            console.log(`Expected ${headers[i]} but got ${data[0][i]}`)
             return {'success': false, 'error':'Wrong format for headers'}
         }
     }
