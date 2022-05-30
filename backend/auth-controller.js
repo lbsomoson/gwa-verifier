@@ -23,7 +23,7 @@ exports.login = (req, res) => {
             console.log("not logged in. user not found")
         }else{
             console.log(result[0]);
-            if(result[0].Password === password) {
+            if(result[0].Password === hash) {
                 console.log("Logged In");
 
                 const tokenPayload = {
