@@ -616,7 +616,14 @@ function processFile(program, data, ispdf, GWA_requirement_check){
 
     let GWA_reqs_check = GWA_requirement_check;
     let max_unit_count = config.max_units[program].Thesis;
+    
     let max_term_count = config.units[program].Thesis.length;
+    let term = config.units[program].Thesis;
+
+    if(config.units[program].Thesis.length === 0){
+        max_term_count = config.units[program].SP.length
+        term = config.units[program].SP
+    }
     
 
     for(let i=0; i<data.length; i++){
@@ -705,10 +712,10 @@ function processFile(program, data, ispdf, GWA_requirement_check){
             if(term_count < max_term_count){
                 if(data[i]["Term"]!=undefined){ //load exists
                     if(!sp_flag){
-                        checkload(data, i, config.units[program].Thesis, term_count, notes)
+                        checkload(data, i, term, term_count, notes)
                         term_count++;
                     }else{
-                        checkload(data, i, config.units[program].SP, term_count, notes)
+                        checkload(data, i, term, term_count, notes)
                         term_count++;
                     }
                     
@@ -761,6 +768,7 @@ function processFile(program, data, ispdf, GWA_requirement_check){
             
 
             //console.log(`checkSum is currently ${checkSum} and initSum is ${data[i].Cumulative} at course ${data[i]["CRSE NO."]}`)
+            //console.log(`Units is currently ${units} at course ${data[i]["CRSE NO."]}`)
             
         }
         
@@ -789,6 +797,10 @@ function processFile(program, data, ispdf, GWA_requirement_check){
         }
 
     }
+    console.log(checkSum)
+    console.log(initSum)
+    console.log(units)
+    console.log(initUnits)
 
     gwa = (checkSum/units).toFixed(4);
 
