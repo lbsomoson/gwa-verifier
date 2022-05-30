@@ -651,6 +651,7 @@ function processEdit(edited_data){
     let completed_Thesis_SP = false;
 
     let qualified_for_honors = 1;
+    let max_unit_count = config.max_units[program].Thesis;
     let max_term_count = config.units[program].Thesis.length;
 
     for(let i=0; i<data.length; i++){
@@ -779,24 +780,36 @@ function processEdit(edited_data){
         qualified_for_honors = 0;
     }
 
-    if(hk11_count != 0 || hk12_count != 0){
-        warnings.push("Incomplete number of HK courses")
-    }
-    if(nstp1_count != 0 || nstp2_count != 0){
-        warnings.push("Incomplete number of NSTP courses")
+    if (units < max_unit_count) {
+        warnings.push("Less than required number of units")
     }
 
-    if(required_ge.length < 6){
-        warnings.push("Incomplete number of required GE courses")
-    }
-    
     if(elective_count > taken_elective_count){
         warnings.push("Insufficient number of elective courses")
-        console.log("Elective count remaining is: " + elective_count)
     }
 
     if(sp_thesis != true){
+        qualified_for_honors = 0;
         warnings.push("No SP/Thesis")
+    }
+
+    if(required_ge.length < 6){
+        qualified_for_honors = 0;
+        warnings.push("Incomplete number of required GE courses")
+    }
+
+    if(hk11_count != 0 || hk12_count != 0){
+        qualified_for_honors = 0;
+        warnings.push("Incomplete number of HK courses")
+    }
+    if(nstp1_count != 0 || nstp2_count != 0){
+        qualified_for_honors = 0;
+        warnings.push("Incomplete number of NSTP courses")
+    }
+
+    if(sp_thesis && !completed_Thesis_SP){
+        qualified_for_honors = 0;
+        warnings.push("Thesis or SP was not completed")
     }
 
     let warnings_msg = 'Notes: '
@@ -1036,9 +1049,13 @@ function processFile(program, data, ispdf, GWA_requirement_check){
 
     if(gwa > 1.75) qualified_for_honors = false;
 
-    if(units < max_unit_count) notes.push("Less than required number of units")
+    if(units < max_unit_count) {
+        notes.push("Less than required number of units")
+    }
 
-    if(elective_count > taken_elective_count) notes.push("Insufficient number of elective courses")
+    if(elective_count > taken_elective_count) {
+        notes.push("Insufficient number of elective courses")
+    }
 
     if(sp_thesis != true) {
         qualified_for_honors = false
