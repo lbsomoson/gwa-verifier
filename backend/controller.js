@@ -324,7 +324,6 @@ exports.uploadSingle = (req, res) => {
     let err_msg_arr = [];
     for(let i=0; i<req.files.length; i++){
         let filename = req.files[i].originalname;
-        //console.log(filename)
         
         if(/.+\.xlsx/.test(filename) || /.+\.csv/.test(filename)){
             let allErrors = {};
@@ -343,12 +342,11 @@ exports.uploadSingle = (req, res) => {
                 headers = verify_functions.verifyHeaders(filename, sheet_names[j]);
 
                 // Verify if file has the necessary information
-                let verifyFile = verify_functions.verifyErrors(name, studno, program, headers, fname, lname, errors);
+                let verifyFile = verify_functions.verifyErrors(name, studno, program, headers, errors);
                 if(verifyFile.success){
                     fname = verifyFile.firstName.toUpperCase();
                     lname = verifyFile.lastName.toUpperCase();
                 }else{
-
                     allErrors[sheet_names[j]] = errors
                     continue
                 }
@@ -360,7 +358,6 @@ exports.uploadSingle = (req, res) => {
                     allErrors[sheet_names[j]] = errors
                     continue
                 }
-
 
                 if(readData.notes.length){
                     readData.notes.forEach((note) => {
@@ -380,16 +377,23 @@ exports.uploadSingle = (req, res) => {
                 }
     
                 let notes_msg = misc_functions.createNotes(errors, allErrors, sheet_names, j);
-
+                let qualified = 0;
                 if(processFile.success){
-                    functions.addTakenCourses(data, studno);
-                    if(processFile.qualified){
-                        console.log("Student is qualified");
-                        functions.addStudent(studno, fname, lname, program, processFile.gwa, 1, notes_msg);
-                    }else{
-                        console.log("Student is not qualified");
-                        functions.addStudent(studno, fname, lname, program, processFile.gwa, 0, notes_msg);
-                    }   
+                    try{
+                        functions.addTakenCourses(data, studno);
+                        if(processFile.qualified){
+                            qualified = 1
+                        }
+                        try {
+                            functions.addStudent(studno, fname, lname, program, processFile.gwa, qualified, notes_msg);
+                        }catch(e){
+                            deleteStudent(studno)
+                        }
+                        
+                    }catch(e){
+                        deleteStudent(studno)
+                    }
+                    
                 }
 
             }
@@ -418,6 +422,7 @@ exports.uploadSingle = (req, res) => {
                     resolve(pdf2excel.genXlsx('files/'+ filename,'./files/' + newfilename));
                 })
                 await convertPromise;
+            
             }
             convertpdf().then(() => {
                 let allErrors = {};
@@ -435,7 +440,7 @@ exports.uploadSingle = (req, res) => {
                     headers = verify_functions.verifyHeaders(newfilename, sheet_names[j]);
                     
                     // Verify if file has the necessary information
-                    let verifyFile = verify_functions.verifyErrors(name, studno, program, headers, fname, lname, errors);
+                    let verifyFile = verify_functions.verifyErrors(name, studno, program, headers, errors);
                     if(verifyFile.success){
                         fname = verifyFile.firstName.toUpperCase();
                         lname = verifyFile.lastName.toUpperCase();
@@ -474,21 +479,24 @@ exports.uploadSingle = (req, res) => {
     
                     let notes_msg = misc_functions.createNotes(errors, allErrors, sheet_names, j);
 
+                    let qualified = 0;
                     if(processFile.success){
-                        functions.addTakenCourses(data, studno);
-                        if(processFile.qualified){
-                            console.log("Student is qualified");
-                            try{
-                                functions.addStudent(studno, fname, lname, program, processFile.gwa, 1, notes_msg);
+                        try{
+                            functions.addTakenCourses(data, studno);
+                            if(processFile.qualified){
+                                qualified = 1
+                            }
+                            try {
+                                functions.addStudent(studno, fname, lname, program, processFile.gwa, qualified, notes_msg);
                             }catch(e){
-                                
+                                deleteStudent(studno)
                             }
                             
-                        }else{
-                            console.log("Student is not qualified");
-                            functions.addStudent(studno, fname, lname, program, processFile.gwa, 0, notes_msg);
-                        }   
-                    }      
+                        }catch(e){
+                            deleteStudent(studno)
+                        }
+                        
+                    }     
 
                 }
                 let filename_err_msg = []
@@ -498,19 +506,17 @@ exports.uploadSingle = (req, res) => {
 
                 misc_functions.listFileErrors(allErrors, all_err_msg, filename_err_msg, err_msg_arr);
 
-                // fs.readdir('files', (err, files) => {
-                //     if (err) console.log(err);
+                fs.readdir('files', (err, files) => {
+                    if (err) console.log(err);
     
-                //     fs.unlink(path.join('files', newfilename), err => {
-                //         if (err) console.log(err)
-                //     });
-                //     fs.unlink(path.join('files', filename), err => {
-                //         if (err) console.log(err)
-                //     });
+                    fs.unlink(path.join('files', newfilename), err => {
+                        if (err) console.log(err)
+                    });
+                    fs.unlink(path.join('files', filename), err => {
+                        if (err) console.log(err)
+                    });
     
-                // });
-            
-                
+                });
                 
             }).catch((error) =>{
                 console.log(error);
@@ -519,10 +525,23 @@ exports.uploadSingle = (req, res) => {
         }
 
     }
-
     res.send({msg:err_msg_arr});
-    
 
-    
 } 
+
+function deleteStudent(studno) {
+
+    let removeStudent = 'DELETE FROM students WHERE ID = ?';
+    let removeRecord = 'DELETE FROM taken_courses WHERE Student_ID = ?';
+    
+    let query = database.query(removeStudent , [studno], (err, result) => {
+        if (err) throw err;
+
+        let query2 = database.query(removeRecord, [studno], (err, result) => {
+            if (err) throw err;
+
+            res.send('Successfully deleted student from database!');
+        });
+    });
+}
 

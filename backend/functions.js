@@ -62,7 +62,6 @@ function readData(filename, sheetName, isPdf){
                 
             }
 
-
             // Check if the number of units is accepted
             // Check first if the course is LOA/AWOL since these are special cases that only have CRSE NO.
             if(!['LOA', 'AWOL'].includes(data[i]["CRSE NO."])){
@@ -90,9 +89,6 @@ function readData(filename, sheetName, isPdf){
                 }else{
                     return {'error': `Another Thesis/SP course detected after passing`}
                 }
-                
-                
-                
             }
                 
             if(/^.+\s190$/.test(data[i]["CRSE NO."])){
@@ -135,11 +131,11 @@ function readData(filename, sheetName, isPdf){
                     
 
                 }else{
+                    console.log(`During ${data[i]["CRSE NO."]}`)
                     return {'error': 'Term does not exist'}
                 }
             }
 
-            
             end_range++;
         }
 
@@ -153,104 +149,102 @@ function readData(filename, sheetName, isPdf){
 
     // Check if Units/CheckSum/GWA are all found
     let passedCheck = true;
-
-    for(let i=0; i<2; i++){
-        index = index+i;
-        if(isPdf){
-            if(!units_and_checksum_check){
-                index--;
-                if(data[index].__EMPTY_2){
-                    if(data[index].__EMPTY_3){
-                        if(isNaN(data[index].__EMPTY_2) || isNaN(data[index].__EMPTY_3)){
-
+    if(data.length-index >= 2){
+        for(let i=0; i<2; i++){
+            index = index+i;
+            if(isPdf){
+                if(!units_and_checksum_check){
+                    index--;
+                    if(data[index].__EMPTY_2){
+                        if(data[index].__EMPTY_3){
+                            if(isNaN(data[index].__EMPTY_2) || isNaN(data[index].__EMPTY_3)){
+    
+                                passedCheck = false;
+                                notes.push('Total Units or Cumulative Weight is not a number');
+                                //return {'error': 'Total Units or Cumulative Weight is not a number'}
+                            }else if(!isNaN(data[index].__EMPTY_2) && !isNaN(data[index].__EMPTY_3)){
+                                data[index].__EMPTY_2 = parseFloat(data[index].__EMPTY_2)
+                                data[index].__EMPTY_3 = parseFloat(data[index].__EMPTY_3)
+                            }
+                            
+                        }else{
+                            if(isNaN(data[index].__EMPTY_1) || isNaN(data[index].__EMPTY_2)){
+                                passedCheck = false;
+                                notes.push('Total Units or Cumulative Weight is not a number');
+                                //return {'error': 'Total Units or Cumulative Weight is not a number'}
+                            }else if(!isNaN(data[index].__EMPTY_1) && !isNaN(data[index].__EMPTY_2)){
+                                data[index].__EMPTY_1 = parseFloat(data[index].__EMPTY_1)
+                                data[index].__EMPTY_2 = parseFloat(data[index].__EMPTY_2)
+                            } 
+                            
+                        }
+                    }else{
+                        passedCheck = false;
+                        notes.push('Total Units or Cumulative Weight is not found');
+                        //return {'error': 'Total Units or Cumulative Weight is not found'}
+                    }
+    
+                    units_and_checksum_check = true;
+    
+                }
+                else if (!gwa_check){
+                    if(data[index]["CRSE NO."] && data[index].Grade){ 
+                        if((typeof data[index]["CRSE NO."] != 'string' || data[index]["CRSE NO."].trim() !== "GWA") || isNaN(data[index].Grade)){
                             passedCheck = false;
-                            notes.push('Total Units or Cumulative Weight is not a number');
-                            //return {'error': 'Total Units or Cumulative Weight is not a number'}
-                        }else if(!isNaN(data[index].__EMPTY_2) && !isNaN(data[index].__EMPTY_3)){
-                            data[index].__EMPTY_2 = parseFloat(data[index].__EMPTY_2)
-                            data[index].__EMPTY_3 = parseFloat(data[index].__EMPTY_3)
+                            notes.push('Unexpected format for GWA');
+                            //return {'error': 'Unexpected format for GWA'}
                         }
                         
                     }else{
-                        if(isNaN(data[index].__EMPTY_1) || isNaN(data[index].__EMPTY_2)){
+                        passedCheck = false;
+                        notes.push('Unexpected format for GWA');
+                        //return {'error': 'GWA not found'}
+                    }
+                    
+                    gwa_check = true;
+                }
+    
+    
+            }else{
+                if(!units_and_checksum_check){
+                    console.log(data[index].Grade)
+                    if(data[index].Grade != undefined && data[index].Cumulative != undefined){ 
+                        if(isNaN(data[index].Grade) || isNaN(data[index].Cumulative)){
                             passedCheck = false;
                             notes.push('Total Units or Cumulative Weight is not a number');
                             //return {'error': 'Total Units or Cumulative Weight is not a number'}
-                        }else if(!isNaN(data[index].__EMPTY_1) && !isNaN(data[index].__EMPTY_2)){
-                            data[index].__EMPTY_1 = parseFloat(data[index].__EMPTY_1)
-                            data[index].__EMPTY_2 = parseFloat(data[index].__EMPTY_2)
-                        } 
-                        
-                    }
-                }else{
-                    passedCheck = false;
-                    notes.push('Total Units or Cumulative Weight is not found');
-                    //return {'error': 'Total Units or Cumulative Weight is not found'}
-                }
-
-                units_and_checksum_check = true;
-
-            }
-            else if (!gwa_check){
-                if(data[index]["CRSE NO."] && data[index].Grade){ 
-                    if((typeof data[index]["CRSE NO."] != 'string' || data[index]["CRSE NO."].trim() !== "GWA") || isNaN(data[index].Grade)){
-                        passedCheck = false;
-                        notes.push('Unexpected format for GWA');
-                        //return {'error': 'Unexpected format for GWA'}
-                    }
-                    
-                }else{
-                    passedCheck = false;
-                    notes.push('Unexpected format for GWA');
-                    //return {'error': 'GWA not found'}
-                }
-                
-                gwa_check = true;
-            }
-
-
-        }else{
-            if(!units_and_checksum_check){
-                if(data[index].Grade && data[index].Cumulative){ 
-                    if(isNaN(data[index].Grade) || isNaN(data[index].Cumulative)){
-                        passedCheck = false;
-                        notes.push('Total Units or Cumulative Weight is not a number');
-                        //return {'error': 'Total Units or Cumulative Weight is not a number'}
-
-                    }else{
-                        units_and_checksum_check = true;
-                    }
-                }else{
-
-                    passedCheck = false;
-                    notes.push('Total Units or Cumulative Weight is not found');
-                    //return {'error': 'Total Units or Cumulative Weight is not found'}
-
-                }
-            }
-            else if (!gwa_check){
-                if(data[index]["CRSE NO."] && data[index].Grade){ 
-                    if((typeof data[index]["CRSE NO."] != 'string' || data[index]["CRSE NO."].trim() !== "GWA") || isNaN(data[index].Grade)){
-
-                        passedCheck = false;
-                        notes.push('Unexpected format for GWA');
-                        //return {'error': 'Unexpected format for GWA'}
-
-                    }else{
-                        gwa_check = true;
-                    }
-                }else{
-
-                    passedCheck = false;
-                    notes.push('GWA not found');
-                    //return {'error': 'GWA not found'}
-
-                }
     
+                        }else{
+                            units_and_checksum_check = true;
+                        }
+                    }else{
+                        passedCheck = false;
+                        notes.push('Total Units or Cumulative Weight is not found');
+                        //return {'error': 'Total Units or Cumulative Weight is not found'}
+                    }
+                }
+                else if (!gwa_check){
+                    if(data[index]["CRSE NO."] && data[index].Grade){ 
+                        if((typeof data[index]["CRSE NO."] != 'string' || data[index]["CRSE NO."].trim() !== "GWA") || isNaN(data[index].Grade)){
+                            passedCheck = false;
+                            notes.push('Unexpected format for GWA');
+                            //return {'error': 'Unexpected format for GWA'}
+                        }
+                    }else{
+                        passedCheck = false;
+                        notes.push('GWA not found');
+                        //return {'error': 'GWA not found'}
+                    }
+                    gwa_check = true
+                }
+        
             }
-    
         }
+    }else{
+        passedCheck = false
+        notes.push("Missing Cumulative Weight/GWA/Units")
     }
+    
     
     range.e.r = end_range;
     ws['!ref'] = XLSX.utils.encode_range(range);
@@ -268,12 +262,12 @@ function readData(filename, sheetName, isPdf){
 function checkload(data, count, config, term_count, notes){
         const recorded = data[count]["Term"];
         if(recorded<config[term_count]){
-            console.log(`Expected ${config[term_count]} but got ${recorded} during ${data[count].__EMPTY}`)
+            //console.log(`Expected ${config[term_count]} but got ${recorded} during ${data[count].__EMPTY}`)
             notes.push("Underload during " + data[count].__EMPTY)
         }else if(recorded == config[term_count]){
-            console.log(`Expected ${config[term_count]} and got ${recorded} during ${data[count].__EMPTY}`)
+            //console.log(`Expected ${config[term_count]} and got ${recorded} during ${data[count].__EMPTY}`)
         }else{
-            console.log(`Expected ${config[term_count]} but got ${recorded} during ${data[count].__EMPTY}`)
+            //console.log(`Expected ${config[term_count]} but got ${recorded} during ${data[count].__EMPTY}`)
             notes.push("Overload during " + data[count].__EMPTY)
         }
 }
@@ -619,6 +613,7 @@ function processFile(program, data, ispdf, GWA_requirement_check){
     
     let max_term_count = config.units[program].Thesis.length;
     let term = config.units[program].Thesis;
+    let term_count_err = false;
 
     if(config.units[program].Thesis.length === 0){
         max_term_count = config.units[program].SP.length
@@ -664,7 +659,7 @@ function processFile(program, data, ispdf, GWA_requirement_check){
                     elective_count = config.elective[program].SP;
                     max_term_count = config.units[program].SP.length
                 }
-
+                console.log(config.max_units[program])
                 max_unit_count = config.max_units[program].SP;
                 if(!isNaN(data[i].Grade)){
                     if(data[i].Grade !== 5){
@@ -698,7 +693,15 @@ function processFile(program, data, ispdf, GWA_requirement_check){
             }
             else if(data[i].Grade === 'P'){
                 units += data[i].Units
-            }else{
+            }
+            else if(['S', 'U'].includes(data[i].Grade)){
+                if(isNaN(data[i].Units)){
+                    notes.push("Unrecognized course with a grade of S or U")
+                }else{
+                    units += data[i].Units
+                }
+            }
+            else{
                 if(data[i].Grade*data[i].Units === data[i].Weight){     // if the calculation is correct
                     checkSum += data[i].Weight;
                     units += data[i].Units;
@@ -709,20 +712,24 @@ function processFile(program, data, ispdf, GWA_requirement_check){
             }
 
             //Check for underloading and overloading
-            if(term_count < max_term_count){
-                if(data[i]["Term"]!=undefined){ //load exists
-                    if(!sp_flag){
-                        checkload(data, i, term, term_count, notes)
-                        term_count++;
-                    }else{
-                        checkload(data, i, term, term_count, notes)
-                        term_count++;
+            if(!term_count_err){
+                if(term_count < max_term_count){
+                    if(data[i]["Term"]!=undefined){ //load exists
+                        if(!sp_flag){
+                            checkload(data, i, term, term_count, notes)
+                            term_count++;
+                        }else{
+                            checkload(data, i, term, term_count, notes)
+                            term_count++;
+                        }
+                        
                     }
-                    
+                }else{
+                    notes.push("Took more terms than prescribed.")
+                    term_count_err = true
                 }
-            }else{
-                notes.push("Took more terms than prescribed.")
             }
+            
 
             // Skip the checking if grade is failing, INC, DFG, DRP since the courses
             // should not be written off as 'taken'
@@ -756,10 +763,10 @@ function processFile(program, data, ispdf, GWA_requirement_check){
                     ge_taken.push(data[i]["CRSE NO."]);
                 }
             }else if(data[i]["CRSE NO."] === 'LOA'){
-                notes.push("Taken LOA during " + data[i].__EMPTY)
+                notes.push("Student has taken LOA")
             }
             else if(data[i]["CRSE NO."] === 'AWOL'){
-                notes.push("AWOL during " + data[i].__EMPTY)
+                notes.push("Student was AWOL")
             }
             else{
                 taken_elective_count++;
@@ -797,10 +804,6 @@ function processFile(program, data, ispdf, GWA_requirement_check){
         }
 
     }
-    console.log(checkSum)
-    console.log(initSum)
-    console.log(units)
-    console.log(initUnits)
 
     gwa = (checkSum/units).toFixed(4);
 

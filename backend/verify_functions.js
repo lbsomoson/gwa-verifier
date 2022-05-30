@@ -4,8 +4,8 @@ var config = require('./config.json');
 function verifyname(filename, sheetName){
     var wb = XLSX.readFile("files/" + filename, {sheetStubs: true});
     var ws = wb.Sheets[sheetName];
-    var fname = ws['B1'].v.trim();
-    var lname = ws['A1'].v.trim();
+    var fname = ws['B1'].v;
+    var lname = ws['A1'].v;
 
     console.log(fname)
     console.log(lname)
@@ -113,7 +113,7 @@ function verifyunits(data){
     }
 }
 
-function verifyErrors(name, studno, program, headers, fname, lname, errors) {
+function verifyErrors(name, studno, program, headers, errors) {
     if(name.error){
         errors.push(name.error)
     }
