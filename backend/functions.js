@@ -40,6 +40,9 @@ function readData(filename, sheetName, isPdf){
     let accepted_grades = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 4, 5, 'INC', 'DRP', 'DFG', 'S', 'U', 'P'];
     let Thesis_SP_grades = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 4, 5, 'S', 'U'];
     let Thesis_SP_grades_pass = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 4];
+    let string_grades = ['INC', 'DRP', 'DFG', 'S', 'U', 'P']
+
+    console.log(data[1])
 
 
     for(let i=0; i<data.length; i++){
@@ -49,6 +52,30 @@ function readData(filename, sheetName, isPdf){
             if(typeof data[i]["CRSE NO."] !== "string"){
                 return {'error': `${data[i]["CRSE NO."]} is not of the proper format`}
             }
+
+            // Check if the Grade is accepted or not
+            if(typeof data[i].Grade === "string" && !string_grades.includes(data[i].Grade)){
+                // try parsing to see if it will result in a number
+                if(isNaN(parseFloat(data[i].Grade)) || !accepted_grades.includes(parseFloat(data[i].Grade))){
+                    return {'error': `A grade of ${data[i].Grade} is not accepted`}
+                }else{
+                    data[i].Grade = parseFloat(data[i].Grade)
+                }
+                
+            }
+
+            // Check if the number of units is accepted
+            if(!/^\d$/.test(data[i].Units)){
+                if(!/^\d\(\d\)$/.test(data[i].Units)){
+                    return {'error': `${data[i].Units} is not an acceptable number of units`}
+                }
+            }else{
+                if(typeof data[i].Units === "string"){
+                    data[i].Units = parseInt(data[i].Units)
+                }
+                
+            }
+            
 
             if(/^.+\s200$/.test(data[i]["CRSE NO."])){
                 if(!thesis_sp_pass){
@@ -95,19 +122,6 @@ function readData(filename, sheetName, isPdf){
                 }
             }
 
-            // Check if the Grade is accepted or not
-            if(!accepted_grades.includes(data[i].Grade)){
-                return {'error': `A grade of ${data[i].Grade} is not accepted`}
-            }
-
-            // Check if the number of units is accepted
-            if(!/^\d$/.test(data[i].Units)){
-                if(!/^\d\(\d\)$/.test(data[i].Units)){
-                    return {'error': `${data[i].Units} is not an acceptable number of units`}
-                }
-            }
-
-
             if(data[i]["Term"]){ // If load exists, then term must also exist
                 if(isNaN(data[i]["Term"])){ 
                     return {'error': 'A Semester Load is not a Number'}
@@ -151,6 +165,9 @@ function readData(filename, sheetName, isPdf){
                             passedCheck = false;
                             notes.push('Total Units or Cumulative Weight is not a number');
                             //return {'error': 'Total Units or Cumulative Weight is not a number'}
+                        }else if(!isNaN(data[index].__EMPTY_2) && !isNaN(data[index].__EMPTY_3)){
+                            data[index].__EMPTY_2 = parseFloat(data[index].__EMPTY_2)
+                            data[index].__EMPTY_3 = parseFloat(data[index].__EMPTY_3)
                         }
                         
                     }else{
@@ -158,7 +175,10 @@ function readData(filename, sheetName, isPdf){
                             passedCheck = false;
                             notes.push('Total Units or Cumulative Weight is not a number');
                             //return {'error': 'Total Units or Cumulative Weight is not a number'}
-                        }  
+                        }else if(!isNaN(data[index].__EMPTY_1) && !isNaN(data[index].__EMPTY_2)){
+                            data[index].__EMPTY_1 = parseFloat(data[index].__EMPTY_1)
+                            data[index].__EMPTY_2 = parseFloat(data[index].__EMPTY_2)
+                        } 
                         
                     }
                 }else{
@@ -1003,7 +1023,10 @@ function processFile(program, data, ispdf, GWA_requirement_check){
         
         else {
             if(GWA_reqs_check){
+                console.log("GWA REQS MET")
                 if(ispdf){
+                    console.log("ISPDF")
+                    console.log(data[i-1].__EMPTY_2)
                     if(data[i-1].__EMPTY_2 != undefined){  //pdf
                         if(data[i-1].__EMPTY_3){
                             initSum = data[i-1].__EMPTY_3;
@@ -1027,8 +1050,11 @@ function processFile(program, data, ispdf, GWA_requirement_check){
 
     }
 
+    console.log(typeof checkSum);
+    console.log(typeof initSum);
+    console.log(units);
     gwa = (checkSum/units).toFixed(4);
-
+    console.log(gwa);
     if(gwa > 1.75) qualified_for_honors = false;
 
     if(units < max_unit_count) notes.push("Less than required number of units")
