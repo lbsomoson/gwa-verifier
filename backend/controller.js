@@ -300,6 +300,17 @@ exports.downloadSummary = (req, res) =>{
 })
 }
 
+exports.findUserEdits = (req, res) => {
+    const username = req.query.username;
+    let findUserEdits = 'SELECT * FROM edit_history WHERE Username= ?';
+
+    let query = database.query(findUserEdits, [username],(err, result) => {
+        if (err) throw err;
+        console.log(result);
+        res.send(result);
+    });
+}
+
 
 exports.uploadSingle = (req, res) => {
     console.log(req.files);
