@@ -42,6 +42,7 @@ function readData(filename, sheetName, isPdf){
     let Thesis_SP_grades_pass = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 4];
     let string_grades = ['INC', 'DRP', 'DFG', 'S', 'U', 'P']
 
+
     for(let i=0; i<data.length; i++){
         if((data[i]["CRSE NO."] && data[i].Grade && (data[i].Units === 0 || data[i].Units) && (data[i].Weight === 0 || data[i].Weight) && (data[i].Cumulative === 0 || data[i].Cumulative)) || (data[i]["CRSE NO."] && data[i].Term) ){
             
@@ -132,6 +133,7 @@ function readData(filename, sheetName, isPdf){
                         semesterCount++;
                     }else return{'error': termValidity.notes}
                     
+
                 }else{
                     return {'error': 'Term does not exist'}
                 }
@@ -446,20 +448,20 @@ function processEdit(edited_data){
                 continue;
             }
         }else{
-            if(config.course[program].includes(data[i].Course_Code)){   //Check if course taken is in the program
+            if(config.course[program].includes(data[i].Course_Code) && data[i].Grade != 5 && data[i].Grade != 4){   //Check if course taken is in the program
                 if(!courses_taken.includes(data[i].Course_Code)){
                     courses_taken.push(data[i].Course_Code);
                 }
-            }else if(data[i].Course_Code === 'HK 11'){                   //If course not in the program, check if it's a HK subject
+            }else if(data[i].Course_Code === 'HK 11' && data[i].Grade != 5){                   //If course not in the program, check if it's a HK subject
                 hk11_count--;
-            }else if(data[i].Course_Code === 'HK 12' || data[i].Course_Code === 'HK 13'){
+            }else if((data[i].Course_Code === 'HK 12' || data[i].Course_Code === 'HK 13') && data[i].Grade != 5 && data[i].Grade != 4){
                 hk12_count--;
-            }else if(data[i].Course_Code === 'NSTP 1'){
+            }else if(data[i].Course_Code === 'NSTP 1' && data[i].Grade != 5 && data[i].Grade != 4){
                 nstp1_count--;
-            }else if(data[i].Course_Code === 'NSTP 2'){
+            }else if(data[i].Course_Code === 'NSTP 2' && data[i].Grade != 5 && data[i].Grade != 4){
                 nstp2_count--;
             }
-            else if(config.GE.hasOwnProperty(data[i].Course_Code)){
+            else if(config.GE.hasOwnProperty(data[i].Course_Code) && data[i].Grade != 5 && data[i].Grade != 4){
                 if(config.GE[data[i].Course_Code] === 'Required'){
                     required_ge.push(data[i].Course_Code);
                 }else{
