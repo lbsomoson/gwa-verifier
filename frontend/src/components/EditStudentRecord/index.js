@@ -4,7 +4,7 @@ import styles from "./EditStudentRecord.module.css";
 const VALID_GRADES = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 4, 5];
 const VALID_GRADES_STRING = ['DRP', 'INC', 'DFG', 'S', 'U'];
 const SPECIAL_COURSE_CODE = ['AWOL', 'LOA'];
-const SPECIAL_COURSE_SWITCH = false;
+const SPECIAL_COURSE_SWITCH = true;
 
 //regex
     const insideParenthesis = /^[0-9]+\(([0-9]+)\)$/;

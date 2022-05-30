@@ -25,7 +25,7 @@ import { Navigate } from "react-router";
 const TD_CLASSES = ['courseCode', 'grade', 'units', IGNORE + ' weight', IGNORE + ' cumulative']
 
 const SPECIAL_COURSE_CODE = ['AWOL', 'LOA'];
-const SPECIAL_COURSE_SWITCH = false;
+const SPECIAL_COURSE_SWITCH = true;
 
 //regex
     const insideParenthesis = /^[0-9]+\(([0-9]+)\)$/;
