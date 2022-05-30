@@ -10,11 +10,14 @@ function checkTermValidity(term){
     if(/^l{1,2}\/\d{2}\/\d{2}$/.test(term)){
         const termElements = term.split("/");
         if(parseInt(termElements[1])+1 != parseInt(termElements[2])){
-            notes.push("Academic Year of Term is incorrectly formatted for " + term)
+            return {"success": false, "notes": "Academic Year of Term is incorrectly formatted for " + term}
         }
     }else if(!/^midyear 20\d{2}$/.test(term)){
-        notes.push("Error in term format for term " + term);
+        return {"success": false, "notes": "Error in term format for term " + term}
+        
     }
+
+    return {"success": true}
 }
 
 
@@ -32,9 +35,12 @@ function readData(filename, sheetName, isPdf){
     let semesterCount = 0;
 
     let notes = [];
+    let thesis_sp_pass = false;
 
     let accepted_grades = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 4, 5, 'INC', 'DRP', 'DFG', 'S', 'U', 'P'];
     let Thesis_SP_grades = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 4, 5, 'S', 'U'];
+    let Thesis_SP_grades_pass = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 4];
+
 
     for(let i=0; i<data.length; i++){
         if((data[i]["CRSE NO."] && data[i].Grade && (data[i].Units === 0 || data[i].Units) && (data[i].Weight === 0 || data[i].Weight) && (data[i].Cumulative === 0 || data[i].Cumulative)) || (data[i]["CRSE NO."] && data[i].Term) ){
@@ -45,15 +51,35 @@ function readData(filename, sheetName, isPdf){
             }
 
             if(/^.+\s200$/.test(data[i]["CRSE NO."])){
-                if(!Thesis_SP_grades.includes(data[i].Grade)){
-                    return {'error': `A grade of ${data[i].Grade} is not accepted for Thesis`}
+                if(!thesis_sp_pass){
+                    if(!Thesis_SP_grades.includes(data[i].Grade)){
+                        return {'error': `A grade of ${data[i].Grade} is not accepted for Thesis`}
+                    }
+
+                    if(Thesis_SP_grades_pass.includes(data[i].Grade)){
+                        thesis_sp_pass = true
+                    }
+                }else{
+                    return {'error': `Another Thesis/SP course detected after passing`}
                 }
+                
+                
+                
             }
                 
             if(/^.+\s190$/.test(data[i]["CRSE NO."])){
-                if(!Thesis_SP_grades.includes(data[i].Grade)){
-                    return {'error': `A grade of ${data[i].Grade} is not accepted for SP`}
+                if(!thesis_sp_pass){
+                    if(!Thesis_SP_grades.includes(data[i].Grade)){
+                        return {'error': `A grade of ${data[i].Grade} is not accepted for SP`}
+                    }
+
+                    if(Thesis_SP_grades_pass.includes(data[i].Grade)){
+                        thesis_sp_pass = true
+                    }
+                }else{
+                    return {'error': `Another Thesis/SP course detected after passing`}
                 }
+                
             }
 
             if(/^.+\s199$/.test(data[i]["CRSE NO."])){
@@ -87,7 +113,12 @@ function readData(filename, sheetName, isPdf){
                     return {'error': 'A Semester Load is not a Number'}
                 }
                 if(data[i].__EMPTY){
-                    semesterCount++;
+                    let termValidity = checkTermValidity(data[i].__EMPTY)
+                    if(termValidity.success){
+                        semesterCount++;
+                    }else return{'error': termValidity.notes}
+                    
+
                 }else{
                     return {'error': 'Term does not exist'}
                 }
@@ -850,6 +881,9 @@ function processFile(program, data, ispdf, GWA_requirement_check){
 
                 if(!isNaN(data[i].Grade)){
                     if(data[i].Grade !== 5){
+                        if(completed_Thesis_SP){
+                            notes.push('Thesis is already completed')
+                        }
                         completed_Thesis_SP = true;
                     }
 

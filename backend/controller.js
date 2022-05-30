@@ -86,8 +86,7 @@ exports.addActivity= (req, res) => {
         if (err) throw err;
 
         const nrows = Object.values(JSON.parse(JSON.stringify(result)));
-
-        
+  
         console.log(nrows[0].rowcount);
         if (nrows[0].rowcount == 1000){
             let query2 = database.query(deleteActivity, (err, result) => {
@@ -306,6 +305,17 @@ exports.downloadSummary = (req, res) =>{
 
     
 })
+}
+
+exports.findUserEdits = (req, res) => {
+    const username = req.query.username;
+    let findUserEdits = 'SELECT * FROM edit_history WHERE Username= ?';
+
+    let query = database.query(findUserEdits, [username],(err, result) => {
+        if (err) throw err;
+        console.log(result);
+        res.send(result);
+    });
 }
 
 

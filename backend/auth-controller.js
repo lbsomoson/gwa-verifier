@@ -1,15 +1,20 @@
 const myModule = require('./index');
 const {database} = myModule.database;
 const jwt = require("jsonwebtoken");
+const crypto = require('crypto');
+const salt = 'worcestershire';
+const pepper = 'A';
 require('dotenv').config({path: __dirname + '/config.env'});
 
 exports.login = (req, res) => {
     //check if username is valid
     let findUser = 'SELECT * FROM users WHERE Username = ? AND Password = ?';
     const username = req.body.username;
-    const password = req.body.password; 
+    const password = req.body.password;
+    const seasoned = password.concat(salt, pepper);
+    const hash = crypto.createHash('md5').update(seasoned).digest('hex');
 
-    let query = database.query(findUser, [username, password] , (err, result) => {
+    let query = database.query(findUser, [username, hash] , (err, result) => {
         if(err){
             console.log("login err");
         };
@@ -18,7 +23,7 @@ exports.login = (req, res) => {
             console.log("not logged in. user not found")
         }else{
             console.log(result[0]);
-            if(result[0].Password === password) {
+            if(result[0].Password === hash) {
                 console.log("Logged In");
 
                 const tokenPayload = {
@@ -44,9 +49,11 @@ exports.signUp = (req, res) => {
     const username = req.body.username;
     const password = req.body.userpassword;
     const type = req.body.usertype;
+    const seasoned = password.concat(salt, pepper);
+    const hash = crypto.createHash('md5').update(seasoned).digest('hex');
     let sql = 'INSERT INTO users (Username, Password, Type) VALUES ( ?, ?, ?)';
     
-    let query = database.query(sql, [username,password,type], (err, result) => {
+    let query = database.query(sql, [username,hash,type], (err, result) => {
         if(err) throw err;
         console.log("No Error");
         console.log(result);
