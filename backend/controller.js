@@ -364,24 +364,6 @@ exports.uploadSingle = (req, res) => {
                 data = readData.data;
                 GWA_requirement_check = readData.req_GWA;
 
-                // Check if the necessary courses are taken
-                // var checkFormat = functions.processExcel(filename, program, data);
-                // if(!checkFormat.success){
-                //     checkFormat.notes.forEach((note) => {
-                //         errors.push(note)
-                //     })
-                // }
-
-                // // Calculate the Cumulative Weight, Total Units and GWA
-                // let checkCalc = functions.weightIsValid(data, program, false, GWA_requirement_check) 
-      
-                // if(checkCalc.warning){
-                //     checkCalc.warning.forEach((note) => {
-                //         console.log(note);
-                //         errors.push(note)
-                //     })
-                // }
-
                 let processFile = functions.processFile(program, data, false, GWA_requirement_check)
 
                 if(processFile.notes){
@@ -391,17 +373,6 @@ exports.uploadSingle = (req, res) => {
                 }
     
                 let notes_msg = misc_functions.createNotes(errors, allErrors, sheet_names, j);
-
-                // if(checkCalc.success){
-                //     functions.addTakenCourses(data, studno);
-                //     if(checkCalc.qualified){
-                //         console.log("Student is qualified");
-                //         functions.addStudent(studno, fname, lname, program, checkCalc.gwa, 1, notes_msg);
-                //     }else{
-                //         console.log("Student is not qualified");
-                //         functions.addStudent(studno, fname, lname, program, checkCalc.gwa, 0, notes_msg);
-                //     }   
-                // }
 
                 if(processFile.success){
                     functions.addTakenCourses(data, studno);
@@ -454,8 +425,6 @@ exports.uploadSingle = (req, res) => {
                     name = verify_functions.verifyname(newfilename, sheet_names[j]);
                     studno = verify_functions.verifystudno(newfilename, sheet_names[j]);
                     program = verify_functions.verifycourse(newfilename, sheet_names[j]);
-
-
                     headers = verify_functions.verifyHeaders(newfilename, sheet_names[j]);
                     
                     // Verify if file has the necessary information
@@ -471,7 +440,7 @@ exports.uploadSingle = (req, res) => {
 
 
                     // Get the data 
-                    let readData = functions.readData(filename, sheet_names[j], false);
+                    let readData = functions.readData(newfilename, sheet_names[j], true);
                     if(readData.error){
                         errors.push(readData.error)
                         allErrors[sheet_names[j]] = errors
@@ -487,38 +456,27 @@ exports.uploadSingle = (req, res) => {
 
                     data = readData.data;
                     GWA_requirement_check = readData.req_GWA;
-                    
-                    // Check if the necessary courses are taken
-                    var checkFormat = functions.processExcel(newfilename, program, data);
-                    if(!checkFormat.success){
-                        checkFormat.notes.forEach((note) => {
+
+                    let processFile = functions.processFile(program, data, true, GWA_requirement_check)
+
+                    if(processFile.notes){
+                        processFile.notes.forEach((note) => {
                             errors.push(note)
                         })
                     }
-
-                    // Calculate the Cumulative Weight, Total Units and GWA
-                    let checkCalc = functions.weightIsValid(data, program, false, GWA_requirement_check) 
-
-                    if(checkCalc.warning){
-                        checkCalc.warning.forEach((note) => {
-                            console.log(note);
-                            errors.push(note)
-                        })
-
-                    }
-
+    
                     let notes_msg = misc_functions.createNotes(errors, allErrors, sheet_names, j);
 
-                    if(checkCalc.success){
+                    if(processFile.success){
                         functions.addTakenCourses(data, studno);
-                        if(checkCalc.qualified){
+                        if(processFile.qualified){
                             console.log("Student is qualified");
-                            functions.addStudent(studno, fname, lname, program, checkCalc.gwa, 1, notes_msg);
+                            functions.addStudent(studno, fname, lname, program, processFile.gwa, 1, notes_msg);
                         }else{
                             console.log("Student is not qualified");
-                            functions.addStudent(studno, fname, lname, program, checkCalc.gwa, 0, notes_msg);
+                            functions.addStudent(studno, fname, lname, program, processFile.gwa, 0, notes_msg);
                         }   
-                    }
+                    }      
 
                 }
                 let filename_err_msg = []
@@ -528,17 +486,20 @@ exports.uploadSingle = (req, res) => {
 
                 misc_functions.listFileErrors(allErrors, all_err_msg, filename_err_msg, err_msg_arr);
 
-                fs.readdir('files', (err, files) => {
-                    if (err) console.log(err);
+                // fs.readdir('files', (err, files) => {
+                //     if (err) console.log(err);
     
-                    fs.unlink(path.join('files', newfilename), err => {
-                        if (err) console.log(err)
-                    });
-                    fs.unlink(path.join('files', filename), err => {
-                        if (err) console.log(err)
-                    });
+                //     fs.unlink(path.join('files', newfilename), err => {
+                //         if (err) console.log(err)
+                //     });
+                //     fs.unlink(path.join('files', filename), err => {
+                //         if (err) console.log(err)
+                //     });
     
-                });
+                // });
+            
+                
+                
             }).catch((error) =>{
                 console.log(error);
             })
@@ -547,9 +508,9 @@ exports.uploadSingle = (req, res) => {
 
     }
 
-    //Delete uploaded files
+    res.send({msg:err_msg_arr});
     
 
-    res.send({msg:err_msg_arr});
+    
 } 
 
