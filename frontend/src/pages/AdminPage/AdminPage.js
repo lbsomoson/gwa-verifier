@@ -15,9 +15,7 @@ class AdminPage extends React.Component{
             users: [],
             showAddUser: 0,
             deleteUser: null,
-
             changeUser: null,
-
             viewUser: null,
             viewActivities: [],
             isViewClicked: 0,
@@ -32,7 +30,6 @@ class AdminPage extends React.Component{
         this.handleViewClicked = this.handleViewClicked.bind(this);
         this.getUserActivities = this.getUserActivities.bind(this);
         this.handleChangeClicked = this.handleChangeClicked.bind(this);
-
     }
     
     getUserActivities(){
@@ -42,7 +39,6 @@ class AdminPage extends React.Component{
             console.log(this.state.viewActivities);
         })
     }
-
 
     handleChangeClicked(){
 
@@ -73,7 +69,6 @@ class AdminPage extends React.Component{
         window.location.reload()
        
     }
-
 
     handleViewClicked() {
         this.setState({isViewClicked: 1});
@@ -338,7 +333,6 @@ class AdminPage extends React.Component{
                                             </BasicButton>
 
                                         </div>
-
                                     </div>
                                 )
                             }else{
@@ -354,6 +348,3 @@ class AdminPage extends React.Component{
     
 }
 export default AdminPage
-
-//<UserDataTabs data={this.state.users} />
-

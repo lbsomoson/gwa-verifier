@@ -177,17 +177,18 @@ exports.editStudentRecord = (req, res) => {
 exports.addEditHistory = (req, res) => {
     let getCount = '(SELECT COUNT(*)+1 FROM edit_history)';
     let addHistory = 'INSERT INTO edit_history (ID, Username, Student_ID, Datetime_of_edit, Edit_notes) VALUES (?, ?, ?, NOW(), ?)';
-    const count = database.query(getCount, function(err, result, fields) {
+    database.query(getCount, function(err, result, fields) {
         if (err) throw err;
 
-        return result;
+        count = Object.values(result[0])[0];
+        database.query(addHistory, [count, req.body.Username, req.body.ID, req.body.notes], (err, result) => {
+            if (err) throw err;
+    
+            res.send('Updated edit history');
+        });
     });
 
-    let query = database.query(addHistory, [count, req.body.Username, req.body.ID, req.body.notes], (err, result) => {
-        if (err) throw err;
-
-        res.send('Updated edit history');
-    });
+    
 }
 
 exports.findAllEdits = (req, res) => {

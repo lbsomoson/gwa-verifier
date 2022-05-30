@@ -34,7 +34,6 @@ const SPECIAL_COURSE_SWITCH = false;
 
 
 
-
 class StudentRecord extends React.Component{
   
     constructor(props) {
@@ -46,12 +45,10 @@ class StudentRecord extends React.Component{
             studentLN : localStorage.getItem("studentLN"),
             studentProgram : localStorage.getItem("studentProgram"),
             studentGWA : localStorage.getItem("studentGWA"),
-
             totalGrade: 0,
             totalUnits: 0,
             semesters: null,
             freshlyAddedSem: null,
-
             edits: {},
             deleted: [],
             beforeEdit: {},
@@ -62,9 +59,8 @@ class StudentRecord extends React.Component{
             tableEditOn: false,
             isAddTableClicked: false,
         }
-
+        
         this.cumulative = 0;
-
 
 
         this.editButtonClicked = this.editButtonClicked.bind(this);
@@ -90,9 +86,7 @@ class StudentRecord extends React.Component{
       let inProgress = document.querySelector(`[id$="editingInProgress"]`);
         if (inProgress == null){
             let final = {
-
                 studentProgram: this.state.studentProgram,
-
                 studentID: this.state.studentID,
                 courses: [],
             };
@@ -123,12 +117,10 @@ class StudentRecord extends React.Component{
                 }
             */
             //adding remaining semester tables
-
                 keys = Object.keys(this.state.semesters);
                 for (let i = 0; i < keys.length; i++){
                     if(!(keys[i] in editedSemesters)){
                         let data = this.state.semesters[keys[i]];
-
                         for(let j = 0; j < data.length; j++){
                             final.courses.push({
                                 [COURSE_CODE]: data[j][COURSE_CODE],
@@ -166,20 +158,16 @@ class StudentRecord extends React.Component{
     //assuming the end point receives a post request
     //and the term column follows the formatting I/17/18 meaning sem 1 of sy 2017-2018
     getRecord = () => {
-
         let totalGrade = 0;
         let totalUnits = 0;
-
         Axios.post("http://localhost:3001/viewRecords", {id: this.state.studentID})
             .then((response) => {
                 let semesters = {};
                 for (let i = 0; i < response.data.length; i++){
                     let course = response.data[i];
-
                     if (SPECIAL_COURSE_CODE.includes(course[COURSE_CODE]) && SPECIAL_COURSE_SWITCH){
                         semesters[course[TERM]] = course[COURSE_CODE];
                     }
-
                     if (!(course[TERM] in semesters)){
                         semesters[course[TERM]] = [
                             {
@@ -191,8 +179,6 @@ class StudentRecord extends React.Component{
                                 [TERM]: course[TERM],
                             }
                         ]
-
-
                     }else{
                         semesters[course[TERM]].push({
                             [ID]: course[ID],
@@ -203,19 +189,15 @@ class StudentRecord extends React.Component{
                             [TERM]: course[TERM],
                         });
                     }
-
                     if(!isNaN(course[GRADE])){totalGrade = parseFloat(course[GRADE]) + totalGrade;}
                     totalUnits = parseInt(course[UNITS]) + totalUnits;
-
                 }
                 console.log(semesters);
 
                 this.setState(prevState => ({
-
                     totalGrade: totalGrade,
                     totalUnits: totalUnits,
                     semesters: semesters,
-
                 }));
             })
             .catch((err) => {
@@ -434,65 +416,7 @@ class StudentRecord extends React.Component{
             selection.removeAllRanges();
             selection.addRange(range);
         }
-
     }
-    cancelButtonClicked = () => {
-        window.location.reload()
-    }
-
-    //functions for EditStudentRecord
-        compileEdit = (data, key) => {
-            console.log(data);
-            if(key.split('-')[0] === TABLE){
-                /*
-                this.setState(prevstate => ({
-                    edits: {
-                        ...prevstate.edits,
-                        [key]: data,
-                    }
-                }));*/
-                let temp = [];
-                for (let i = 0; i < data.length; i++){
-                    temp.push({
-                        [COURSE_CODE]: data[i][0],
-                        [GRADE]: data[i][1],
-                        [UNITS]: data[i][2],
-                        [WEIGHT]: parseFloat(data[i][1]) * parseFloat(data[i][2]),
-                        [TERM]: key.split('-')[1],
-                    })
-                }
-                this.setState(prevState => ({
-                    record: {
-                        ...prevState.record,
-                        semesters: {
-                            ...prevState.record.semesters,
-                            [key.split('-')[1]]: temp
-                        }
-                    }
-                }), () => {
-                    let rows = document.getElementById(key + '_data').querySelector('tbody').children;
-                    for(let i = 0; i < rows.length; i++){
-                        if(rows[i].querySelector(`[id$=_editSection]`) != null){
-                            rows[i].removeChild(rows[i].lastChild);
-                        }
-                    }
-                });
-            }
-        }
-        /*getDeleted = (data, key) => {
-            if(data === 'cancel'){
-                this.setState(prevstate => ({
-                    deleted: []
-                }));
-            }else{
-                this.setState(prevstate => ({
-                    deleted: [
-                        ...prevstate.deleted,
-                        this.state.record.semesters[key.split('-')[0]][key.split('-')[1]],
-                    ]
-                }));
-            }
-        }*/
 
     render(){
         this.cumulative = 0;
@@ -505,7 +429,6 @@ class StudentRecord extends React.Component{
         if(this.state.isBackClicked === false && this.state.isDeleteClicked === false){
             return(
                 <div className={styles.studentRec}>
-
                     {this.state.isSaveClicked? 
                         <div id = 'editNotes' className = {styles.prompt}>Edit Notes:
                             <div><p id = 'editNotes_data' contentEditable onFocus={this.selectAllOnEditableElement}
@@ -571,7 +494,6 @@ class StudentRecord extends React.Component{
                             </div>
                         </div>
                     :null}
-
                     <div className={styles.header}>
                         <div className={styles.left}>
 
@@ -590,13 +512,11 @@ class StudentRecord extends React.Component{
                                 </h5>
                                 <span>
                                     <span>Total Grade: </span>
-
                                     <span>{this.state.totalGrade}</span>
                                 </span><br/>
                                 <span>
                                     <span>Total Enrolled Units: </span>
                                     <span>{this.state.totalUnits}</span>
-
                                 </span><br/>
                                 <span>
                                     <span>GWA: </span>
@@ -625,7 +545,6 @@ class StudentRecord extends React.Component{
                                     hide = {!this.state.isEditClicked}
                                     saveEdit = {this.compileEdit}
                                 />*/}
-
                             </div>
                         </div>
                         <div className={styles.right}>
@@ -675,7 +594,6 @@ class StudentRecord extends React.Component{
                                     onClick={this.backButtonClicked}
                                 />
                                 </div>
-
                         </div>
                     </div>
                     <div className={styles.tableWrapper}>
@@ -767,7 +685,6 @@ class StudentRecord extends React.Component{
                         }
                     </div>
                 </div>
-
             )
         }else{
             return(
@@ -809,372 +726,4 @@ class StudentRecord extends React.Component{
                         })}
                     </div>
 */
-
-const record = {
-    'name': "Maria Makiling",
-    'course': "BACA",
-    'semesters': [
-          [
-              {
-                  'courseNo': 'ENG 1(AH)',
-                  'grade': 2,
-                  'units': 3,
-                  'enrolled': 6,
-                  'term': 6
-              },{
-                  'courseNo': 'FIL 20',
-                  'grade': 2.25,
-                  'units': 3,
-                  'enrolled': 6.75,
-                  'term': 12.75
-              },{
-                  'courseNo': 'IT 1(MST)',
-                  'grade': 2,
-                  'units': 3,
-                  'enrolled': 6,
-                  'term': 18.75
-              },{
-                  'courseNo': 'PE 1',
-                  'grade': 2,
-                  'units': 0,
-                  'enrolled': 0,
-                  'term': 18.75
-              },{
-                  'courseNo': 'PHILO1(SSP)',
-                  'grade': 1.75,
-                  'units': 3,
-                  'enrolled': 5.25,
-                  'term': 24
-              },{
-                  'courseNo': 'PSY 1(SSP)',
-                  'grade': 1.75,
-                  'units': 3,
-                  'enrolled': 5.25,
-                  'term': 29.25
-              },{
-                  'courseNo': 'SPCM 1(AH)',
-                  'grade': 1.75,
-                  'units': 3,
-                  'enrolled': 5.25,
-                  'term': 34.5
-              }
-          ],[
-              {
-                  'courseNo': 'ENG 2(AH)',
-                  'grade': 1.5,
-                  'units': 3,
-                  'enrolled': 4.5,
-                  'term': 39
-              },{
-                  'courseNo': 'HUM 1(AH)',
-                  'grade': 1.5,
-                  'units': 3,
-                  'enrolled': 4.5,
-                  'term': 43.5
-              },{
-                  'courseNo': 'HUM 2(AH)',
-                  'grade': 1.5,
-                  'units': 3,
-                  'enrolled': 4.5,
-                  'term': 48
-              },{
-                  'courseNo': 'MATH1(MST)',
-                  'grade': 2,
-                  'units': 3,
-                  'enrolled': 6,
-                  'term': 54
-              },{
-                  'courseNo': 'MATH2(MST)',
-                  'grade': 2,
-                  'units': 3,
-                  'enrolled': 6,
-                  'term': 60
-              },{
-                  'courseNo': 'SOSC1(SSP)',
-                  'grade': 2.25,
-                  'units': 3,
-                  'enrolled': 7.5,
-                  'term': 67.5
-              }
-          ],[
-              {
-                  'courseNo': 'COMA 101',
-                  'grade': 1.25,
-                  'units': 3,
-                  'enrolled': 3.75,
-                  'term': 71.25
-              },{
-                  'courseNo': 'ENG 4',
-                  'grade': 2,
-                  'units': 3,
-                  'enrolled': 6,
-                  'term': 77.25
-              },{
-                  'courseNo': 'JAP 10',
-                  'grade': 1.75,
-                  'units': 3,
-                  'enrolled': 5.25,
-                  'term': 82.5
-              },{
-                  'courseNo': 'MATH 17',
-                  'grade': 1.75,
-                  'units': 5,
-                  'enrolled': 8.75,
-                  'term': 91.25
-              },{
-                  'courseNo': 'NASC3(MST)',
-                  'grade': 2,
-                  'units': 3,
-                  'enrolled': 6,
-                  'term': 91.25
-              },{
-                  'courseNo': 'NSTP 1',
-                  'grade': 1.75,
-                  'units': 0,
-                  'enrolled': 0,
-                  'term': 91.25
-              },{
-                  'courseNo': 'SPCM 102',
-                  'grade': 1.75,
-                  'units': 3,
-                  'enrolled': 5.25,
-                  'term': 102.5
-              }
-          ],[
-              {
-                  'courseNo': 'COMA 104',
-                  'grade': 1.25,
-                  'units': 3,
-                  'enrolled': 3.75,
-                  'term': 106.25
-              },{
-                  'courseNo': 'FIL 21',
-                  'grade': 2,
-                  'units': 3,
-                  'enrolled': 6,
-                  'term': 112.25
-              },{
-                  'courseNo': 'JAP 11',
-                  'grade': 1.75,
-                  'units': 3,
-                  'enrolled': 5.25,
-                  'term': 117.5
-              },{
-                  'courseNo': 'MGT 101',
-                  'grade': 1.5,
-                  'units': 3,
-                  'enrolled': 4.5,
-                  'term': 122
-              },{
-                  'courseNo': 'SOC 130',
-                  'grade': 2.25,
-                  'units': 3,
-                  'enrolled': 6.75,
-                  'term': 128.75
-              },{
-                  'courseNo': 'STAT 101',
-                  'grade': 1.75,
-                  'units': 3,
-                  'enrolled': 5.25,
-                  'term': 134
-              }
-          ],[
-              {
-                  'courseNo': 'ENG 101',
-                  'grade': 2,
-                  'units': 3,
-                  'enrolled': 6,
-                  'term': 140
-              },{
-                  'courseNo': 'COMA 192',
-                  'grade': 1,
-                  'units': 3,
-                  'enrolled': 3,
-                  'term': 143
-              },{
-                  'courseNo': 'COMA 105',
-                  'grade': 2,
-                  'units': 3,
-                  'enrolled': 6,
-                  'term': 149
-              },{
-                  'courseNo': 'HUME 150',
-                  'grade': 1.75,
-                  'units': 3,
-                  'enrolled': 5.25,
-                  'term': 154.25
-              },{
-                  'courseNo': 'PE 2',
-                  'grade': 5,
-                  'units': 0,
-                  'enrolled': 0,
-                  'term': 154.25
-              },{
-                  'courseNo': 'PI 10(SSP)',
-                  'grade': 2.25,
-                  'units': 3,
-                  'enrolled': 6.75,
-                  'term': 161
-              },{
-                  'courseNo': 'THEA 107',
-                  'grade': 1,
-                  'units': 3,
-                  'enrolled': 3,
-                  'term': 164
-              }
-          ],[
-              {
-                  'courseNo': 'ENG 103',
-                  'grade': 2,
-                  'units': 3,
-                  'enrolled': 6,
-                  'term': 170
-              },{
-                  'courseNo': 'ENG 104',
-                  'grade': 2.25,
-                  'units': 3,
-                  'enrolled': 6.75,
-                  'term': 176.75
-              },{
-                  'courseNo': 'HUME 170',
-                  'grade': 2,
-                  'units': 3,
-                  'enrolled': 6,
-                  'term': 182.75
-              },{
-                  'courseNo': 'NSTP 2',
-                  'grade': 1.25,
-                  'units': 0,
-                  'enrolled': 0,
-                  'term': 182.75
-              },{
-                  'courseNo': 'PHLO 184',
-                  'grade': 2,
-                  'units': 3,
-                  'enrolled': 6,
-                  'term': 188.75
-              },{
-                  'courseNo': 'SOC 112',
-                  'grade': 1.75,
-                  'units': 3,
-                  'enrolled': 5.25,
-                  'term': 194
-              }
-          ],[
-              {
-                  'courseNo': 'COMA 193',
-                  'grade': 1.75,
-                  'units': 3,
-                  'enrolled': 5.25,
-                  'term': 199.25
-              },{
-                  'courseNo': 'COMA 200',
-                  'grade': 'S',
-                  'units': 3,
-                  'enrolled': 0,
-                  'term': 199.25
-              },{
-                  'courseNo': 'ENG 5',
-                  'grade': 1.75,
-                  'units': 3,
-                  'enrolled': 5.25,
-                  'term': 204.5
-              },{
-                  'courseNo': 'HK 12',
-                  'grade': 2.25,
-                  'units': 0,
-                  'enrolled': 0,
-                  'term': 204.5
-              },{
-                  'courseNo': 'SPCM 101',
-                  'grade': 1.5,
-                  'units': 3,
-                  'enrolled': 4.5,
-                  'term': 209
-              },{
-                  'courseNo': 'SPCM 104',
-                  'grade': 2.75,
-                  'units': 3,
-                  'enrolled': 8.25,
-                  'term': 217.25
-              }
-          ],[
-              {
-                  'courseNo': 'ENG 156',
-                  'grade': 1.5,
-                  'units': 3,
-                  'enrolled': 4.5,
-                  'term': 221.75
-              },{
-                  'courseNo': 'ENG 155',
-                  'grade': 1.25,
-                  'units': 3,
-                  'enrolled': 3.75,
-                  'term': 225.5
-              },{
-                  'courseNo': 'ENG 102',
-                  'grade': 1,
-                  'units': 3,
-                  'enrolled': 3,
-                  'term': 228.5
-              },{
-                  'courseNo': 'ETHICS 1',
-                  'grade': 1.75,
-                  'units': 3,
-                  'enrolled': 5.25,
-                  'term': 233.75
-              },{
-                  'courseNo': 'STS 1',
-                  'grade': 1.75,
-                  'units': 3,
-                  'enrolled': 5.25,
-                  'term': 239
-              }
-          ],[
-              {
-                  'courseNo': 'COMA 200',
-                  'grade': 'S',
-                  'units': 3,
-                  'enrolled': 0,
-                  'term': 239
-              },{
-                  'courseNo': 'ENG 152',
-                  'grade': 1.25,
-                  'units': 3,
-                  'enrolled': 3.75,
-                  'term': 242.75
-              },{
-                  'courseNo': 'HK 12',
-                  'grade': 2.75,
-                  'units': 0,
-                  'enrolled': 0,
-                  'term': 242.75
-              },{
-                  'courseNo': 'HK 12',
-                  'grade': 1.75,
-                  'units': 0,
-                  'enrolled': 0,
-                  'term': 242.75
-              },{
-                  'courseNo': 'THEA 101',
-                  'grade': 2,
-                  'units': 3,
-                  'enrolled': 6,
-                  'term': 248.75
-              }
-          ],[
-              {
-                  'courseNo': 'COMA 200',
-                  'grade': 1,
-                  'units': 6,
-                  'enrolled': 6,
-                  'term': 254.75
-              }
-          ]
-      ],
-      'totalGrade': 146,
-      'totalEnrolled': 254.75,
-      'gwa': 1.74486,
-      'requiredUnits': 144
-  }
 export default StudentRecord
