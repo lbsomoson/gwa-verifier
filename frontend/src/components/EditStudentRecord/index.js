@@ -11,7 +11,6 @@ const SPECIAL_COURSE_SWITCH = false;
     const insideParenthesisReverse = /^\(([0-9]+)\)+[0-9]$/;
     const courseCode_regex = /^[A-Z]+ [0-9]+$/;
 
-
 class EditStudentRecord extends React.Component {
 
     constructor(props){
@@ -23,7 +22,6 @@ class EditStudentRecord extends React.Component {
 
         //id dictionary
             //this.MSC = 'msc';
-
             this.TABLE = 'table';
             this.DATA = 'data';
 
@@ -68,7 +66,6 @@ class EditStudentRecord extends React.Component {
         }
     }
 
-
     static defaultProps = {
         hide: false,
         saveEdit: () => {
@@ -76,7 +73,6 @@ class EditStudentRecord extends React.Component {
         },
         ignoreClassList: [],
         initialProgress: this.EDIT_SECTION,
-
     }
 
     edit = () => {
@@ -84,7 +80,6 @@ class EditStudentRecord extends React.Component {
         let edit = [];
 
         /*if (this.props.id === this.MSC){
-
             let elements = parent.getElementsByClassName('data');
 
             for (let i = 0; i < elements.length; i++){
@@ -100,11 +95,9 @@ class EditStudentRecord extends React.Component {
                 progress: this.EDITING_IN_PROGRESS,
                 edit: edit
             });
-
             this.props.inProgress();
             return;
         }*/
-
         let sectionId = this.props.id.split('-')[0];
         let tableIndex = this.props.id.split('-')[1];
 
@@ -117,14 +110,12 @@ class EditStudentRecord extends React.Component {
                 });
             }
 
-
             let content = [];
             for (let i = 0; i < parent.querySelector('tbody').children.length; i++){
                 content = [...content, parent.querySelector('tbody').children[i]];
             }
             //saving table html to revert it when canceled
             this.setState({
-
                 tableRows: content,
             });
 
@@ -164,7 +155,6 @@ class EditStudentRecord extends React.Component {
                 edit: edit
             });
             this.props.inProgress();
-
             return;
         }
 
@@ -175,7 +165,6 @@ class EditStudentRecord extends React.Component {
         let parent = document.getElementById(this.props.id + '_' + this.DATA);
 
         /*if (this.props.id === this.MSC){
-
             let elements = parent.getElementsByClassName('data');
 
             for (let i = 0; i < elements.length; i++){
@@ -209,7 +198,6 @@ class EditStudentRecord extends React.Component {
                 oneRow: false,
             });
             this.props.inProgress();
-
             return;
         }
 
@@ -234,7 +222,6 @@ class EditStudentRecord extends React.Component {
         }
 
         /*if (this.props.id === this.MSC){
-
             let elements = parent.getElementsByClassName('data');
 
             for (let i = 0; i < elements.length; i++){
@@ -254,7 +241,6 @@ class EditStudentRecord extends React.Component {
             this.props.saveEdit(edit, this.props.id);
             return;
         }*/
-
         let sectionId = this.props.id.split('-')[0];
 
         if (sectionId === this.TABLE) {
@@ -278,7 +264,6 @@ class EditStudentRecord extends React.Component {
                 edit: [],
                 oneRow: false,
                 tableRows: [],
-
             });
             parent.querySelector('tbody').innerHTML = '';
             for(let i = 0; i < this.state.tableRows.length; i++){
@@ -287,7 +272,6 @@ class EditStudentRecord extends React.Component {
             this.props.saveEdit(edit, this.props.id);
             console.log(this.state.edit);
             this.props.inProgress();
-
             return;
         }
 
@@ -396,7 +380,6 @@ class EditStudentRecord extends React.Component {
 
     makeTableEditSection = (sectionId) => {
         console.log(this.state.oneRow)
-
         let editButton = document.createElement('button');
             editButton.innerHTML = 'Edit';
             editButton.id = sectionId + '_' + this.EDIT;
@@ -432,7 +415,6 @@ class EditStudentRecord extends React.Component {
                         && SPECIAL_COURSE_SWITCH){
                         tableRow.children[i].addEventListener("input", this.inputEventListenerForCourseCode)
                     }
-
                 }
 
                 let container = this.makeTableEditingInProgress(sectionId);
@@ -441,11 +423,9 @@ class EditStudentRecord extends React.Component {
         let deleteButton = document.createElement('button');
             deleteButton.innerHTML = 'Delete';
             deleteButton.id = sectionId + '_' + this.DELETE;
-
             deleteButton.onclick = this.deleteFunctionForRow;
             if(document.getElementById(this.props.id + '_' + this.DATA).querySelector('tbody').children.length === 1){
                 deleteButton.hidden = true;
-
             }
 
         let container = document.createElement('td');
@@ -507,7 +487,6 @@ class EditStudentRecord extends React.Component {
                     tableRow.replaceChild(newEditSection, button.parentNode);
                 };
             }
-
         let submitButton = document.createElement('button');
             submitButton.innerHTML = 'Submit';
             submitButton.id = sectionId + '_' + this.SUBMIT;
@@ -528,7 +507,6 @@ class EditStudentRecord extends React.Component {
                     }
                 }
                 
-
                 //getting elements to be ignored  designated by the parent component
                 let ignore = [];
                 for(let i = 0; i < this.props.ignoreClassList.length; i++){
@@ -565,7 +543,6 @@ class EditStudentRecord extends React.Component {
                         if(!isNaN(content) && !isNaN(parseFloat(content))){
                             if(!(parseFloat(content) == parseInt(content))){
                                 alert('input is not valid2')
-
                                 return;
                             }
                             continue;
@@ -582,7 +559,6 @@ class EditStudentRecord extends React.Component {
                             continue;
                         }
                         alert('input is not valid4')
-
                         return;
                     }
                 }
@@ -605,7 +581,6 @@ class EditStudentRecord extends React.Component {
                         }
                         if(tableRow.children[i].classList.contains('cumulative')){
                             tableRow.children[i].innerHTML = '...';
-
                             continue;
                         }
                         continue;
@@ -633,7 +608,6 @@ class EditStudentRecord extends React.Component {
 
             return container;
     }
-
 
     deleteFunctionForRow = (event) => {
         let button = event.currentTarget;
@@ -685,14 +659,12 @@ class EditStudentRecord extends React.Component {
                     cancelButton.hidden = true;
                 }
             })
-
         }
     }
 
     render() {
         return (
             <div hidden = {this.props.hide && !this.state.isEditOn} id = {this.props.id + '_' + this.state.progress}>
-
                 <button 
                     onClick={this.edit}
                     id = {this.props.id + '_' + this.EDIT}
@@ -704,7 +676,6 @@ class EditStudentRecord extends React.Component {
                     onClick={this.cancel}
                     id = {this.props.id + '_' + this.CANCEL}
                     hidden = {!this.state.isEditOn || this.props.initialProgress === this.EDITING_IN_PROGRESS}
-
                 >
                     Cancel
                 </button>
@@ -722,7 +693,6 @@ class EditStudentRecord extends React.Component {
                 >
                     Add
                 </button>
-
                 <button 
                     onClick={this.delete}
                     id = {this.props.id + '_' + this.DELETE}
@@ -730,7 +700,6 @@ class EditStudentRecord extends React.Component {
                 >
                     Delete Table
                 </button>
-
             </div>
         )
     }
