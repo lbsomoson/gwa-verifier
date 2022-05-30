@@ -31,7 +31,7 @@ exports.login = (req, res) => {
                     type: result[0].Type
                 }
                 
-                const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {expiresIn: "1d"});
+                const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {expiresIn: "5s"});
                 const refreshToken = jwt.sign(tokenPayload, process.env.JWT_SECRET2, {expiresIn: "1d"});
 
                 return res.send({result, token, refreshToken, username})
@@ -75,33 +75,34 @@ exports.checkIfLoggedIn = (req, res) => {
             if (err) {
                 console.log('Token is expired');
                 // since token is expired, check for refresh token
-                // if(req.cookies.refreshToken) { // token exist
-                //     // verify token
-                //     jwt.verify(req.cookies.refreshToken, process.env.JWT_SECRET2, (err, refreshPayload) => {
-                //         if(err) {
-                //             return res.send({ isLoggedin: false});
-                //         }
+                if(req.cookies.refreshToken) { // token exist
+                    // verify token
+                    jwt.verify(req.cookies.refreshToken, process.env.JWT_SECRET2, (err, refreshPayload) => {
+                        if(err) {
+                            console.log("Refresh Token not Valid")
+                            return res.send({ isLoggedin: false});
+                        }
 
-                //         const tokenPayload = {
-                //             username: refreshPayload.username,
-                //             type: refreshPayload.type
-                //         }
+                        const tokenPayload = {
+                            username: refreshPayload.username,
+                            type: refreshPayload.type
+                        }
 
-                //         // sign new access token
-                //         const newAccessToken = jwt.sign(tokenPayload, process.env.JWT_SECRET, {expiresIn: "5s"});
+                        // sign new access token
+                        const newAccessToken = jwt.sign(tokenPayload, process.env.JWT_SECRET, {expiresIn: "5s"});
 
-                //         //send cookie of new access token
-                //         res.cookie("authToken", newAccessToken, 
-                //             {
-                //                 path: "localhost:3001/",
-                //                 age: 86400,
-                //                 sameSite: "lax"
-                //             }
-                //         );
+                        //send cookie of new access token
+                        res.cookie("authToken", newAccessToken, 
+                            {
+                                path: "localhost:3001/",
+                                age: 86400,
+                                sameSite: "lax"
+                            }
+                        );
 
-                //         return res.send({ isLoggedin: true, username: tokenPayload.username, type: tokenPayload.type }); 
-                //     })
-                // }
+                        return res.send({ isLoggedin: true, username: tokenPayload.username, type: tokenPayload.type }); 
+                    })
+                }
                 
                 return res.send({ isLoggedin: false});
                 
@@ -120,14 +121,10 @@ exports.checkIfLoggedIn = (req, res) => {
                 }
 
             })
-
+            
+            console.log("Logged in")
             return res.send({ isLoggedin: true, username: user_name, type: type });
         });
     
 }
 
-
-exports.testResponse = (req, res) => {
-    console.log("Testing Response . . .");
-    //return res.send("Response Received");
-}
