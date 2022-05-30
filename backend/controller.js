@@ -11,6 +11,40 @@ const {database} = myModule.database;
 const { jsPDF } = require("jspdf"); 
 const { callbackify } = require('util');
 
+
+exports.findUser = (req, res) => {
+    
+    const username = req.query.username;
+    console.log(username);
+    let findUser = 'SELECT * FROM users WHERE Username= ?';
+  
+
+    let query = database.query(findUser , [username], (err, result) => {
+        if (err) throw err;
+        console.log(result);
+    
+        const rows = Object.values(JSON.parse(JSON.stringify(result)));
+        if(rows.length > 0){
+            
+            res.send(result);
+        }else{
+            res.send({msg: "Not found"});
+        }
+
+    });
+}
+
+exports.updateUser = (req, res) => {
+    
+    const username = req.body.username;
+    const type = req.body.type;
+    let updateUser = 'UPDATE users SET Type = ? WHERE Username = ?';
+
+    let query = database.query(updateUser , [type, username], (err, result) => {
+        if (err) throw err;
+    });
+}
+
 exports.findAllUsers = (req, res) => {
     let findAllUsers = 'SELECT * FROM users';
 
@@ -45,8 +79,28 @@ exports.addActivity= (req, res) => {
     const action = req.body.action;
    
     let addActivity = 'INSERT INTO activities(Username, Action, Date) values (?, ?, now())';
+    let countActivity = 'SELECT COUNT(*) AS rowcount FROM activities';
+    let deleteActivity = 'DELETE FROM activities LIMIT 500';
+    
+    let query1 = database.query(countActivity, (err, result) => {
+        if (err) throw err;
 
-    let query = database.query(addActivity, [username, action] ,(err, result) => {
+        const nrows = Object.values(JSON.parse(JSON.stringify(result)));
+
+        
+        console.log(nrows[0].rowcount);
+        if (nrows[0].rowcount == 1000){
+            let query2 = database.query(deleteActivity, (err, result) => {
+                if (err) throw err;
+        
+                console.log("Successfully deleted oldest 500 activities");
+                //res.send(result);
+            });
+        }  
+       
+    });
+
+    let query3 = database.query(addActivity, [username, action] ,(err, result) => {
         if (err) throw err;
 
         console.log("Successfully added activity");
@@ -121,8 +175,15 @@ exports.editStudentRecord = (req, res) => {
 }
 
 exports.addEditHistory = (req, res) => {
-    let addHistory = 'INSERT INTO edit_history ((SELECT COUNT(*) FROM edit_history), Username, Student_ID, Datetime_of_edit, Edit_notes) VALUES (?, ?, NOW(), ?)';
-    let query = database.query(addHistory, [req.body.Username, req.body.ID, req.body.notes], (err, result) => {
+    let getCount = '(SELECT COUNT(*)+1 FROM edit_history)';
+    let addHistory = 'INSERT INTO edit_history (ID, Username, Student_ID, Datetime_of_edit, Edit_notes) VALUES (?, ?, ?, NOW(), ?)';
+    const count = database.query(getCount, function(err, result, fields) {
+        if (err) throw err;
+
+        return result;
+    });
+
+    let query = database.query(addHistory, [count, req.body.Username, req.body.ID, req.body.notes], (err, result) => {
         if (err) throw err;
 
         res.send('Updated edit history');
@@ -284,7 +345,7 @@ exports.uploadSingle = (req, res) => {
                 // Get the data 
                 let readData = functions.readData(filename, sheet_names[j], false);
                 if(readData.error){
-                    errors.push(data.error)
+                    errors.push(readData.error)
                     allErrors[sheet_names[j]] = errors
                     continue
                 }
@@ -300,33 +361,52 @@ exports.uploadSingle = (req, res) => {
                 GWA_requirement_check = readData.req_GWA;
 
                 // Check if the necessary courses are taken
-                var checkFormat = functions.processExcel(filename, program, data);
-                if(!checkFormat.success){
-                    checkFormat.notes.forEach((note) => {
-                        errors.push(note)
-                    })
-                }
+                // var checkFormat = functions.processExcel(filename, program, data);
+                // if(!checkFormat.success){
+                //     checkFormat.notes.forEach((note) => {
+                //         errors.push(note)
+                //     })
+                // }
 
-                // Calculate the Cumulative Weight, Total Units and GWA
-                let checkCalc = functions.weightIsValid(data, program, false, GWA_requirement_check) 
+                // // Calculate the Cumulative Weight, Total Units and GWA
+                // let checkCalc = functions.weightIsValid(data, program, false, GWA_requirement_check) 
       
-                if(checkCalc.warning){
-                    checkCalc.warning.forEach((note) => {
-                        console.log(note);
+                // if(checkCalc.warning){
+                //     checkCalc.warning.forEach((note) => {
+                //         console.log(note);
+                //         errors.push(note)
+                //     })
+                // }
+
+                let processFile = functions.processFile(program, data, false, GWA_requirement_check)
+
+                if(processFile.notes){
+                    processFile.notes.forEach((note) => {
                         errors.push(note)
                     })
                 }
     
                 let notes_msg = misc_functions.createNotes(errors, allErrors, sheet_names, j);
 
-                if(checkCalc.success){
+                // if(checkCalc.success){
+                //     functions.addTakenCourses(data, studno);
+                //     if(checkCalc.qualified){
+                //         console.log("Student is qualified");
+                //         functions.addStudent(studno, fname, lname, program, checkCalc.gwa, 1, notes_msg);
+                //     }else{
+                //         console.log("Student is not qualified");
+                //         functions.addStudent(studno, fname, lname, program, checkCalc.gwa, 0, notes_msg);
+                //     }   
+                // }
+
+                if(processFile.success){
                     functions.addTakenCourses(data, studno);
-                    if(checkCalc.qualified){
+                    if(processFile.qualified){
                         console.log("Student is qualified");
-                        functions.addStudent(studno, fname, lname, program, checkCalc.gwa, 1, notes_msg);
+                        functions.addStudent(studno, fname, lname, program, processFile.gwa, 1, notes_msg);
                     }else{
                         console.log("Student is not qualified");
-                        functions.addStudent(studno, fname, lname, program, checkCalc.gwa, 0, notes_msg);
+                        functions.addStudent(studno, fname, lname, program, processFile.gwa, 0, notes_msg);
                     }   
                 }
 
@@ -387,12 +467,22 @@ exports.uploadSingle = (req, res) => {
 
 
                     // Get the data 
-                    let data = functions.readData(filename, sheet_names[j], false);
-                    if(data.error){
-                        errors.push(data.error)
+                    let readData = functions.readData(filename, sheet_names[j], false);
+                    if(readData.error){
+                        errors.push(readData.error)
                         allErrors[sheet_names[j]] = errors
                         continue
                     }
+
+
+                    if(readData.notes.length){
+                        readData.notes.forEach((note) => {
+                            errors.push(note)
+                        })
+                    }
+
+                    data = readData.data;
+                    GWA_requirement_check = readData.req_GWA;
                     
                     // Check if the necessary courses are taken
                     var checkFormat = functions.processExcel(newfilename, program, data);
@@ -403,7 +493,7 @@ exports.uploadSingle = (req, res) => {
                     }
 
                     // Calculate the Cumulative Weight, Total Units and GWA
-                    let checkCalc = functions.weightIsValid(data,program,true)
+                    let checkCalc = functions.weightIsValid(data, program, false, GWA_requirement_check) 
 
                     if(checkCalc.warning){
                         checkCalc.warning.forEach((note) => {

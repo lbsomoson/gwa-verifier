@@ -19,7 +19,7 @@ module.exports = (app) => {
   app.post("/editRecord", controller.editStudentRecord);
   app.post("/addedithistory", controller.addEditHistory);
   app.get("/viewedithistory", controller.findAllEdits);
-  app.get("/searchstudents", controller.searchStudents);
+  app.post("/searchstudents", controller.searchStudents);
 
   app.post("/searchstudentsGwa", controller.searchStudentsByGwa);
   app.post("/searchstudentsID", controller.searchStudentsByID);
@@ -33,4 +33,7 @@ module.exports = (app) => {
   app.post("/addactivity", controller.addActivity);
   app.get("/finduseractivities", controller.findUserActivities);
   app.get("/findallactivities", controller.findAllActivities);
+  
+  app.get("/finduser", controller.findUser);
+  app.post("/updateuser", controller.updateUser);
 }
