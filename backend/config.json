@@ -11,7 +11,7 @@
         "BSSTAT": ["MATH 27","BIO 30","STAT 101","STAT 135","MATH 28","CMSC 12","STAT 162","STAT 182","CMSC 21","ECON 11","STAT 144","STAT 168","MATH 182","CMSC 22","ABME 10","STAT 145","STAT 163","STAT 146","STAT 173","STAT 175","STAT 181","CMSC 127","STAT 147","STAT 151","STAT 156","STAT 174","STAT 192.1","COMA 198","ENG 10","STAT 148","STAT 165","STAT 191","STAT 157","STAT 167","STAT 183"],
         "BSMST BIO": ["MST 101a","BIO 11.1","CHEM 18","CHEM 18.1","PHYS 50","MATH 25","MST 101b","BIO 14","CHEM 40","CHEM 40.1","AMAT 19","MATH 27","MST 101c","EDUC 102","EDUC 111","BIO 30","STAT 166","SPCM 156","MST 101d","DEVC 40","MST 40","EDUC 122","BOT 14","CHEM 160","PHYS 71","PHYS 71.1","COMA 150","MST 123","EDUC 144","BIO 150","MCB 11","ZOO 14","STAT 162","MST 195","MST 200a","MATH 18","MST 191","MST 200b","HFDS 12","PHYS 72","PHYS 72.1"],
         "BSMST CHEM": ["MST 101a","BIO 11.1","CHEM 18","CHEM 18.1","PHYS 50","MATH 25","MST 101b","BIO 14","CHEM 40","CHEM 40.1","AMAT 19","MATH 27","MST 101c","EDUC 102","CHEM 32","CHEM 32.1","BIO 30","STAT 162","SPCM 156","MST 101d","EDUC 122","DEVC 40","MST 40","CHEM 160","PHYS 71","PHYS 71.1","STAT 166","COMA 150","MST 123","EDUC 111","CHEM 160.1","PHYS 72","PHYS 72.1","MST 195","MST 200a","EDUC 144","CHEM 102","MATH 18","MST 200b","CHEM 180","MST 191"],
-        "BSTMST MATH" : ["MST 101a","BIO 11.1","CHEM 18","CHEM 18.1","PHYS 50","MATH 25","MST 101b","BIO 14","CHEM 40","CHEM 40.1","AMAT 19","MATH 27","MST 101c","EDUC 102","EDUC 111","MATH 20","MATH 28","BIO 30","MST 101d","EDUC 122","DEVC 40","MST 40","MATH 18","MATH 101","STAT 166","COMA 150","MST 123","EDUC 144","PHYS 71","PHYS 71.1","STAT 162","SPCM 156","MST 195","MST 200a","MATH 103","PHYS 72","PHYS 72.1","MST 190","MST 200b","CHEM 160","MST 191","AMAT 105"],
+        "BSMST MATH" : ["MST 101a","BIO 11.1","CHEM 18","CHEM 18.1","PHYS 50","MATH 25","MST 101b","BIO 14","CHEM 40","CHEM 40.1","AMAT 19","MATH 27","MST 101c","EDUC 102","EDUC 111","MATH 20","MATH 28","BIO 30","MST 101d","EDUC 122","DEVC 40","MST 40","MATH 18","MATH 101","STAT 166","COMA 150","MST 123","EDUC 144","PHYS 71","PHYS 71.1","STAT 162","SPCM 156","MST 195","MST 200a","MATH 103","PHYS 72","PHYS 72.1","MST 190","MST 200b","CHEM 160","MST 191","AMAT 105"],
         "BSMST PHYS" : ["MST 101a","BIO 11.1","CHEM 18","CHEM 18.1","PHYS 50","MATH 25","MST 101b","BIO 14","CHEM 40","CHEM 40.1","AMAT 19","MATH 27","MST 101c","EDUC 102","EDUC 111","PHYS 71","PHYS 71.1","BIO 30","MATH 18","MST 101d","EDUC 122","DEVC 40","MST 40","PHYS 72","PHYS 72.1","CHEM 160","STAT 162","COMA 150","MST 123","EDUC 144","APHY 101","STAT 166","SPCM 156","MST 195","MST 200a","APHY 102","PHYS 192.1","CMSC 12","MST 190","MST 200b","PHYS 193.1","MST 191"],
         "BSAMAT" : ["AMAT 19","MATH 36","BIO 11.1","MATH 37","STAT 101","CHEM 18","CHEM 18.1","AMAT 110","MATH 38","MATH 101","PHYS 51","PHYS 51.1","AMAT 105","AMAT 110","AMAT 152","AMAT 170","MATH 151","MATH 174","MATH 181","MATH 155","MATH 175","MATH 195","COMA 150","AMAT 198"]
     },
@@ -22,16 +22,20 @@
             "SP": [18, 18, 18, 15, 15, 18, 15, 15]
         },
         "BASOC": {
-            "Thesis": [15, 15, 6, 15, 15, 6, 15, 15, 3, 16, 15]
+            "Thesis": [15, 15, 6, 15, 15, 6, 15, 15, 3, 16, 15],
+            "SP": []
         },
         "BSAC": {
-            "Thesis": [17, 18, 19, 19, 20, 20, 20, 20, 18, 3, 20, 16]
+            "Thesis": [17, 18, 19, 19, 20, 20, 20, 20, 18, 3, 20, 16],
+            "SP": []
         },
         "BSAPHY": {
-            "Thesis": [18, 17, 18, 17, 18, 18, 3, 18, 16]
+            "Thesis": [18, 17, 18, 17, 18, 18, 3, 18, 16],
+            "SP": []
         },
         "BSCHEM": {
-            "Thesis": [17, 19, 19, 17, 3, 18, 18, 3, 16 ,12]
+            "Thesis": [17, 19, 19, 17, 3, 18, 18, 3, 16 ,12],
+            "SP": []
         },
         "BSMATH": {
             "Thesis": [16, 17, 16, 18, 18, 15, 3, 15, 13],
@@ -201,7 +205,7 @@
             "Thesis": 0,
             "SP": 0
         },
-        "BSMST PHYSICS": {
+        "BSMST PHYS": {
             "Thesis": 0,
             "SP": 0
         }
