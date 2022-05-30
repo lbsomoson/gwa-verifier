@@ -86,8 +86,7 @@ exports.addActivity= (req, res) => {
         if (err) throw err;
 
         const nrows = Object.values(JSON.parse(JSON.stringify(result)));
-
-        
+  
         console.log(nrows[0].rowcount);
         if (nrows[0].rowcount == 1000){
             let query2 = database.query(deleteActivity, (err, result) => {
@@ -175,12 +174,20 @@ exports.editStudentRecord = (req, res) => {
 }
 
 exports.addEditHistory = (req, res) => {
-    let addHistory = 'INSERT INTO edit_history (Username, ID, Datetime_of_edit, Edit_notes) VALUES (?, ?, NOW(), ?)';
-    let query = database.query(addHistory, [req.body.Username, req.body.ID, req.body.notes], (err, result) => {
+    let getCount = '(SELECT COUNT(*)+1 FROM edit_history)';
+    let addHistory = 'INSERT INTO edit_history (ID, Username, Student_ID, Datetime_of_edit, Edit_notes) VALUES (?, ?, ?, NOW(), ?)';
+    database.query(getCount, function(err, result, fields) {
         if (err) throw err;
 
-        res.send('Updated edit history');
+        count = Object.values(result[0])[0];
+        database.query(addHistory, [count, req.body.Username, req.body.ID, req.body.notes], (err, result) => {
+            if (err) throw err;
+    
+            res.send('Updated edit history');
+        });
     });
+
+    
 }
 
 exports.findAllEdits = (req, res) => {
