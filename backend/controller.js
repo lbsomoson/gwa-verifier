@@ -478,7 +478,12 @@ exports.uploadSingle = (req, res) => {
                         functions.addTakenCourses(data, studno);
                         if(processFile.qualified){
                             console.log("Student is qualified");
-                            functions.addStudent(studno, fname, lname, program, processFile.gwa, 1, notes_msg);
+                            try{
+                                functions.addStudent(studno, fname, lname, program, processFile.gwa, 1, notes_msg);
+                            }catch(e){
+                                
+                            }
+                            
                         }else{
                             console.log("Student is not qualified");
                             functions.addStudent(studno, fname, lname, program, processFile.gwa, 0, notes_msg);
