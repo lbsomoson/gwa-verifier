@@ -157,6 +157,7 @@ function readData(filename, sheetName, isPdf){
     if(data.length-index >= 2){
         for(let i=0; i<2; i++){
             index = index+i;
+            //performs different actions to retrieve recorded total units, cumulative weights, and gwa depending on if file is a pdf or not
             if(isPdf){
                 if(!units_and_checksum_check){
                     index--;
@@ -266,11 +267,15 @@ function readData(filename, sheetName, isPdf){
 
 function checkload(data, count, config, term_count, notes){
         const recorded = data[count]["Term"];
+        //compares load taken in term with expected load found in config
+        //check for underload
         if(recorded<config[term_count]){
             //console.log(`Expected ${config[term_count]} but got ${recorded} during ${data[count].__EMPTY}`)
             notes.push("Underload during " + data[count].__EMPTY)
+        //check for regular load
         }else if(recorded == config[term_count]){
             //console.log(`Expected ${config[term_count]} and got ${recorded} during ${data[count].__EMPTY}`)
+        //else, overload
         }else{
             //console.log(`Expected ${config[term_count]} but got ${recorded} during ${data[count].__EMPTY}`)
             notes.push("Overload during " + data[count].__EMPTY)
@@ -806,8 +811,9 @@ function processFile(program, data, ispdf, GWA_requirement_check){
         
         else {
             if(GWA_reqs_check){
+                //performs different actions to retrieve recorded total units, cumulative weights, and gwa depending on if file is a pdf or not
                 if(ispdf){
-                    if(data[i-1].__EMPTY_2 != undefined){  //pdf
+                    if(data[i-1].__EMPTY_2 != undefined){
                         if(data[i-1].__EMPTY_3){
                             initSum = data[i-1].__EMPTY_3;
                             initUnits = data[i-1].__EMPTY_2;
