@@ -325,6 +325,7 @@ exports.uploadSingle = (req, res) => {
     for(let i=0; i<req.files.length; i++){
         let filename = req.files[i].originalname;
         
+        //check if file is .xlsx or .csv
         if(/.+\.xlsx/.test(filename) || /.+\.csv/.test(filename)){
             let allErrors = {};
             let workbook = XLSX.readFile("files/" + filename);
@@ -344,6 +345,7 @@ exports.uploadSingle = (req, res) => {
                 // Verify if file has the necessary information
                 let verifyFile = verify_functions.verifyErrors(name, studno, program, headers, errors);
                 if(verifyFile.success){
+                    //uniform formatting for name
                     fname = verifyFile.firstName.toUpperCase();
                     lname = verifyFile.lastName.toUpperCase();
                 }else{
@@ -353,6 +355,7 @@ exports.uploadSingle = (req, res) => {
 
                 // Get the data 
                 let readData = functions.readData(filename, sheet_names[j], false);
+                //push any obtained errors to array
                 if(readData.error){
                     errors.push(readData.error)
                     allErrors[sheet_names[j]] = errors
@@ -367,9 +370,11 @@ exports.uploadSingle = (req, res) => {
 
                 data = readData.data;
                 GWA_requirement_check = readData.req_GWA;
-
+                
+                //perform file processing
                 let processFile = functions.processFile(program, data, false, GWA_requirement_check)
 
+                //push any obtained errors to array
                 if(processFile.notes){
                     processFile.notes.forEach((note) => {
                         errors.push(note)
@@ -380,11 +385,13 @@ exports.uploadSingle = (req, res) => {
                 let qualified = 0;
                 if(processFile.success){
                     try{
+                        //attempt to add taken courses to db
                         functions.addTakenCourses(data, studno);
                         if(processFile.qualified){
                             qualified = 1
                         }
                         try {
+                            //attempt to add student to db
                             functions.addStudent(studno, fname, lname, program, processFile.gwa, qualified, notes_msg);
                         }catch(e){
                             deleteStudent(studno)
@@ -402,6 +409,7 @@ exports.uploadSingle = (req, res) => {
             let all_err_msg = [];
             filename_err_msg.push(filename);
 
+            //list file errors
             misc_functions.listFileErrors(allErrors, all_err_msg, filename_err_msg, err_msg_arr);
 
             // Delete uploaded files
@@ -413,8 +421,9 @@ exports.uploadSingle = (req, res) => {
                 });
 
             });
+        //check if file is .pdf
         }else if(/.+\.pdf/.test(filename)){
-            //transform pdf to JSON
+            //transform pdf to .xlsx
             let newfilename = filename.substring(0, filename.lastIndexOf('.')) + '.xlsx';
             async function convertpdf(){
                 let convertPromise = new Promise(function(resolve){
@@ -442,6 +451,7 @@ exports.uploadSingle = (req, res) => {
                     // Verify if file has the necessary information
                     let verifyFile = verify_functions.verifyErrors(name, studno, program, headers, errors);
                     if(verifyFile.success){
+                        //uniform formatting for name
                         fname = verifyFile.firstName.toUpperCase();
                         lname = verifyFile.lastName.toUpperCase();
                     }else{
@@ -453,6 +463,7 @@ exports.uploadSingle = (req, res) => {
 
                     // Get the data 
                     let readData = functions.readData(newfilename, sheet_names[j], true);
+                    //push any obtained errors to array
                     if(readData.error){
                         errors.push(readData.error)
                         allErrors[sheet_names[j]] = errors
@@ -469,8 +480,10 @@ exports.uploadSingle = (req, res) => {
                     data = readData.data;
                     GWA_requirement_check = readData.req_GWA;
 
+                    //perform file processing
                     let processFile = functions.processFile(program, data, true, GWA_requirement_check)
 
+                    //push any obtained errors to array
                     if(processFile.notes){
                         processFile.notes.forEach((note) => {
                             errors.push(note)
@@ -482,11 +495,13 @@ exports.uploadSingle = (req, res) => {
                     let qualified = 0;
                     if(processFile.success){
                         try{
+                            //attempt to add taken courses to db
                             functions.addTakenCourses(data, studno);
                             if(processFile.qualified){
                                 qualified = 1
                             }
                             try {
+                                //attempt to add student to db
                                 functions.addStudent(studno, fname, lname, program, processFile.gwa, qualified, notes_msg);
                             }catch(e){
                                 deleteStudent(studno)
@@ -503,7 +518,7 @@ exports.uploadSingle = (req, res) => {
                 let all_err_msg = [];
                 filename_err_msg.push(filename);
 
-
+                //list file errors
                 misc_functions.listFileErrors(allErrors, all_err_msg, filename_err_msg, err_msg_arr);
 
                 fs.readdir('files', (err, files) => {
