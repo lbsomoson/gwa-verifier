@@ -67,7 +67,12 @@ function readData(filename, sheetName, isPdf){
             if(!['LOA', 'AWOL'].includes(data[i]["CRSE NO."])){
                 if(!/^\d$/.test(data[i].Units)){
                     if(!/^\d\(\d\)$/.test(data[i].Units)){
-                        return {'error': `${data[i].Units} is not an acceptable number of units`}
+                        if(/^-\d\d$/.test(data[i].Units)){
+                            if(!/^.+\s200$/.test(data[i]["CRSE NO."]) && !/^.+\s190$/.test(data[i]["CRSE NO."])){
+                                return {'error': `${data[i].Units} is not an acceptable number of units for ${data[i]["CRSE NO."]}`}
+                            }
+                        }
+                        
                     }
                 }else{
                     if(typeof data[i].Units === "string"){
@@ -623,7 +628,6 @@ function processFile(program, data, ispdf, GWA_requirement_check){
 
     for(let i=0; i<data.length; i++){
         let skip_check = false;
-
         if((data[i]["CRSE NO."] && data[i].Grade && (data[i].Units === 0 || data[i].Units) && (data[i].Weight === 0 || data[i].Weight) && (data[i].Cumulative === 0 || data[i].Cumulative)) || (data[i]["CRSE NO."] && data[i].Term)){
             
             // Before checking if a course is to be counted as "taken"
@@ -674,8 +678,10 @@ function processFile(program, data, ispdf, GWA_requirement_check){
                     units += 1;
                 }
             }else if (['LOA'].includes(data[i]["CRSE NO."])){
+                notes.push("Student has taken LOA")
                 continue
             }else if(['AWOL'].includes(data[i]["CRSE NO."])){
+                notes.push("Student was AWOL")
                 qualified_for_honors = false;
                 continue;
             }else if(data[i].Grade === 5){
@@ -804,6 +810,10 @@ function processFile(program, data, ispdf, GWA_requirement_check){
         }
 
     }
+    console.log(units)
+    console.log(initUnits)
+    console.log(checkSum)
+    console.log(initSum)
 
     gwa = (checkSum/units).toFixed(4);
 

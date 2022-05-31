@@ -1,0 +1,17 @@
+
+
+POST http://localhost:3001/deleteallstudents
+
+## Register admin user
+POST http://localhost:3001/signup
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "userpassword": "admin",
+    "usertype": "admin"
+}
+
+
+
+
