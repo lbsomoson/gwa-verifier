@@ -320,7 +320,6 @@ exports.findUserEdits = (req, res) => {
 
 
 exports.uploadSingle = (req, res) => {
-    console.log(req.files);
     let err_msg_arr = [];
     for(let i=0; i<req.files.length; i++){
         let filename = req.files[i].originalname;
@@ -540,6 +539,8 @@ exports.uploadSingle = (req, res) => {
         }
 
     }
+    
+    // Send any error message to frontend
     res.send({msg:err_msg_arr});
 
 } 
