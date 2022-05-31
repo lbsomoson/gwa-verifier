@@ -20,6 +20,9 @@ function checkTermValidity(term){
     return {"success": true}
 }
 
+// This function reads the data starting from the first course up until the last one.
+// It also tries to retrieve the number of units, cumulative weight, and GWA 
+// that is noted on the bottom of the file
 
 function readData(filename, sheetName, isPdf){
     var wb = XLSX.readFile("files/" + filename);
@@ -81,7 +84,7 @@ function readData(filename, sheetName, isPdf){
                 }
             }
             
-            
+            // These are special cases 
             if(/^.+\s200$/.test(data[i]["CRSE NO."])){
                 if(!thesis_sp_pass){
                     if(!Thesis_SP_grades.includes(data[i].Grade)){
@@ -604,6 +607,8 @@ function processEdit(edited_data){
     return true;
 
 }
+
+// Function that does the calculation of the file
 
 function processFile(program, data, ispdf, GWA_requirement_check){
 
