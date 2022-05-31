@@ -284,7 +284,7 @@ exports.deleteAllStudents = (req, res) => {
 
 exports.downloadSummary = (req, res) =>{
     let qualified = "SELECT ID, First_Name, Last_Name, Program, GWA, Warnings from students WHERE Qualified = '1' ";
-
+    //grabs all qualified students in the students table
     
     let query = database.query(qualified, (err, result) =>{
         if (err) throw err;
@@ -293,15 +293,15 @@ exports.downloadSummary = (req, res) =>{
         console.log(summary)
         var doc = new jsPDF();
        
-        let toTable = summary.map(Object.values);
+        let toTable = summary.map(Object.values); //maps values into an array of arrays
         for (i in toTable){
             toTable[i] = Object.values(toTable[i])
         }  
         doc.autoTable({
-            head:[['ID', 'First name', 'Last name', 'Program', 'GWA', 'Notes']],
+            head:[['ID', 'First name', 'Last name', 'Program', 'GWA', 'Notes']],    //creates a table with the following headers
             body: toTable
         })
-        doc.save('table.pdf');
+        doc.save('table.pdf');  //saves the table into a pdf file
 
     
 })
