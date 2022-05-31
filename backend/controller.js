@@ -301,7 +301,7 @@ exports.downloadSummary = (req, res) =>{
             head:[['ID', 'First name', 'Last name', 'Program', 'GWA', 'Notes']],    //creates a table with the following headers
             body: toTable
         })
-        doc.save('table.pdf');  //saves the table into a pdf file
+        doc.save('../frontend/public/table.pdf');  //saves the table into a pdf file
 
     
 })
