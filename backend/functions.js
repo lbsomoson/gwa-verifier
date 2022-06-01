@@ -917,6 +917,15 @@ function processFile(program, data, ispdf, GWA_requirement_check){
             console.log(`Expected checkSum to be ${checkSum} got ${initSum}`)
             notes.push('Mismatch with Cumulative Weight, Total Units, or GWA')
             qualified_for_honors = false;
+            if(checkSum != initSum){
+                notes.push('Mismatch with Cumulative Weight')
+            }
+            if(units != initUnits){
+                notes.push('Mismatch with Total Units')
+            }
+            if(gwa != initGWA){
+                notes.push('Mismatch with GWA')
+            }
         }
     }
 
