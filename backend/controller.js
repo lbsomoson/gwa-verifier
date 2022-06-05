@@ -318,16 +318,26 @@ exports.findUserEdits = (req, res) => {
     });
 }
 
+async function convertpdf(filename){
+    return new Promise(function(resolve){
+        let newfilename = filename.substring(0, filename.lastIndexOf('.')) + '.xlsx';
+        resolve(pdf2excel.genXlsx('files/'+ filename,'./files/' + newfilename));
+    })
+}
+
 
 exports.uploadSingle = (req, res) => {
     let err_msg_arr = [];
+    let promise_list = [];
     for(let i=0; i<req.files.length; i++){
         let filename = req.files[i].originalname;
         
         //check if file is .xlsx or .csv
         if(/.+\.xlsx/.test(filename) || /.+\.csv/.test(filename)){
+            console.log(`File ${filename} is Excel/CSV`)
             let allErrors = {};
             let workbook = XLSX.readFile("files/" + filename);
+            
             let sheet_names = workbook.SheetNames;
 
             for(let j in sheet_names){
@@ -411,137 +421,150 @@ exports.uploadSingle = (req, res) => {
             //list file errors
             misc_functions.listFileErrors(allErrors, all_err_msg, filename_err_msg, err_msg_arr);
 
-            // Delete uploaded files
-            fs.readdir('files', (err, files) => {
-                if (err) console.log(err);
-
-                fs.unlink(path.join('files', filename), err => {
-                    if (err) console.log(err)
-                });
-
+            // Delete uploaded file
+            fs.unlink(path.join('files', filename), err => {
+                if (err) console.log(`Error in deleting file in if statement`)
+                console.log(`Deleting file in excel if statement`)
             });
+
+            
         //check if file is .pdf
         }else if(/.+\.pdf/.test(filename)){
             //transform pdf to .xlsx
-            let newfilename = filename.substring(0, filename.lastIndexOf('.')) + '.xlsx';
-            async function convertpdf(){
-                let convertPromise = new Promise(function(resolve){
-                    
-                    resolve(pdf2excel.genXlsx('files/'+ filename,'./files/' + newfilename));
-                })
-                await convertPromise;
             
-            }
-            convertpdf().then(() => {
-                let allErrors = {};
-                let workbook = XLSX.readFile("files/" + newfilename);
-                let sheet_names = workbook.SheetNames;
-
-                for(let j in sheet_names){
-                    //transform excel to JSON
-                    let errors = [];  
-                    let name, fname, lname, program, studno, gwa, headers;
-
-                    name = verify_functions.verifyname(newfilename, sheet_names[j]);
-                    studno = verify_functions.verifystudno(newfilename, sheet_names[j]);
-                    program = verify_functions.verifycourse(newfilename, sheet_names[j]);
-                    headers = verify_functions.verifyHeaders(newfilename, sheet_names[j]);
-                    
-                    // Verify if file has the necessary information
-                    let verifyFile = verify_functions.verifyErrors(name, studno, program, headers, errors);
-                    if(verifyFile.success){
-                        //uniform formatting for name
-                        fname = verifyFile.firstName.toUpperCase();
-                        lname = verifyFile.lastName.toUpperCase();
-                    }else{
-
-                        allErrors[sheet_names[j]] = errors
-                        continue
-                    }
-
-
-                    // Get the data 
-                    let readData = functions.readData(newfilename, sheet_names[j], true);
-                    //push any obtained errors to array
-                    if(readData.error){
-                        errors.push(readData.error)
-                        allErrors[sheet_names[j]] = errors
-                        continue
-                    }
-
-
-                    if(readData.notes.length){
-                        readData.notes.forEach((note) => {
-                            errors.push(note)
-                        })
-                    }
-
-                    data = readData.data;
-                    GWA_requirement_check = readData.req_GWA;
-
-                    //perform file processing
-                    let processFile = functions.processFile(program, data, true, GWA_requirement_check)
-
-                    //push any obtained errors to array
-                    if(processFile.notes){
-                        processFile.notes.forEach((note) => {
-                            errors.push(note)
-                        })
-                    }
-    
-                    let notes_msg = misc_functions.createNotes(errors, allErrors, sheet_names, j);
-
-                    let qualified = 0;
-                    if(processFile.success){
-                        try{
-                            //attempt to add taken courses to db
-                            functions.addTakenCourses(data, studno);
-                            if(processFile.qualified){
-                                qualified = 1
-                            }
-                            try {
-                                //attempt to add student to db
-                                functions.addStudent(studno, fname, lname, program, processFile.gwa, qualified, notes_msg);
-                            }catch(e){
-                                deleteStudent(studno)
-                            }
-                            
-                        }catch(e){
-                            deleteStudent(studno)
-                        }
-                        
-                    }     
-
-                }
-                let filename_err_msg = []
-                let all_err_msg = [];
-                filename_err_msg.push(filename);
-
-                //list file errors
-                misc_functions.listFileErrors(allErrors, all_err_msg, filename_err_msg, err_msg_arr);
-
-                fs.readdir('files', (err, files) => {
-                    if (err) console.log(err);
-    
-                    fs.unlink(path.join('files', newfilename), err => {
-                        if (err) console.log(err)
-                    });
-                    fs.unlink(path.join('files', filename), err => {
-                        if (err) console.log(err)
-                    });
-    
-                });
+            //Push promise into list of promises
+            promise_list.push(convertpdf(filename).catch((err) => {
+                console.log(err)
+            }));
                 
-            }).catch((error) =>{
-                console.log(error);
-            })
-
         }
 
     }
+ 
+    // Checks if there are promises to be resolved
+    // If none, then send all of the errors found to frontend
+    if(!promise_list.length){
+        res.send({msg:err_msg_arr});
     
-    // Send any error message to frontend
-    res.send({msg:err_msg_arr});
+    }else{
+        // Waits for all the promises to resolve 
+        Promise.all(promise_list).then(()=>{
+            fs.readdir('files', (err, files) => {
+                if(err){
+                    console.log(err);
+                }
+        
+                files.forEach((file) => {
+                    if(/.+\.pdf/.test(file)){
+                        console.log(`Unlinking file ${file}`)
+                        fs.unlink(path.join('files', file), err => {
+                            if (err) console.log(err)
+                        })
+                    }else{
+                        let allErrors = {};
+                        let workbook = XLSX.readFile("files/" + file);
+                        let sheet_names = workbook.SheetNames;
+    
+                        for(let j in sheet_names){
+                            //transform excel to JSON
+                            let errors = [];  
+                            let name, fname, lname, program, studno, gwa, headers;
+    
+                            name = verify_functions.verifyname(file, sheet_names[j]);
+                            studno = verify_functions.verifystudno(file, sheet_names[j]);
+                            program = verify_functions.verifycourse(file, sheet_names[j]);
+                            headers = verify_functions.verifyHeaders(file, sheet_names[j]);
+                            
+                            // Verify if file has the necessary information
+                            let verifyFile = verify_functions.verifyErrors(name, studno, program, headers, errors);
+                            if(verifyFile.success){
+                                //uniform formatting for name
+                                fname = verifyFile.firstName.toUpperCase();
+                                lname = verifyFile.lastName.toUpperCase();
+                            }else{
+    
+                                allErrors[sheet_names[j]] = errors
+                                continue
+                            }
+    
+    
+                            // Get the data 
+                            let readData = functions.readData(file, sheet_names[j], true);
+                            //push any obtained errors to array
+                            if(readData.error){
+                                errors.push(readData.error)
+                                allErrors[sheet_names[j]] = errors
+                                continue
+                            }
+    
+    
+                            if(readData.notes.length){
+                                readData.notes.forEach((note) => {
+                                    errors.push(note)
+                                })
+                            }
+    
+                            data = readData.data;
+                            GWA_requirement_check = readData.req_GWA;
+    
+                            //perform file processing
+                            let processFile = functions.processFile(program, data, true, GWA_requirement_check)
+    
+                            //push any obtained errors to array
+                            if(processFile.notes){
+                                processFile.notes.forEach((note) => {
+                                    errors.push(note)
+                                })
+                            }
+            
+                            let notes_msg = misc_functions.createNotes(errors, allErrors, sheet_names, j);
+    
+                            let qualified = 0;
+                            if(processFile.success){
+                                try{
+                                    //attempt to add taken courses to db
+                                    functions.addTakenCourses(data, studno);
+                                    if(processFile.qualified){
+                                        qualified = 1
+                                    }
+                                    try {
+                                        //attempt to add student to db
+                                        functions.addStudent(studno, fname, lname, program, processFile.gwa, qualified, notes_msg);
+                                    }catch(e){
+                                        deleteStudent(studno)
+                                    }
+                                    
+                                }catch(e){
+                                    deleteStudent(studno)
+                                }
+                                
+                            }     
+    
+                        }
+                        let filename_err_msg = []
+                        let all_err_msg = [];
+
+                        let original_filename = file.substring(0, file.lastIndexOf('.')) + '.pdf';
+                        filename_err_msg.push(original_filename);
+    
+                        //list file errors
+                        misc_functions.listFileErrors(allErrors, all_err_msg, filename_err_msg, err_msg_arr);
+    
+                        fs.unlink(path.join('files', file), err => {
+                            if (err) console.log(err)
+    
+                            console.log(`Unlinking ${file}`)
+                        });
+                    }
+                })
+                res.send({msg:err_msg_arr});
+            })
+        }).catch((err) => {
+            console.log(err)
+        });
+        console.log('Promises resolved');
+
+    }
 
 } 
 
