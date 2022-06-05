@@ -25,7 +25,7 @@ function checkTermValidity(term){
 // that is noted on the bottom of the file
 
 function readData(filename, sheetName, isPdf){
-    var wb = XLSX.readFile("files/" + filename);
+    var wb = XLSX.readFile("files/" + filename, {raw: true});
     var ws = wb.Sheets[sheetName];
     var range = XLSX.utils.decode_range(ws['!ref']);
     range.s.r = 3;
@@ -915,7 +915,7 @@ function processFile(program, data, ispdf, GWA_requirement_check){
     if(GWA_reqs_check){
         if (!(checkSum === initSum && units === initUnits && gwa === initGWA) && units >= max_unit_count){
             console.log(`Expected checkSum to be ${checkSum} got ${initSum}`)
-            notes.push('Mismatch with Cumulative Weight, Total Units, or GWA')
+            //notes.push('Mismatch with Cumulative Weight, Total Units, or GWA')
             qualified_for_honors = false;
             if(checkSum != initSum){
                 notes.push('Mismatch with Cumulative Weight')
