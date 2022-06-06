@@ -1,0 +1,29 @@
+.container {
+    font-family: "Raleway", sans-serif;
+    font-style: normal;
+    font-size: 14px;
+    /* line-height: normal;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+    justify-items: center; */
+    /* margin-bottom: 5px; */
+}
+
+div[id^='table'][id$='_editSection'] {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+div[id^='table'][id$='_editingInProgress']{
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+button {
+    padding: 5px;
+    border: none;
+}

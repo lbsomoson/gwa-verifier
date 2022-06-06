@@ -1,0 +1,228 @@
+.container {
+    padding: 10px 100px;
+    padding-top: 65px;
+}
+
+hr {
+    border-top: 1px solid var(--color-brand-primary);
+}
+
+.topText {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
+	padding: 10px 20px;
+    padding-bottom: 0px;
+}
+
+.left {
+    font-family: "Raleway", sans-serif;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 22px;
+    line-height: normal;
+    color: var(--color-brand-secondary);
+}
+
+.entries {
+    color: var(--color-black);
+    font-weight: 500;
+    font-size: 18px;
+    margin-left: 5px;
+}
+
+.right {
+    display: flex;
+	justify-content: space-between;
+    align-items: center;
+}
+
+.navTabs {
+    margin: 20px;
+    font-family: "Lato", sans-serif;
+}
+
+.toggleBar {
+    display: flex;
+    gap: 10px;
+	align-items: center;
+	padding: 10px 20px;
+    width: 100%;
+    background-color: var(--color-very-light-grey);
+    margin-bottom: 5px;
+    margin-top: 20px;
+}
+
+.tabs {
+    background-color: var(--color-very-light-grey);
+    margin-top: 10px;
+    margin-right: 60px;
+    margin-left: 60px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 40px;
+    justify-content: center;
+    font-family: "Raleway", sans-serif;
+    font-style: normal;
+    font-size: 16px;
+}
+
+.tabs div {
+    /* background-color: var(--color-very-light-grey); */
+    display: inline-block;
+}
+
+.username {
+    width: 25%;
+    font-weight: 600;
+}
+
+.type{
+    width: 25%;
+}
+
+.action {
+    display: inline-flex;
+	align-items: center;
+    width: 50%;
+}
+
+
+.header {
+    border: none;
+    border-bottom: 1px solid var(--color-brand-primary);
+    margin-top: 10px;
+    margin-right: 60px;
+    margin-left: 60px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 40px;
+    justify-content: center;
+    font-family: "Raleway", sans-serif;
+    font-style: normal;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.header div {
+    display: inline-block;
+}
+
+.usernameH {
+    width: 25%;
+}
+
+.typeH {
+    width: 25%;
+}
+
+.actionH{
+    width: 50%;
+}    
+
+.viewActivitiesBtn, .updateBtn, .editBtn {
+    margin-right: 5px;
+}    
+
+
+.deleteUser {
+    font-weight: 600;
+}
+
+
+
+
+.table{
+    background-color: #ffffff;
+    /*border-radius: 10px;*/
+    border-style: hidden;
+    /*margin-top: 30px;*/
+    /*margin-right: 20px;*/
+}
+
+.date{
+    width: 25%;
+    background-color: #aeacac;
+}
+
+.time{
+    width: 20%;
+}
+
+.activity{
+    width: 55%;
+}
+
+
+
+
+
+/* .adminPage{
+    background-color: #8A1538;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    overflow: auto;
+}    
+
+.h1Style{
+    margin-bottom: 20px;
+    color: #f8c24f;
+    text-align: left;
+    margin-top: 50px;
+    margin-left: 70px;
+}    
+
+.addUser{
+    position: fixed;
+    left:36%;
+    top: 25%;
+}    
+
+.button {
+    margin-bottom: 5px;
+    margin-right: 150px;
+    margin-left: 100px;
+    margin-top: 20px;
+    width: 18%;
+}    
+
+.modalBody{
+    position: relative;
+    overflow-y: auto;
+    max-height: 500px;
+    padding: 15px;
+}    
+
+.modalMsg{
+    text-align: left;
+}    
+
+.userDataTab{
+    background-color: white;
+    margin-top: 20px;
+    margin-left: 200px;
+    margin-right: 200px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    justify-content: center;
+    border-radius: 10px;
+}    
+
+.userDataTab div{
+    display: inline-block;
+    background-color: #ffffff;
+}    
+.userDataTab h4,p{
+    background-color: #ffffff;
+}    
+
+.userDataTab h4{
+    padding-bottom: 10px
+} */    
+
+

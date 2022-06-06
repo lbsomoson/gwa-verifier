@@ -1,0 +1,40 @@
+.tabs {
+    background-color: var(--color-very-light-grey);
+    margin-top: 10px;
+    margin-right: 20px;
+    margin-left: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 40px;
+    /* padding-right: 20px; */
+    justify-content: center;
+    font-family: "Lato", sans-serif;
+    font-style: normal;
+    font-size: 16px;
+}
+
+.tabs div {
+    /* background-color: var(--color-very-light-grey); */
+    display: inline-block;
+}
+
+.name {
+    width: 40%;
+    font-weight: 600;
+}
+
+.id {
+    width: 20%;
+}
+
+.course{
+    width: 12%;
+}
+
+.gwa{
+    width: 12%;
+}
+
+.view{
+    width: 15%;
+}

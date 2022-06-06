@@ -1,0 +1,86 @@
+.addUser {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    background-color: #ffffff;
+    padding-left: 70px;
+    padding-right: 70px;
+    row-gap: 20px;
+}
+
+
+.userType {
+	padding: 7px 7px;
+    font-family: "Raleway", sans-serif;
+	font-style: normal;
+	font-size: 14px;
+	line-height: 14px;
+    /* background-color: rgb(161, 211, 198); */
+    border: 1px solid var(--color-brand-secondary);
+
+}
+
+.errorMessage {
+    color: red;
+    font-size: 12px;
+    text-align: center;
+    line-height: 10px;
+}
+
+button.userType {
+    padding: 7px 7px;
+}
+
+select.userType {
+    /* padding: 7px 14px; */
+}
+
+/* .container {
+    background-color: white;
+    width: 500px;
+    height: 350px; 
+    border-radius: 4%;
+    box-shadow: 0 0 10px #000000
+}
+
+.button1{
+    color: white;
+    background-color: #8A1538;
+    margin-top: 20px;
+    margin-left: 400px;
+    border-radius: 10%;
+}
+.LogInElement{
+    margin-top: 20px;
+    width: 250px;
+    height: 30px;
+    border: 1px solid grey;
+    border-radius: 8px;
+    background-color: white;
+    font-family: 'Hind Madurai', sans-serif;
+    letter-spacing: 0.5px;
+}
+.LogInElement:focus {
+    outline: none;
+    box-shadow: 0 0 10px #000000;
+}
+
+.LogInButton{
+  
+    letter-spacing: 0.5px;
+    margin-top: 20px;
+    padding-bottom: 2px;
+    width: 80px;
+    height: 40px;
+    background-color: #8A1538;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    transition-duration: 0.4s;
+    font-weight: 400;
+}
+
+.LogInButton:hover {
+    background-color: #f8c24f;
+    color: #0b4838
+} */

@@ -1,0 +1,203 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    padding: 10px 100px;
+    z-index: -1;
+}
+
+.navigate {
+    margin-bottom: 15px;
+}
+
+.icon {
+    margin-right: 7px;
+    margin-bottom: 5px;
+}
+
+.navigate a {
+    text-decoration: none;
+    color: var(--color-brand-primary);
+    font-family: "Lato", sans-serif;
+    font-style: normal;
+    font-size: 19px;
+}
+
+.navigate a:hover {
+    text-decoration: none;
+    color: var(--color-brand-secondary);
+}
+
+.left {
+    width: 20%;
+    margin: 20px;
+    margin-right: 10px;
+    position: fixed; 
+    top: 8%;
+    left: 7%;
+}
+
+.right {
+    width: 60%;
+    margin: 20px;
+    margin-left: 10px;
+    position: absolute;
+    right: 7%;
+    top: 6%;
+}
+
+.info {
+    background-color: var(--color-very-light-grey);
+    margin-bottom: 30px;
+    padding: 20px 25px;
+    font-family: "Lato", sans-serif;
+    font-style: normal;
+	letter-spacing: 0.01em;
+}
+
+.awards {
+    margin-top: 20px;
+    position: relative;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+}
+
+.sem {
+    font-family: "Lato", sans-serif;
+    font-style: normal;
+	letter-spacing: 0.01em;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 10px;
+    margin-left: 5px;
+    color: var(--color-brand-primary);
+}
+
+.name {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.id, .program, .gwa {
+    font-size: 17px;
+    line-height: 20px;
+    margin-top: 5px;
+}
+
+/*main cancel and save button*/
+#cancelSave > button{
+    height: 100px;
+}
+
+.prompt{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 99;
+    background: var(--color-white);
+    padding: 15px;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+}
+
+.addTable {
+    margin-bottom: 40px;
+}
+
+[id^=editNotes][id$=editNotes]{
+    height:75vh;
+    width:75vw;
+}
+
+[id^=semesterInput][id$=semesterInput]{
+    min-width: 100px;
+}
+
+.prompt > div {
+    display: flex;
+    align-items: stretch;
+    height: 100%;
+}
+
+.prompt > div > p {
+    padding: 20px;
+    overflow: scroll;
+    width: 100%;
+    vertical-align: bottom;
+    filter: brightness(90%);
+}
+
+.prompt > button{
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+    padding: 10px 20px;
+}
+
+.table {
+    margin-bottom: 30px;
+}
+
+button {
+    padding: 5px 10px;
+    font-family: "Raleway", sans-serif;
+    font-style: normal;
+    font-size: 14px;
+    line-height: normal;
+    border: none;
+}
+
+/*EditStudentRecord style*/
+button[id$='_edit'] {
+    /* margin-left: 5px;
+    margin-right: 5px; */
+    color: #ffffff;
+    background: var(--color-green);
+}
+
+button[id$='_delete'] {
+    margin-left: 5px;
+    /* margin-right: 5px; */
+    color: #ffffff;
+    background: var(--color-red);
+}
+
+button[id$='_add'] {
+    margin-left: 5px;
+    /* margin-right: 5px; */
+    color: #ffffff;
+    background: var(--color-green);
+}
+
+button[id$='_submit'] {
+    margin-left: 5px;
+    /* margin-right: 5px; */
+    color: #ffffff;
+    background: var(--color-brand-secondary);
+}
+
+button[id$='_cancel'] {
+    margin-left: 5px;
+    /* margin-right: 5px; */
+    color: #ffffff;
+    background: var(--color-grey);
+}
+
+.finalize {
+    width: 50%;
+    /* border-radius: 10px; */
+    padding: 10px 20px;
+}
+
+
+/* button[id='mainSave']{
+    background-color: var(--color-green);
+    color: var(--color-white);
+} */
+
+/* button[id='mainCancel']{
+    background-color: var(--color-white);
+    color: var(--color-brand-primary);
+} */

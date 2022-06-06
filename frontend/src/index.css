@@ -1,0 +1,22 @@
+/* Global styles */
+:root {
+	--color-black: rgb(0, 0, 0);
+	--color-grey: rgb(109, 125, 139);
+	--color-light-grey: rgb(187, 200, 212);
+	--color-very-light-grey: rgb(236, 241, 244);
+	--color-blue: rgb(90, 79, 243);
+	--color-green: rgb(11, 72, 56);
+	--color-yellow: rgb(255, 187, 0);
+	--color-red: #8A1538;
+	--color-dark-red: rgb(178, 74, 59);
+	--color-white: rgb(255, 255, 255);
+	--color-teal: rgb(116, 183, 172);
+	--color-brand-primary: rgb(123, 17, 19);
+	--color-brand-secondary: rgb(1, 68, 33);
+	--color-brand-tertiary: rgb(243, 169, 43);
+	--color-brand-dark: rgb(0, 0, 0);
+}
+
+* {
+	box-sizing: border-box;
+}

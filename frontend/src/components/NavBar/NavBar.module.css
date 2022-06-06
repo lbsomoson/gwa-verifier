@@ -1,0 +1,47 @@
+.baseStyles {
+	width: 100vw;
+	max-width: 100%;
+	background-color: var(--color-brand-primary);
+	position: fixed;
+	top: 0px;
+	z-index: 1;
+	box-shadow: 0px 1px 5px #000000;
+}
+
+.navBarContainer {
+	margin: auto;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 10px 20px;
+}
+
+.navBarLeftItems {
+    margin-left: 10px;
+}
+
+.navbarRightItems {
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+	color: var(--color-white);
+}
+
+.navbarRightItems > *:not(:first-child) {
+	margin-left: 30px;
+}
+
+.navbarItem {
+	color: var(--color-white);
+	text-decoration: none;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+    color: var(--color-white);
+		filter: brightness(0.8);
+}

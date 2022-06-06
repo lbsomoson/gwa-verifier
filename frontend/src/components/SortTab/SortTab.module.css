@@ -1,0 +1,147 @@
+.container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sort {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    font-family: "Raleway", sans-serif;
+	font-style: normal;
+	font-size: 14px;
+	line-height: 14px;
+}
+
+.orderBy {
+	padding: 7px 7px;
+    font-family: "Raleway", sans-serif;
+	font-style: normal;
+	font-size: 14px;
+	line-height: 14px;
+}
+
+button.orderBy {
+    padding: 7px 7px;
+}
+
+select.orderBy {
+    padding: 7px 7px;
+}
+
+select.decorated option:hover {
+    background: white;
+    color: var(--color-brand-secondary);
+}
+
+/* select.orderBy:hover {
+} */
+
+
+#SortTabContainer{
+    margin-top: 10px;
+    /* width: 300px; */
+}
+
+/* #SortTab{
+    color:#ffffff;
+    text-align: center;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--color-green);
+}
+.SortTabContent{
+    height: 34px;
+    background: #ffffff;
+}
+button.SortTabContent{
+    width: 34px;
+}
+select.SortTabContent{
+    width: 100px;
+}
+.SortTabContent:hover {
+	filter: brightness(0.8);
+} */
+
+.search {
+    display: flex;
+    gap: 10px;
+}
+
+.searchInput {
+    padding: 5px 10px;
+    outline: none;
+    outline-color: var(--color-brand-secondary);
+    border: none;
+}
+.searchInput:focus {
+    border: 1px;
+    box-shadow: 0 3px 10px rgb(0 0 0  / 0.2);
+    outline: none;
+    border-color: var(--color-brand-secorndary);
+}
+
+
+
+
+
+
+
+
+
+
+/* #SortTabContainer{
+    margin-top: 10px;
+    width: 300px;
+}
+
+#SortTab{
+    color:#ffffff;
+    text-align: center;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--color-green);
+}
+.SortTabContent{
+    height: 34px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    border-radius: 10px;
+    background: #ffffff;
+}
+button.SortTabContent{
+    width: 34px;
+}
+select.SortTabContent{
+    width: 100px;
+}
+.SortTabContent:hover {
+	filter: brightness(0.8);
+}
+
+.searchTab{
+    display: grid;
+    grid-template-columns: 15% 15% 15% 15% 20%;
+}
+.searchBtn{
+    margin-left: 20px;
+    width: 30px;
+}
+.inputF{
+    height: 40px;
+    border-radius: 10px;
+}
+.Qbutton{
+    margin-left: 20px;
+    width: 30px;
+
+}
+
+.Qbutton:active{
+    color: coral;
+} */

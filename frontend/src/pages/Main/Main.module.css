@@ -1,0 +1,205 @@
+.container {
+    padding: 10px 100px;
+    padding-top: 65px;
+}
+
+hr {
+    border-top: 1px solid var(--color-brand-primary);
+}
+
+.topText {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
+	padding: 10px 20px;
+    padding-bottom: 0px;
+}
+
+.left {
+    font-family: "Raleway", sans-serif;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 22px;
+    line-height: normal;
+    color: var(--color-brand-secondary);
+}
+
+.entries {
+    color: var(--color-black);
+    font-weight: 500;
+    font-size: 18px;
+    margin-left: 5px;
+}
+
+.right {
+    display: flex;
+	/* justify-content: space-between; */
+    align-items: center;
+    gap: 10px;
+}
+
+.filterBar {
+    /* display: flex;
+	justify-content: space-between; */
+	align-items: center;
+	padding: 10px 20px;
+    width: 100%;
+    background-color: var(--color-very-light-grey);
+    margin-bottom: 5px;
+    margin-top: 20px;
+}
+
+.header {
+    border: none;
+    border-bottom: 1px solid var(--color-brand-primary);
+    margin-top: 10px;
+    margin-right: 20px;
+    margin-left: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 40px;
+    justify-content: center;
+    font-family: "Raleway", sans-serif;
+    font-style: normal;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.header div {
+    display: inline-block;
+}
+
+.name {
+    width: 40%;
+}
+
+.id {
+    width: 20%;
+}
+
+.course{
+    width: 12%;
+}
+
+.gwa{
+    width: 12%;
+}
+
+.action{
+    width: 15%;
+}
+
+.paginationBttns {
+    width: 80%;
+    height: 40px;
+    list-style: none;
+    display: flex;
+    justify-content: center;
+}
+
+.paginationBttns a {
+    padding: 10px;
+    margin: 8px;
+    border-radius: 5px;
+    border: 1px solid #2b2eff;
+    color: #2b2eff;
+    cursor: pointer;
+}
+
+.paginationBttns a:hover {
+    color: white;
+    background-color: #2b2eff;
+}
+
+.paginationActive a {
+    color: white;
+    background-color: #2b2eff;
+}
+
+.paginationDisabled a {
+    color: grey;
+    background-color: grey;
+}
+
+.list {
+    margin-bottom: 20px;
+}
+
+/* .search {
+    display: flex;
+    gap: 10px;
+}
+
+.searchInput {
+    padding: 5px 10px;
+    outline: none;
+    outline-color: var(--color-brand-secondary);
+    border: none;
+}
+.searchInput:focus {
+    border: 1px;
+    box-shadow: 0 3px 10px rgb(0 0 0  / 0.2);
+    outline: none;
+    border-color: var(--color-brand-secorndary);
+} */
+
+
+/* @import url('https://fonts.googleapis.com/css2?family=Hind+Madurai&family=Lato:wght@400;700&display=swap');
+.main{
+    background-color: #8A1538;
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    overflow: auto;
+}
+.left{
+    flex: 1;
+    margin-left: 50px;
+}
+.right{
+    width: 40%;
+}
+.buttonGroup{
+    margin-left: 70px;
+    text-align: left;
+}
+.buttonGroup span{
+    display:inline-block
+}
+.uploadFileBtn{
+    margin-right: 10px;
+}
+.h1Style{
+    margin-bottom: 20px;
+    color: #f8c24f;
+    text-align: left;
+    margin-top: 50px;
+    margin-left: 70px;
+}
+.h3Style{
+    color: #f8c24f;
+    margin-top: 150px;
+    font-weight: lighter;
+    letter-spacing: 0.5px;
+}
+.studentDataTab{
+    margin-top: 50px;
+}
+.buttonGroup2 {
+    display: flex;
+    flex-direction: column;
+    margin-right: 150px;
+    margin-left: 150px;
+    margin-top: 20px;
+}
+.button {
+    margin-bottom: 15px;
+}
+.addUser{
+    position: fixed;
+    left:36%;
+    top: 25%
+} */

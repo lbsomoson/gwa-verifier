@@ -1,0 +1,53 @@
+.inputField {
+  height: 40px;
+  width: 100%;
+  position: relative;
+}
+.inputField input{
+  height: 100%;
+  width: 100%;
+  border: none;
+  font-size: 14px;
+  border-bottom: 2px solid silver;
+  padding: 20px 0px;
+}
+
+.input:active, input:focus {
+  border: none;
+  outline: none;
+}
+
+.inputField input:focus ~ label,
+.inputField input:valid ~ label{
+  transform: translateY(-20px);
+  font-size: 12px;
+  color: #7B1113;
+}
+.inputField label{
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  color: grey;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+.inputField .underline{
+  position: absolute;
+  height: 2px;
+  width: 100%;
+  bottom: 0;
+}
+.inputField .underline:before{
+  position: absolute;
+  content: "";
+  height: 100%;
+  width: 100%;
+  background: #7B1113;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.3s ease;
+}
+.inputField input:focus ~ .underline:before,
+.inputField input:valid ~ .underline:before{
+  transform: scaleX(1);
+}
