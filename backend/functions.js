@@ -425,6 +425,13 @@ function processEdit(edited_data){
     let qualified_for_honors = 1;
     let max_unit_count = config.max_units[program].Thesis;
     let max_term_count = config.units[program].Thesis.length;
+    let term =  config.units[program].Thesis;
+    let term_count_err = false;
+
+    if(config.units[program].Thesis.length === 0){
+        max_term_count = config.units[program].SP.length
+        term = config.units[program].SP
+    }
 
     // loops through each taken course from the given data 
     for(let i=0; i<data.length; i++){
@@ -506,18 +513,15 @@ function processEdit(edited_data){
         }
         
         //Check for underloading and overloading
-        if(term_count < max_term_count){
-            if(i === (data.length-1) || !(data[i].Term === data[i+1].Term)){
-                if(!sp_flag){
-                    checkloadforEdit(data, i, config.units[program].Thesis, term_count, warnings)
-                    term_count++;
-                }else{
-                    checkloadforEdit(data, i, config.units[program].SP, term_count, warnings)
+        if(!term_count_err){
+            if(term_count < max_term_count){
+                if(i === (data.length-1) || !(data[i].Term === data[i+1].Term)){
+                    checkloadforEdit(data, i, term, term_count, warnings)
                     term_count++;
                 }
+            }else{
+                warnings.push("Took more terms than prescribed during course" + data[i].Course_Code)
             }
-        }else{
-            warnings.push("Took more terms than prescribed during course" + data[i].Course_Code)
         }
 
         // Skip the checking if grade is failing, INC, DFG, DRP since the courses
@@ -780,14 +784,8 @@ function processFile(program, data, ispdf, GWA_requirement_check){
             if(!term_count_err){
                 if(term_count < max_term_count){
                     if(data[i]["Term"]!=undefined){ //load exists
-                        if(!sp_flag){
-                            checkload(data, i, term, term_count, notes)
-                            term_count++;
-                        }else{
-                            checkload(data, i, term, term_count, notes)
-                            term_count++;
-                        }
-                        
+                        checkload(data, i, term, term_count, notes)
+                        term_count++;
                     }
                 }else{
                     notes.push("Took more terms than prescribed.")
