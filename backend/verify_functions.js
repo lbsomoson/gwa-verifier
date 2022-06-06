@@ -117,9 +117,8 @@ function checkStudentNumber(studno){
         if(result.length){  // Student already exists
             return {"success": false, "error": "Student Number already exists in Database"}
         }
-        
-        return {"success": true}
     });
+    return {"success": true}
 }
 
 function verifyunits(data){
