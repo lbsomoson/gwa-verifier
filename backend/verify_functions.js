@@ -1,5 +1,7 @@
 var XLSX = require("xlsx");
 var config = require('./config.json');
+const myModule = require('./index');
+const {database} = myModule.database;
 
 function verifyname(filename, sheetName){
     // Returns name if both first and last name are valid, returns an error if not
