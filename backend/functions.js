@@ -263,6 +263,8 @@ function checkload(data, count, config, term_count, notes){
         // Check for Underload and Overload
         if(recorded<config[term_count]){
             notes.push("Underload during " + data[count].__EMPTY) 
+        }else if(recorded==config[term_count]){
+            // do nothing
         }else{ 
             notes.push("Overload during " + data[count].__EMPTY)
         }
@@ -273,7 +275,7 @@ function addStudent(studno, fname, lname, program, gwa, qualified, warnings){
 
     let query = database.query(addStudent, [studno, fname, lname, program, gwa, qualified, warnings] ,(err, result) => {
         if (err) {
-            console.log(err)
+            //console.log(err)
         };
 
         console.log("Successfully added student");
@@ -285,7 +287,7 @@ function addCourse(id, studno, course_code, course_type, grade, units, weight, t
 
     let query = database.query(addCourse, [id, studno, course_code, course_type, grade, units, weight, term], (err, result) => {
         if (err) {
-            console.log(err);
+            //console.log(err);
         }
     });
 }
