@@ -10,7 +10,6 @@ const misc_functions = require('./misc_functions');
 const {database} = myModule.database;
 const { jsPDF } = require("jspdf"); 
 
-let studno_list = [];
 
 exports.findUser = (req, res) => {
 
@@ -396,6 +395,7 @@ exports.uploadSingle = (req, res) => {
                         qualified = 1
                     }
                     functions.addStudent(studno, fname, lname, program, processFile.gwa, qualified, notes_msg);
+                    
                 }
             }
 
