@@ -87,8 +87,6 @@ function verifyHeaders(filename, sheetName){
         blankrows: true
     });
 
-    console.log(data)
-
     let headers = {
         0: 'CRSE NO.',
         1: 'Grade',

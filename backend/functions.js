@@ -135,7 +135,6 @@ function readData(filename, sheetName, isPdf){
                     }else return{'error': termValidity.notes}
                     
                 }else{
-                    console.log(`During ${data[i]["CRSE NO."]}`)
                     return {'error': 'Term does not exist'}
                 }
             }
@@ -208,7 +207,6 @@ function readData(filename, sheetName, isPdf){
     
             }else{
                 if(!units_and_checksum_check){
-                    console.log(data[index].Grade)
                     if(data[index].Grade != undefined && data[index].Cumulative != undefined){ 
                         if(isNaN(data[index].Grade) || isNaN(data[index].Cumulative)){
                             passedCheck = false;
@@ -278,7 +276,6 @@ function addStudent(studno, fname, lname, program, gwa, qualified, warnings){
             //console.log(err)
         };
 
-        console.log("Successfully added student");
     });
 }
 
@@ -287,9 +284,14 @@ function addCourse(id, studno, course_code, course_type, grade, units, weight, t
 
     let query = database.query(addCourse, [id, studno, course_code, course_type, grade, units, weight, term], (err, result) => {
         if (err) {
-            //console.log(err);
+            if(err.code == 'ER_DUP_ENTRY' || err.errno == 1062){
+                console.log('Duplicate')
+                return {'success': false}
+            }
         }
     });
+
+    return {'success': true}
 }
 
 function addTakenCourses(data, studno){
@@ -319,7 +321,7 @@ function addTakenCourses(data, studno){
             }
         }
     }
-    console.log("Added courses");
+    
 }
 
 // Function that checks if student is underloaded or overloaded for a semester
@@ -368,7 +370,6 @@ function addEditedTakenCourses(data, studno){
             count++;
         }
     }
-    console.log("Updated student record for student", studno);
 }
 
 // Function that processes the data from the edit feature to collect 
@@ -711,7 +712,7 @@ function processFile(program, data, ispdf, GWA_requirement_check){
                     elective_count = config.elective[program].SP;
                     max_term_count = config.units[program].SP.length
                 }
-                console.log(config.max_units[program])
+                
                 max_unit_count = config.max_units[program].SP;
                 if(!isNaN(data[i].Grade)){
                     if(data[i].Grade !== 5){
@@ -819,11 +820,6 @@ function processFile(program, data, ispdf, GWA_requirement_check){
             else{
                 taken_elective_count++;
             }
-
-            
-
-            //console.log(`checkSum is currently ${checkSum} and initSum is ${data[i].Cumulative} at course ${data[i]["CRSE NO."]}`)
-            //console.log(`Units is currently ${units} at course ${data[i]["CRSE NO."]}`)
             
         }
         
@@ -853,11 +849,6 @@ function processFile(program, data, ispdf, GWA_requirement_check){
         }
 
     }
-    console.log(units)
-    console.log(initUnits)
-    console.log(checkSum)
-    console.log(initSum)
-
     gwa = (checkSum/units).toFixed(4);
 
     if(gwa > 1.75) qualified_for_honors = false;
@@ -897,8 +888,6 @@ function processFile(program, data, ispdf, GWA_requirement_check){
 
     if(GWA_reqs_check){
         if (!(checkSum === initSum && units === initUnits && gwa === initGWA) && units >= max_unit_count){
-            console.log(`Expected checkSum to be ${checkSum} got ${initSum}`)
-            //notes.push('Mismatch with Cumulative Weight, Total Units, or GWA')
             qualified_for_honors = false;
             if(checkSum != initSum){
                 notes.push('Mismatch with Cumulative Weight')
