@@ -915,4 +915,4 @@ function processFile(program, data, ispdf, GWA_requirement_check){
 
 
 
-module.exports={readData, checkload, addStudent, addTakenCourses, processEdit, processFile, checkStudentNumber}
+module.exports={readData, checkload, addStudent, addTakenCourses, processEdit, processFile}
