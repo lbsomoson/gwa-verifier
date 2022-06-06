@@ -145,6 +145,14 @@ class StudentRecord extends React.Component{
             //adding remaining semester tables
                 keys = Object.keys(this.state.semesters);
                 for (let i = 0; i < keys.length; i++){
+                    if(typeof this.state.semesters[keys[i]] === 'string'){
+                        let data = this.state.semesters[keys[i]];
+                        final.courses.push({
+                            [COURSE_CODE]: data,
+                            [TERM]: keys[i],
+                        })
+                        continue;
+                    }
                     if(!(keys[i] in editedSemesters)){
                         let data = this.state.semesters[keys[i]];
                         for(let j = 0; j < data.length; j++){
@@ -158,6 +166,7 @@ class StudentRecord extends React.Component{
     
                             });
                         }
+                        continue;
                     }
                 }
 
