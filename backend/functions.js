@@ -1,8 +1,6 @@
 var XLSX = require("xlsx");
 var config = require('./config.json');
-const { checkIfLoggedIn } = require("./auth-controller");
 const myModule = require('./index');
-const { response } = require("express");
 const {database} = myModule.database;
 
 function checkTermValidity(term){
@@ -111,7 +109,6 @@ function readData(filename, sheetName, isPdf){
                 }else{
                     return {'error': `Another Thesis/SP course detected after passing`}
                 }
-                
             }
 
             if(/^.+\s199$/.test(data[i]["CRSE NO."])){
@@ -137,7 +134,6 @@ function readData(filename, sheetName, isPdf){
                         semesterCount++;
                     }else return{'error': termValidity.notes}
                     
-
                 }else{
                     console.log(`During ${data[i]["CRSE NO."]}`)
                     return {'error': 'Term does not exist'}
@@ -160,7 +156,7 @@ function readData(filename, sheetName, isPdf){
     if(data.length-index >= 2){
         for(let i=0; i<2; i++){
             index = index+i;
-            //performs different actions to retrieve recorded total units, cumulative weights, and gwa depending on if file is a pdf or not
+            // Performs different actions to retrieve recorded total units, cumulative weights, and gwa depending on if file is a pdf or not
             if(isPdf){
                 if(!units_and_checksum_check){
                     index--;
@@ -170,7 +166,6 @@ function readData(filename, sheetName, isPdf){
     
                                 passedCheck = false;
                                 notes.push('Total Units or Cumulative Weight is not a number');
-                                //return {'error': 'Total Units or Cumulative Weight is not a number'}
                             }else if(!isNaN(data[index].__EMPTY_2) && !isNaN(data[index].__EMPTY_3)){
                                 data[index].__EMPTY_2 = parseFloat(data[index].__EMPTY_2)
                                 data[index].__EMPTY_3 = parseFloat(data[index].__EMPTY_3)
@@ -180,7 +175,6 @@ function readData(filename, sheetName, isPdf){
                             if(isNaN(data[index].__EMPTY_1) || isNaN(data[index].__EMPTY_2)){
                                 passedCheck = false;
                                 notes.push('Total Units or Cumulative Weight is not a number');
-                                //return {'error': 'Total Units or Cumulative Weight is not a number'}
                             }else if(!isNaN(data[index].__EMPTY_1) && !isNaN(data[index].__EMPTY_2)){
                                 data[index].__EMPTY_1 = parseFloat(data[index].__EMPTY_1)
                                 data[index].__EMPTY_2 = parseFloat(data[index].__EMPTY_2)
@@ -190,7 +184,7 @@ function readData(filename, sheetName, isPdf){
                     }else{
                         passedCheck = false;
                         notes.push('Total Units or Cumulative Weight is not found');
-                        //return {'error': 'Total Units or Cumulative Weight is not found'}
+
                     }
     
                     units_and_checksum_check = true;
@@ -201,13 +195,11 @@ function readData(filename, sheetName, isPdf){
                         if((typeof data[index]["CRSE NO."] != 'string' || data[index]["CRSE NO."].trim() !== "GWA") || isNaN(data[index].Grade)){
                             passedCheck = false;
                             notes.push('Unexpected format for GWA');
-                            //return {'error': 'Unexpected format for GWA'}
                         }
                         
                     }else{
                         passedCheck = false;
                         notes.push('Unexpected format for GWA');
-                        //return {'error': 'GWA not found'}
                     }
                     
                     gwa_check = true;
@@ -221,7 +213,6 @@ function readData(filename, sheetName, isPdf){
                         if(isNaN(data[index].Grade) || isNaN(data[index].Cumulative)){
                             passedCheck = false;
                             notes.push('Total Units or Cumulative Weight is not a number');
-                            //return {'error': 'Total Units or Cumulative Weight is not a number'}
     
                         }else{
                             units_and_checksum_check = true;
@@ -229,7 +220,6 @@ function readData(filename, sheetName, isPdf){
                     }else{
                         passedCheck = false;
                         notes.push('Total Units or Cumulative Weight is not found');
-                        //return {'error': 'Total Units or Cumulative Weight is not found'}
                     }
                 }
                 else if (!gwa_check){
@@ -237,12 +227,10 @@ function readData(filename, sheetName, isPdf){
                         if((typeof data[index]["CRSE NO."] != 'string' || data[index]["CRSE NO."].trim() !== "GWA") || isNaN(data[index].Grade)){
                             passedCheck = false;
                             notes.push('Unexpected format for GWA');
-                            //return {'error': 'Unexpected format for GWA'}
                         }
                     }else{
                         passedCheck = false;
                         notes.push('GWA not found');
-                        //return {'error': 'GWA not found'}
                     }
                     gwa_check = true
                 }
@@ -270,17 +258,12 @@ function readData(filename, sheetName, isPdf){
 
 function checkload(data, count, config, term_count, notes){
         const recorded = data[count]["Term"];
-        //compares load taken in term with expected load found in config
-        //check for underload
+
+        // Compares load taken in term with expected load found in config
+        // Check for Underload and Overload
         if(recorded<config[term_count]){
-            //console.log(`Expected ${config[term_count]} but got ${recorded} during ${data[count].__EMPTY}`)
-            notes.push("Underload during " + data[count].__EMPTY)
-        //check for regular load
-        }else if(recorded == config[term_count]){
-            //console.log(`Expected ${config[term_count]} and got ${recorded} during ${data[count].__EMPTY}`)
-        //else, overload
-        }else{
-            //console.log(`Expected ${config[term_count]} but got ${recorded} during ${data[count].__EMPTY}`)
+            notes.push("Underload during " + data[count].__EMPTY) 
+        }else{ 
             notes.push("Overload during " + data[count].__EMPTY)
         }
 }
