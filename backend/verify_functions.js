@@ -107,6 +107,19 @@ function verifyHeaders(filename, sheetName){
     return {'success': true}
 }
 
+function checkStudentNumber(studno){
+    let findStudent = 'SELECT * FROM students WHERE ID = ?';
+    let query = database.query(findStudent, studno, (err, result) => {
+        if (err) throw err;
+
+        if(result.length){  // Student already exists
+            return {"success": false, "error": "Student Number already exists in Database"}
+        }
+        
+        return {"success": true}
+    });
+}
+
 function verifyunits(data){
     // Compares calculated total units in term with total units recorded in sheet
     let calced = 0;
@@ -148,4 +161,4 @@ function verifyErrors(name, studno, program, headers, errors) {
     
 }
 
-module.exports={verifyunits, verifyname, verifycourse, verifystudno, verifyHeaders, verifyErrors}
+module.exports={verifyunits, verifyname, verifycourse, verifystudno, verifyHeaders, verifyErrors, checkStudentNumber}

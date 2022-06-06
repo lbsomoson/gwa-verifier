@@ -11,7 +11,7 @@ const {database} = myModule.database;
 const { jsPDF } = require("jspdf"); 
 
 exports.findUser = (req, res) => {
-    
+
     const username = req.query.username;
     console.log(username);
     let findUser = 'SELECT * FROM users WHERE Username= ?';
@@ -336,6 +336,14 @@ exports.uploadSingle = (req, res) => {
                 program = verify_functions.verifycourse(filename, sheet_names[j]);
                 headers = verify_functions.verifyHeaders(filename, sheet_names[j]);
 
+                // Check if student number already exists in database
+                let checkStudentNo = verify_functions.checkStudentNumber(studno);
+                if(!checkStudentNo.success){
+                    errors.push(checkStudentNo.error)
+                    allErrors[sheet_names[j]] = errors
+                    continue
+                }
+
                 // Verify if file has the necessary information
                 let verifyFile = verify_functions.verifyErrors(name, studno, program, headers, errors);
                 if(verifyFile.success){
@@ -446,6 +454,14 @@ exports.uploadSingle = (req, res) => {
                             studno = verify_functions.verifystudno(file, sheet_names[j]);
                             program = verify_functions.verifycourse(file, sheet_names[j]);
                             headers = verify_functions.verifyHeaders(file, sheet_names[j]);
+
+                            // Check if student number already exists in database
+                            let checkStudentNo = verify_functions.checkStudentNumber(studno);
+                            if(!checkStudentNo.success){
+                                errors.push(checkStudentNo.error)
+                                allErrors[sheet_names[j]] = errors
+                                continue
+                            }
                             
                             // Verify if file has the necessary information
                             let verifyFile = verify_functions.verifyErrors(name, studno, program, headers, errors);
