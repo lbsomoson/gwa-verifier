@@ -2,11 +2,11 @@ var XLSX = require("xlsx");
 var config = require('./config.json');
 
 function verifyname(filename, sheetName){
-    //returns name if both first and last name are valid, returns an error if not
+    // Returns name if both first and last name are valid, returns an error if not
     var wb = XLSX.readFile("files/" + filename, {sheetStubs: true});
     var ws = wb.Sheets[sheetName];
     
-    //obtain name from expected location in sheet
+    // Obtain name from expected location in sheet
     try{
         var fname = ws['B1'].v;
         var lname = ws['A1'].v;
@@ -14,7 +14,7 @@ function verifyname(filename, sheetName){
         return {"error": "Name is not valid"} 
     }
 
-    //regex for valid name
+    // Regex for valid name
     if(/^([a-zA-Z])+$/.test(lname) && /^([a-zA-Z])+$/.test(fname) && (fname != undefined && lname !=undefined)){
         return {"fname": fname, "lname": lname}
     }else{
@@ -27,13 +27,13 @@ function verifystudno(filename, sheetName){
     var wb = XLSX.readFile("files/" + filename, {sheetStubs: true}) ;
     var ws = wb.Sheets[sheetName];
 
-    //obtain student number from expected location in sheet
+    // Obtain student number from expected location in sheet
     try{
         var studno = String(ws['A2'].v);
 
-        //regex for valid student number
+        // Regex for valid student number
         if(!/^20[0-2][0-9]-[0-9]{5}$/.test(studno)){
-            //if unsuccessful, check another expected location for student number and repeat process
+            // If unsuccessful, check another expected location for student number and repeat process
             studno = String(ws['A3'].v);
             if(!/^20[0-2][0-9]-[0-9]{5}$/.test(studno)){
                 return {"error": "Invalid Student Number"};
@@ -44,7 +44,7 @@ function verifystudno(filename, sheetName){
     }
 
     
-    //returns student number in the form of a string
+    // Returns student number in the form of a string
     return studno
 }
 
@@ -68,7 +68,7 @@ function verifycourse(filename, sheetName){
         return {"error": "Invalid Student Number or Degree Program"};
     }
     
-    //returns course in the form of a string
+    // Returns course in the form of a string
     return course;
 }
 
@@ -103,8 +103,21 @@ function verifyHeaders(filename, sheetName){
         }
     }
 
-    //returns true if there are no errors
+    // Returns true if there are no errors
     return {'success': true}
+}
+
+function checkStudentNumber(studno){
+    let findStudent = 'SELECT * FROM students WHERE ID = ?';
+    let query = database.query(findStudent, studno, (err, result) => {
+        if (err) throw err;
+
+        if(result.length){  // Student already exists
+            return {"success": false, "error": "Student Number already exists in Database"}
+        }
+        
+        return {"success": true}
+    });
 }
 
 function verifyunits(data){
@@ -122,8 +135,8 @@ function verifyunits(data){
 }
 
 function verifyErrors(name, studno, program, headers, errors) {
-    //if errors exist in following parameters, return false
-    //else, return true
+    // If errors exist in following parameters, return false
+    // else, return true
     if(name.error){
         errors.push(name.error)
     }
@@ -148,4 +161,4 @@ function verifyErrors(name, studno, program, headers, errors) {
     
 }
 
-module.exports={verifyunits, verifyname, verifycourse, verifystudno, verifyHeaders, verifyErrors}
+module.exports={verifyunits, verifyname, verifycourse, verifystudno, verifyHeaders, verifyErrors, checkStudentNumber}

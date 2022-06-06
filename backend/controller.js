@@ -9,11 +9,9 @@ const verify_functions = require('./verify_functions');
 const misc_functions = require('./misc_functions');
 const {database} = myModule.database;
 const { jsPDF } = require("jspdf"); 
-const { callbackify } = require('util');
-
 
 exports.findUser = (req, res) => {
-    
+
     const username = req.query.username;
     console.log(username);
     let findUser = 'SELECT * FROM users WHERE Username= ?';
@@ -21,7 +19,6 @@ exports.findUser = (req, res) => {
 
     let query = database.query(findUser , [username], (err, result) => {
         if (err) throw err;
-        console.log(result);
     
         const rows = Object.values(JSON.parse(JSON.stringify(result)));
         if(rows.length > 0){
@@ -86,14 +83,10 @@ exports.addActivity= (req, res) => {
         if (err) throw err;
 
         const nrows = Object.values(JSON.parse(JSON.stringify(result)));
-  
-        console.log(nrows[0].rowcount);
+
         if (nrows[0].rowcount == 1000){
             let query2 = database.query(deleteActivity, (err, result) => {
                 if (err) throw err;
-        
-                console.log("Successfully deleted oldest 500 activities");
-                //res.send(result);
             });
         }  
        
@@ -101,22 +94,17 @@ exports.addActivity= (req, res) => {
 
     let query3 = database.query(addActivity, [username, action] ,(err, result) => {
         if (err) throw err;
-
-        console.log("Successfully added activity");
-        //res.send(result);
     });
 }
 
 exports.findUserActivities = (req, res) => {
     const username = req.query.username;
     let findActivities = 'SELECT * FROM activities where Username=?';
-    //console.log(username);
 
     let query = database.query(findActivities, [username],(err, result) => {
         if (err) throw err;
 
         // returns the activities of a user
-        //console.log(result);
         res.send(result);
     });
 }
@@ -302,8 +290,6 @@ exports.downloadSummary = (req, res) =>{
             body: toTable
         })
         doc.save('../frontend/public/table.pdf');  //saves the table into a pdf file
-
-    
 })
 }
 
@@ -332,16 +318,15 @@ exports.uploadSingle = (req, res) => {
     for(let i=0; i<req.files.length; i++){
         let filename = req.files[i].originalname;
         
-        //check if file is .xlsx or .csv
+        // Check if file is .xlsx or .csv
         if(/.+\.xlsx/.test(filename) || /.+\.csv/.test(filename)){
-            console.log(`File ${filename} is Excel/CSV`)
             let allErrors = {};
             let workbook = XLSX.readFile("files/" + filename);
             
             let sheet_names = workbook.SheetNames;
 
             for(let j in sheet_names){
-                //transform excel to JSON
+                // Transform excel to JSON
                 let errors = [];  
                 let GWA_requirement_check = true;
                 let name, fname, lname, program, studno, gwa, headers;
@@ -351,10 +336,18 @@ exports.uploadSingle = (req, res) => {
                 program = verify_functions.verifycourse(filename, sheet_names[j]);
                 headers = verify_functions.verifyHeaders(filename, sheet_names[j]);
 
+                // Check if student number already exists in database
+                let checkStudentNo = verify_functions.checkStudentNumber(studno);
+                if(!checkStudentNo.success){
+                    errors.push(checkStudentNo.error)
+                    allErrors[sheet_names[j]] = errors
+                    continue
+                }
+
                 // Verify if file has the necessary information
                 let verifyFile = verify_functions.verifyErrors(name, studno, program, headers, errors);
                 if(verifyFile.success){
-                    //uniform formatting for name
+                    // Uniform formatting for name
                     fname = verifyFile.firstName.toUpperCase();
                     lname = verifyFile.lastName.toUpperCase();
                 }else{
@@ -364,7 +357,7 @@ exports.uploadSingle = (req, res) => {
 
                 // Get the data 
                 let readData = functions.readData(filename, sheet_names[j], false);
-                //push any obtained errors to array
+                // Push any obtained errors to array
                 if(readData.error){
                     errors.push(readData.error)
                     allErrors[sheet_names[j]] = errors
@@ -380,10 +373,10 @@ exports.uploadSingle = (req, res) => {
                 data = readData.data;
                 GWA_requirement_check = readData.req_GWA;
                 
-                //perform file processing
+                // Perform file processing
                 let processFile = functions.processFile(program, data, false, GWA_requirement_check)
 
-                //push any obtained errors to array
+                // Push any obtained errors to array
                 if(processFile.notes){
                     processFile.notes.forEach((note) => {
                         errors.push(note)
@@ -393,45 +386,29 @@ exports.uploadSingle = (req, res) => {
                 let notes_msg = misc_functions.createNotes(errors, allErrors, sheet_names, j);
                 let qualified = 0;
                 if(processFile.success){
-                    try{
-                        //attempt to add taken courses to db
-                        functions.addTakenCourses(data, studno);
-                        if(processFile.qualified){
-                            qualified = 1
-                        }
-                        try {
-                            //attempt to add student to db
-                            functions.addStudent(studno, fname, lname, program, processFile.gwa, qualified, notes_msg);
-                        }catch(e){
-                            deleteStudent(studno)
-                        }
-                        
-                    }catch(e){
-                        deleteStudent(studno)
+                    functions.addTakenCourses(data, studno);
+                    if(processFile.qualified){
+                        qualified = 1
                     }
-                    
+                    functions.addStudent(studno, fname, lname, program, processFile.gwa, qualified, notes_msg);
                 }
-
             }
 
             let filename_err_msg = []
             let all_err_msg = [];
             filename_err_msg.push(filename);
 
-            //list file errors
+            // List file errors
             misc_functions.listFileErrors(allErrors, all_err_msg, filename_err_msg, err_msg_arr);
 
             // Delete uploaded file
             fs.unlink(path.join('files', filename), err => {
-                if (err) console.log(`Error in deleting file in if statement`)
-                console.log(`Deleting file in excel if statement`)
+                if (err) console.log(err)
             });
 
-            
-        //check if file is .pdf
+        // Check if file is .pdf
         }else if(/.+\.pdf/.test(filename)){
-            //transform pdf to .xlsx
-            
+            // Transform pdf to .xlsx
             //Push promise into list of promises
             promise_list.push(convertpdf(filename).catch((err) => {
                 console.log(err)
@@ -455,18 +432,21 @@ exports.uploadSingle = (req, res) => {
                 }
         
                 files.forEach((file) => {
+                    // Delete pdf files in the files folder
                     if(/.+\.pdf/.test(file)){
-                        console.log(`Unlinking file ${file}`)
                         fs.unlink(path.join('files', file), err => {
                             if (err) console.log(err)
                         })
-                    }else{
+                    }
+                    
+                    // If file is not pdf, then these are PDFs that were converted to Excel
+                    else{
                         let allErrors = {};
                         let workbook = XLSX.readFile("files/" + file);
                         let sheet_names = workbook.SheetNames;
     
                         for(let j in sheet_names){
-                            //transform excel to JSON
+                            // Transform excel to JSON
                             let errors = [];  
                             let name, fname, lname, program, studno, gwa, headers;
     
@@ -474,11 +454,19 @@ exports.uploadSingle = (req, res) => {
                             studno = verify_functions.verifystudno(file, sheet_names[j]);
                             program = verify_functions.verifycourse(file, sheet_names[j]);
                             headers = verify_functions.verifyHeaders(file, sheet_names[j]);
+
+                            // Check if student number already exists in database
+                            let checkStudentNo = verify_functions.checkStudentNumber(studno);
+                            if(!checkStudentNo.success){
+                                errors.push(checkStudentNo.error)
+                                allErrors[sheet_names[j]] = errors
+                                continue
+                            }
                             
                             // Verify if file has the necessary information
                             let verifyFile = verify_functions.verifyErrors(name, studno, program, headers, errors);
                             if(verifyFile.success){
-                                //uniform formatting for name
+                                // Uniform formatting for name
                                 fname = verifyFile.firstName.toUpperCase();
                                 lname = verifyFile.lastName.toUpperCase();
                             }else{
@@ -490,7 +478,7 @@ exports.uploadSingle = (req, res) => {
     
                             // Get the data 
                             let readData = functions.readData(file, sheet_names[j], true);
-                            //push any obtained errors to array
+                            // Push any obtained errors to array
                             if(readData.error){
                                 errors.push(readData.error)
                                 allErrors[sheet_names[j]] = errors
@@ -507,10 +495,10 @@ exports.uploadSingle = (req, res) => {
                             data = readData.data;
                             GWA_requirement_check = readData.req_GWA;
     
-                            //perform file processing
+                            // Perform file processing
                             let processFile = functions.processFile(program, data, true, GWA_requirement_check)
     
-                            //push any obtained errors to array
+                            // Push any obtained errors to array
                             if(processFile.notes){
                                 processFile.notes.forEach((note) => {
                                     errors.push(note)
@@ -521,39 +509,26 @@ exports.uploadSingle = (req, res) => {
     
                             let qualified = 0;
                             if(processFile.success){
-                                try{
-                                    //attempt to add taken courses to db
-                                    functions.addTakenCourses(data, studno);
-                                    if(processFile.qualified){
-                                        qualified = 1
-                                    }
-                                    try {
-                                        //attempt to add student to db
-                                        functions.addStudent(studno, fname, lname, program, processFile.gwa, qualified, notes_msg);
-                                    }catch(e){
-                                        deleteStudent(studno)
-                                    }
-                                    
-                                }catch(e){
-                                    deleteStudent(studno)
+                                functions.addTakenCourses(data, studno);
+                                if(processFile.qualified){
+                                    qualified = 1
                                 }
-                                
+                                functions.addStudent(studno, fname, lname, program, processFile.gwa, qualified, notes_msg);  
                             }     
     
                         }
                         let filename_err_msg = []
                         let all_err_msg = [];
 
+                        // Change the name back to .pdf to showcase in warnings
                         let original_filename = file.substring(0, file.lastIndexOf('.')) + '.pdf';
                         filename_err_msg.push(original_filename);
     
-                        //list file errors
+                        // List file errors
                         misc_functions.listFileErrors(allErrors, all_err_msg, filename_err_msg, err_msg_arr);
     
                         fs.unlink(path.join('files', file), err => {
                             if (err) console.log(err)
-    
-                            console.log(`Unlinking ${file}`)
                         });
                     }
                 })
@@ -562,25 +537,7 @@ exports.uploadSingle = (req, res) => {
         }).catch((err) => {
             console.log(err)
         });
-        console.log('Promises resolved');
 
     }
 
 } 
-
-function deleteStudent(studno) {
-
-    let removeStudent = 'DELETE FROM students WHERE ID = ?';
-    let removeRecord = 'DELETE FROM taken_courses WHERE Student_ID = ?';
-    
-    let query = database.query(removeStudent , [studno], (err, result) => {
-        if (err) throw err;
-
-        let query2 = database.query(removeRecord, [studno], (err, result) => {
-            if (err) throw err;
-
-            res.send('Successfully deleted student from database!');
-        });
-    });
-}
-
