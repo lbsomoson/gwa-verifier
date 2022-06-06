@@ -193,6 +193,7 @@ class StudentRecord extends React.Component{
                     let course = response.data[i];
                     if (SPECIAL_COURSE_CODE.includes(course[COURSE_CODE]) && SPECIAL_COURSE_SWITCH){
                         semesters[course[TERM]] = course[COURSE_CODE];
+                        continue;
                     }
                     if (!(course[TERM] in semesters)){
                         semesters[course[TERM]] = [
