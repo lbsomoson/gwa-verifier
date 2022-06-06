@@ -10,6 +10,8 @@ const misc_functions = require('./misc_functions');
 const {database} = myModule.database;
 const { jsPDF } = require("jspdf"); 
 
+let studno_list = [];
+
 exports.findUser = (req, res) => {
 
     const username = req.query.username;
@@ -58,6 +60,7 @@ exports.deleteUser = (req, res) => {
     const username = req.body.username;
     let removeUser = 'DELETE FROM users WHERE Username= ?';
     let removeUserActivities = 'DELETE FROM activities WHERE Username = ?';    
+    let removeEditActivities = 'DELETE FROM edit_history WHERE Username = ?';    
 
     let query = database.query(removeUser , [username], (err, result) => {
         if (err) throw err;
@@ -65,10 +68,16 @@ exports.deleteUser = (req, res) => {
         let query2 = database.query(removeUserActivities, [username], (err, result) => {
             if (err) throw err;
 
-            res.send('Successfully deleted user from database!');
+            let query3 = database.query(removeEditActivities, [username], (err, result) => {
+                if (err) throw err;
+    
+                res.send('Successfully deleted user from database!');
+            });
         });
+       
     });
 }
+
 
 exports.addActivity= (req, res) => {
     
@@ -79,22 +88,24 @@ exports.addActivity= (req, res) => {
     let countActivity = 'SELECT COUNT(*) AS rowcount FROM activities';
     let deleteActivity = 'DELETE FROM activities LIMIT 500';
     
-    let query1 = database.query(countActivity, (err, result) => {
-        if (err) throw err;
-
-        const nrows = Object.values(JSON.parse(JSON.stringify(result)));
-
-        if (nrows[0].rowcount == 1000){
-            let query2 = database.query(deleteActivity, (err, result) => {
-                if (err) throw err;
-            });
-        }  
-       
-    });
-
-    let query3 = database.query(addActivity, [username, action] ,(err, result) => {
-        if (err) throw err;
-    });
+    if(username!=null){
+        let query1 = database.query(countActivity, (err, result) => {
+            if (err) throw err;
+    
+            const nrows = Object.values(JSON.parse(JSON.stringify(result)));
+    
+            if (nrows[0].rowcount == 1000){
+                let query2 = database.query(deleteActivity, (err, result) => {
+                    if (err) throw err;
+                });
+            }  
+           
+        });
+    
+        let query3 = database.query(addActivity, [username, action] ,(err, result) => {
+            if (err) throw err;
+        });
+    }
 }
 
 exports.findUserActivities = (req, res) => {
@@ -313,8 +324,10 @@ async function convertpdf(filename){
 
 
 exports.uploadSingle = (req, res) => {
+
     let err_msg_arr = [];
     let promise_list = [];
+
     for(let i=0; i<req.files.length; i++){
         let filename = req.files[i].originalname;
         
@@ -335,14 +348,6 @@ exports.uploadSingle = (req, res) => {
                 studno = verify_functions.verifystudno(filename, sheet_names[j]);
                 program = verify_functions.verifycourse(filename, sheet_names[j]);
                 headers = verify_functions.verifyHeaders(filename, sheet_names[j]);
-
-                // Check if student number already exists in database
-                let checkStudentNo = verify_functions.checkStudentNumber(studno);
-                if(!checkStudentNo.success){
-                    errors.push(checkStudentNo.error)
-                    allErrors[sheet_names[j]] = errors
-                    continue
-                }
 
                 // Verify if file has the necessary information
                 let verifyFile = verify_functions.verifyErrors(name, studno, program, headers, errors);
