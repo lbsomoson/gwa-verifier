@@ -583,11 +583,11 @@ function processEdit(edited_data){
         qualified_for_honors = 0;
         warnings.push("Incomplete number of required GE courses")
     }
-    if(hk11_count >= 0 || hk12_count >= 0){
+    if(hk11_count > 0 || hk12_count > 0){
         qualified_for_honors = 0;
         warnings.push("Incomplete number of HK courses")
     }
-    if(nstp1_count >= 0 || nstp2_count >= 0){
+    if(nstp1_count > 0 || nstp2_count > 0){
         qualified_for_honors = 0;
         warnings.push("Incomplete number of NSTP courses")
     }
@@ -871,12 +871,12 @@ function processFile(program, data, ispdf, GWA_requirement_check){
         notes.push("Incomplete number of required GE courses")
     }
 
-    if(hk11_count >= 0 || hk12_count >= 0) {
+    if(hk11_count > 0 || hk12_count > 0) {
         qualified_for_honors = false;
         notes.push("Incomplete number of HK courses")
     }
     
-    if(nstp1_count >= 0 || nstp2_count >= 0) {
+    if(nstp1_count > 0 || nstp2_count > 0) {
         qualified_for_honors = false;
         notes.push("Incomplete number of NSTP courses")
     }
